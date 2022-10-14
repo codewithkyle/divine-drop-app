@@ -15,7 +15,8 @@
     "production:install": "npm run install:brixi && npm run install:ui",
     "production:bundle": "npm run bundle",
     "production:js": "twist --type=esbuild",
-    "production:css": "cssmonster --env=production"
+    "production:css": "cssmonster --env=production",
+    "deploy": "npm run production && node ./build/deploy.js"
   },
   "devDependencies": {
     "@codewithkyle/jsql": "^1.2.0",
@@ -35,6 +36,7 @@
     "esinstall": "^1.1.7",
     "flatpickr": "^4.6.13",
     "fuse.js": "^6.6.2",
+    "gh-pages": "^4.0.0",
     "glob": "^8.0.3",
     "lit-html": "^2.4.0",
     "npm-run-all": "^4.1.5",
