@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "postinstall": "npm run install:* && npm run bundle",
     "install:ui": "install-ui --audio=./public/audio --framework=./src/framework",
     "install:brixi": "brixi && mv ./brixi/brixi.css ./src/stylesheets/brixi.css && rmdir ./brixi",
     "bundle": "node ./build/bundle.js",
