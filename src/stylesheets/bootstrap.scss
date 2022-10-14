@@ -19,11 +19,11 @@ body{
         color: var(--grey-600);
     }
 
-    span{
+    & > span{
         white-space: nowrap;
         display: inline-block;
         position: absoulte;
-        bottom: -0.5rem;
+        bottom: -0.75rem;
         left: 50%;
         transform: translateX(-50%);
         color: var(--grey-700);
