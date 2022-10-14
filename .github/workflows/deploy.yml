@@ -21,6 +21,9 @@ jobs:
             - name: Install NPM Packages
               run: npm ci
 
+            - name: Install
+              run: npm run install:brixi && npm run install:ui
+
             - name: Compile
               run: npm run production
 
