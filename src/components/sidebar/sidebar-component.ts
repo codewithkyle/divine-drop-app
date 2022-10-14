@@ -3,10 +3,15 @@ import SuperComponent from "@codewithkyle/supercomponent";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
 
-interface ISidebarComponent{}
+interface ISidebarComponent{
+    decksOpen: boolean,
+}
 export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
     constructor(){
         super();
+        this.model = {
+            decksOpen: false,
+        };
     }
     
     async connected(){
@@ -14,9 +19,16 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
         this.render();
     }
 
+    private toggleDeck = (e) => {
+        const target = e.currentTarget;
+        this.set({
+            decksOpen: target.checked,
+        });
+    }
+
     private renderDecks(decks){
         return html`
-            <input type="checkbox" ?checked=${decks.length} id="decks">
+            <input @change=${this.toggleDeck} type="checkbox" ?checked=${this.model.decksOpen} id="decks">
             <label for="decks">
                 <div flex="row nowrap items-center">
                     <i class="mr-0.5">
@@ -36,14 +48,14 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
                     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l128-128z"/></svg>
                 </i>
             </label>
-            ${decks.map((deck, index) => {
+            ${this.model.decksOpen ? decks.map((deck, index) => {
                 return html`
                     <a href="/deck/${deck.id}" class="deck">
                         <count>${deck.cards?.length}</count>
                         <span>${deck.label}</span>
                     </a>
                 `;
-            })}
+            }) : ""}
         `;
     }
 

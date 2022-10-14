@@ -40,3 +40,12 @@ export interface Legalities {
     oldschool:       string;
     premodern:       string;
 }
+
+export interface Deck{
+    id: string;
+    label: string;
+    commanderId: string;
+    cards: string[];
+    dateCreated: string;
+    dateUpdated: string;
+}

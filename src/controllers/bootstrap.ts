@@ -24,4 +24,7 @@ import { mount } from "@codewithkyle/router";
     await import("/js/sidebar-component.js");
     const main = document.body.querySelector("main");
     mount(main);
+
+    // @ts-ignore
+    import("/js/tooltipper.js");
 })();

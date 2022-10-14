@@ -47,6 +47,10 @@ sidebar-component{
         &:checked + label{
             background-color: var(--neutral-700);
 
+            &:hover{
+                background-color: var(--neutral-600);
+            }
+
             i:last-child svg{
                 transform: rotate(90deg);
             }
@@ -101,19 +105,32 @@ sidebar-component{
     .deck{
         display: flex;
         align-items: center;
-        height: 32px;
+        height: 42px;
         background-color: var(--neutral-700);
         width: 100%;
         padding: 0 1rem;
+        color: var(--grey-300);
+        font-size: 14px;
+        transition: all 150ms var(--ease-in-out);
+
+        &:hover,
+        &:focus-visible{
+            background-color: var(--neutral-600);
+        }
 
         count{
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: var(--font-medium);
+            color: var(--neutral-700);
+            padding: 0 0.5rem;
             height: 18px;
             border-radius: 12px;
-            background-color: var(--neutral-600);
-            line-height: 14px;
-            display: inline-block;
-            margin-right: 0.25rem;
+            background-color: var(--neutral-400);
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
         }
     }
 }
