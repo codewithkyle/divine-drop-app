@@ -14,6 +14,14 @@ import { mount } from "@codewithkyle/router";
     const dbModule = await import("/js/database.js");
     await dbModule.default();
 
+
     // Starts app
-    mount(document.body);
+    document.body.innerHTML = `
+        <sidebar-component></sidebar-component>
+        <main></main>
+    `;
+    // @ts-ignore
+    await import("/js/sidebar-component.js");
+    const main = document.body.querySelector("main");
+    mount(main);
 })();
