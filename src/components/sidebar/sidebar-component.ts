@@ -1,4 +1,5 @@
 import db from "@codewithkyle/jsql";
+import {navigateTo} from "@codewithkyle/router";
 import SuperComponent from "@codewithkyle/supercomponent";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
@@ -16,10 +17,17 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
     
     async connected(){
         await env.css(["sidebar-component"]);
+        const results = await db.query("SELECT COUNT(id) FROM decks");
+        if (results[0]["COUNT(id)"] > 0){
+            this.model.decksOpen = true;
+        }
         this.render();
     }
 
     private toggleDeck = (e) => {
+        if (location.pathname !== "/decks"){
+            navigateTo("/decks");
+        }
         const target = e.currentTarget;
         this.set({
             decksOpen: target.checked,
