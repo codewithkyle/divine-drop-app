@@ -225,7 +225,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
                             }, true);
                             this.queryCards();
                             document.body.querySelector("main").scrollTo({
-                                top: 0,
+                                top: 211,
                                 left: 0,
                             });
                         }
