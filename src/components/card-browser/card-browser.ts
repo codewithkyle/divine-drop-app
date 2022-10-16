@@ -19,7 +19,7 @@ interface ICardBrowser{
         red: boolean,
         green: boolean,
     },
-    types: string[],
+    type: string,
     subtypes: string[],
 }
 export default class CardBrowser extends SuperComponent<ICardBrowser>{
@@ -50,7 +50,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
                 red: false,
                 green: false,
             },
-            types: [],
+            type: null,
             subtypes: [],
         };
         this.ticket = subscribe("deck-editor", this.inbox.bind(this));
@@ -58,15 +58,18 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
 
     async connected(){
         await env.css(["card-browser", "skeletons"]);
+        console.log("conencted");
         this.render();
         this.queryCards();
     }
 
     disconnected(): void {
+        console.log("disconnet");
         unsubscribe(this.ticket);
     }
 
     private inbox(data){
+        console.log(data);
         this.set(data, true);
         this.queryCards(true);
     }
@@ -85,7 +88,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         let cardQuery = "SELECT * FROM cards";
         let countQuery = "SELECT COUNT(*) FROM cards"
 
-        if (this.model.query.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white){
+        if (this.model.query?.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white || this.model.type?.length || this.model.subtypes.length){
             cardQuery += " WHERE ";
             countQuery += " WHERE ";
         }
@@ -113,7 +116,21 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
             conditions.push("colors INCLUDES W");
         }
 
-        const cards = await db.query<Card>(`${cardQuery} ${conditions.join(" AND ")} OFFSET ${(this.model.page - 1) * 30} LIMIT 30 ORDER BY ${this.model.sort}`, data);
+        if (this.model.type?.length){
+            conditions.push("type = $type");
+            data["type"] = this.model.type;
+        }
+
+        if (this.model.subtypes.length){
+            const typesConditions = [];
+            for (let i = 0; i < this.model.subtypes.length; i++){
+                typesConditions.push(`subtypes INCLUDES $subtype${i}`);
+                data[`subtype${i}`] = this.model.subtypes[i];
+            }
+            conditions.push(typesConditions.join(" OR "));
+        }
+
+        const cards = await db.query<Card>(`${cardQuery} ${conditions.join(" AND ")} OFFSET ${(this.model.page - 1) * 30} LIMIT 30 ORDER BY ${this.model.sort}`, data, true);
         const cardCount = (await db.query<Card>(`${countQuery} ${conditions.join(" AND ")}`, data))[0]["COUNT(*)"];
         this.set({
             cards: cards,
