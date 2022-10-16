@@ -2,4 +2,61 @@ edit-deck-page{
     display: block;
     width: 100%;
     position: relative;
+
+    header{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        background-color: var(--grey-50);
+        padding: 3rem;
+
+        input{
+            font-size: 32px;
+            height: 42px;
+            font-weight: var(--font-medium);
+            padding: 0 0.5rem;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+            transition: all 80ms var(--ease-in-out);
+            color: var(--grey-700);
+            width: 100%;
+            flex: 1;
+            background-color: transparent;
+
+            &:hover{
+                border-color: var(--grey-100);
+            }
+
+            &:focus{
+                border-color: var(--grey-200);
+            }
+        }
+    }
+
+    deck-builder{
+        width: 100%;
+        display: grid;
+        gap: 2rem;
+        padding: 2rem;
+        grid-template-columns: 1fr 300px;
+
+        deck-component{
+            background-color: var(--white);
+            border-radius: 0.5rem;
+            border: 1px solid var(--grey-300);
+            height: calc(100vh - 211px - 4rem);
+            overflow-y: auto;
+            display: inline-block;
+            position: sticky;
+            top: 2rem;
+
+            .placeholder{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+    }
 }
