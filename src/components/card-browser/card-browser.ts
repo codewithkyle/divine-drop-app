@@ -22,6 +22,7 @@ interface ICardBrowser{
     type: string,
     subtypes: string[],
     legality: string,
+    rarity: string,
 }
 export default class CardBrowser extends SuperComponent<ICardBrowser>{
     private ticket:string;
@@ -54,6 +55,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
             type: null,
             subtypes: [],
             legality: null,
+            rarity: null,
         };
         this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
@@ -90,7 +92,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         let cardQuery = "SELECT * FROM cards";
         let countQuery = "SELECT COUNT(*) FROM cards"
 
-        if (this.model.query?.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white || this.model.type?.length || this.model.subtypes.length || this.model.legality){
+        if (this.model.rarity || this.model.query?.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white || this.model.type?.length || this.model.subtypes.length || this.model.legality){
             cardQuery += " WHERE ";
             countQuery += " WHERE ";
         }
@@ -134,6 +136,11 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
                 data[`subtype${i}`] = this.model.subtypes[i];
             }
             conditions.push(typesConditions.join(" OR "));
+        }
+
+        if (this.model.rarity){
+            conditions.push("rarity = $rarity");
+            data["rarity"] = this.model.rarity;
         }
 
         const cards = await db.query<Card>(`${cardQuery} ${conditions.join(" AND ")} OFFSET ${(this.model.page - 1) * 30} LIMIT 30 ORDER BY ${this.model.sort}`, data, true);

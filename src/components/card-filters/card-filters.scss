@@ -5,6 +5,15 @@ card-filters{
     gap: 1rem;
     margin-bottom: 2rem;
 
+    select-component{
+        select{
+            text-transform: capitalize;
+        }
+        option{
+            text-transform: capitalize;
+        }
+    }
+
     chips-component{
         white-space: nowrap;
         overflow-x: auto;

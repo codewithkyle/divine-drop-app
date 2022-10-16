@@ -23,6 +23,7 @@ interface ICardFilters {
     type: string,
     subtypes: string[],
     legality: string,
+    rarity: string,
 }
 export default class CardFilters extends SuperComponent<ICardFilters>{
     private ticket:string;
@@ -43,6 +44,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             type: null,
             subtypes: [],
             legality: null,
+            rarity: null,
         };
         this.chipsEl = null;
         this.ticket = subscribe("deck-editor", this.inbox.bind(this));
@@ -80,6 +82,10 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
 
     private setLegality(mode){
         editor.setLegality(mode);
+    }
+
+    private setRarity(value){
+        editor.setRarity(value);
     }
 
     private addSubtypeChip(value:string){
@@ -148,6 +154,28 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
                 ${until(
+                    db.query<string>("SELECT UNIQUE rarity FROM cards").then(results => {
+                        const rarities = [{ label: "All rarities", value: null }];
+                        for (const rarity of results){
+                            rarities.push({
+                                label: rarity,
+                                value: rarity,
+                            });
+                        }
+                        return new Select({
+                            name: "rarity",
+                            options: rarities,
+                            callback: this.setRarity.bind(this),
+                            class: "mr-1 w-auto",
+                            css: "flex:1;",
+                            value: this.model.rarity,
+                        });
+                    }),
+                    html`
+                        <div class="skeleton -button w-full mr-1"></div>
+                    `
+                )}
+                ${until(
                     db.query("SELECT legalities FROM cards LIMIT 1").then(results => {
                         const modes = [{ label: "No restrictions", value: null }];
                         for (const key in results[0]["legalities"]){
@@ -162,6 +190,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                             callback: this.setLegality.bind(this),
                             class: "mr-1 w-auto",
                             css: "flex:1;",
+                            value: this.model.legality,
                         });
                     }),
                     html`

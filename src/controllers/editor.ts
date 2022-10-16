@@ -13,6 +13,7 @@ class Editor {
     private type: string;
     private subtypes: string[];
     private legality: string;
+    private rarity: string;
 
     constructor(){
         this.query = "";
@@ -27,6 +28,7 @@ class Editor {
         this.type = null;
         this.subtypes = [];
         this.legality = null;
+        this.rarity = null;
     }
 
     private dispatch(){
@@ -37,10 +39,16 @@ class Editor {
             type: this.type,
             subtypes: [...this.subtypes],
             legality: this.legality,
+            rarity: this.rarity,
         });
     }
 
-    public setLegality(mode){
+    public setRarity(value:string):void{
+        this.rarity = value;
+        this.dispatch();
+    }
+
+    public setLegality(mode:string):void{
         this.legality = mode;
         this.dispatch();
     }
