@@ -21,6 +21,7 @@ interface ICardBrowser{
     },
     type: string,
     subtypes: string[],
+    legality: string,
 }
 export default class CardBrowser extends SuperComponent<ICardBrowser>{
     private ticket:string;
@@ -52,6 +53,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
             },
             type: null,
             subtypes: [],
+            legality: null,
         };
         this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
@@ -88,7 +90,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         let cardQuery = "SELECT * FROM cards";
         let countQuery = "SELECT COUNT(*) FROM cards"
 
-        if (this.model.query?.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white || this.model.type?.length || this.model.subtypes.length){
+        if (this.model.query?.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white || this.model.type?.length || this.model.subtypes.length || this.model.legality){
             cardQuery += " WHERE ";
             countQuery += " WHERE ";
         }
@@ -119,6 +121,10 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         if (this.model.type?.length){
             conditions.push("type = $type");
             data["type"] = this.model.type;
+        }
+
+        if (this.model.legality !== null){
+            conditions.push(`legalities.${this.model.legality} = legal`);
         }
 
         if (this.model.subtypes.length){

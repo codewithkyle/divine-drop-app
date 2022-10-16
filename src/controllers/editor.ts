@@ -12,6 +12,7 @@ class Editor {
     }
     private type: string;
     private subtypes: string[];
+    private legality: string;
 
     constructor(){
         this.query = "";
@@ -25,6 +26,7 @@ class Editor {
         }
         this.type = null;
         this.subtypes = [];
+        this.legality = null;
     }
 
     private dispatch(){
@@ -34,7 +36,13 @@ class Editor {
             sort: this.sort,
             type: this.type,
             subtypes: [...this.subtypes],
+            legality: this.legality,
         });
+    }
+
+    public setLegality(mode){
+        this.legality = mode;
+        this.dispatch();
     }
 
     public setQuery(value:string):void{

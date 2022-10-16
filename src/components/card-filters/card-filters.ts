@@ -22,6 +22,7 @@ interface ICardFilters {
     },
     type: string,
     subtypes: string[],
+    legality: string,
 }
 export default class CardFilters extends SuperComponent<ICardFilters>{
     private ticket:string;
@@ -41,6 +42,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             },
             type: null,
             subtypes: [],
+            legality: null,
         };
         this.chipsEl = null;
         this.ticket = subscribe("deck-editor", this.inbox.bind(this));
@@ -74,6 +76,10 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
 
     private setType(value:string){
         editor.setType(value);
+    }
+
+    private setLegality(mode){
+        editor.setLegality(mode);
     }
 
     private addSubtypeChip(value:string){
@@ -127,7 +133,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                             name: "type",
                             value: this.model.type,
                             css: "flex:1;",
-                            options: [{ label: "Filter by type", value: null}, ...(types.map((type) => {
+                            options: [{ label: "All types", value: null}, ...(types.map((type) => {
                                 return {
                                     label: type,
                                     value: type,
@@ -136,6 +142,27 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                             class: "mr-1",
                             callback: this.setType.bind(this),
                         })
+                    }),
+                    html`
+                        <div class="skeleton -button w-full mr-1"></div>
+                    `
+                )}
+                ${until(
+                    db.query("SELECT legalities FROM cards LIMIT 1").then(results => {
+                        const modes = [{ label: "No restrictions", value: null }];
+                        for (const key in results[0]["legalities"]){
+                            modes.push({
+                                label: key,
+                                value: key,
+                            });
+                        }
+                        return new Select({
+                            name: "legality",
+                            options: modes,
+                            callback: this.setLegality.bind(this),
+                            class: "mr-1 w-auto",
+                            css: "flex:1;",
+                        });
                     }),
                     html`
                         <div class="skeleton -button w-full mr-1"></div>
