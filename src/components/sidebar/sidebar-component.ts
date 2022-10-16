@@ -25,9 +25,6 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
     }
 
     private toggleDeck = (e) => {
-        if (location.pathname !== "/decks"){
-            navigateTo("/decks");
-        }
         const target = e.currentTarget;
         this.set({
             decksOpen: target.checked,
@@ -56,6 +53,20 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
                     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l128-128z"/></svg>
                 </i>
             </label>
+            ${this.model.decksOpen ? html`
+                <a href="/decks" class="deck">
+                    <i class="mr-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+                           <rect x="14" y="4" width="6" height="6" rx="1"></rect>
+                           <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+                           <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+                        </svg>
+                    </i>
+                    <span>Browse Decks</span>
+                </a>
+            ` : ""}
             ${this.model.decksOpen ? decks.map((deck, index) => {
                 return html`
                     <a href="/deck/${deck.id}" class="deck">
