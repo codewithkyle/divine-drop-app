@@ -70,6 +70,7 @@ export default async function(){
                 {
                     name: "decks",
                     keyPath: "id",
+                    persist: true,
                     columns: [
                         {
                             key: "id",

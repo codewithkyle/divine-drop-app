@@ -160,6 +160,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             <div class="w-full" flex="row nowrap items-center">
                 ${until(
                     db.query("SELECT UNIQUE type FROM cards").then(types => {
+                        types.sort();
                         return new Select({
                             name: "type",
                             value: this.model.type,
@@ -179,7 +180,8 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
                 ${until(
-                    db.query<string>("SELECT UNIQUE rarity FROM cards").then(results => {
+                    db.query<string>("SELECT UNIQUE rarity FROM cards").then((results) => {
+                        results.sort();
                         const rarities = [{ label: "All rarities", value: null }];
                         for (const rarity of results){
                             rarities.push({
@@ -201,7 +203,8 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
                 ${until(
-                    db.query("SELECT legalities FROM cards LIMIT 1").then(results => {
+                    db.query<string>("SELECT legalities FROM cards LIMIT 1").then((results) => {
+                        results.sort();
                         const modes = [{ label: "No restrictions", value: null }];
                         for (const key in results[0]["legalities"]){
                             modes.push({
@@ -237,7 +240,8 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             </div>
             <div flex="row nowrap items-center">
                 ${until(
-                    db.query("SELECT UNIQUE subtypes FROM cards").then(subtypes => {
+                    db.query<string>("SELECT UNIQUE subtypes FROM cards").then((subtypes) => {
+                        subtypes.sort();
                         return html`
                             <custom-select class="mr-1" tabindex="0" role="button">
                                 <span>Filter By Subtypes</span>
@@ -261,7 +265,8 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
                 ${until(
-                    db.query("SELECT UNIQUE keywords FROM cards").then(keywords => {
+                    db.query<string>("SELECT UNIQUE keywords FROM cards").then((keywords) => {
+                        keywords.sort();
                         return html`
                             <custom-select tabindex="0" role="button">
                                 <span>Filter By Keywords</span>
@@ -285,12 +290,11 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
             </div>
-            ${(!this.model.keywords.length && !this.model.subtypes.length) ? "" : 
-                new Chips({
+            ${new Chips({
                     callback: this.removeChip.bind(this),
                     type: "dynamic",
                     css: "flex:1;",
-                    class: "pt-0.125",
+                    class: "pt-1",
                     chips: [...(this.model.subtypes.map(type => {
                         return {
                             label: type,
