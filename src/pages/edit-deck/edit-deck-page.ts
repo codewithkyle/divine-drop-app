@@ -2,11 +2,13 @@ import db from "@codewithkyle/jsql";
 import {navigateTo} from "@codewithkyle/router";
 import SuperComponent from "@codewithkyle/supercomponent";
 import {html, render} from "lit-html";
+import { until } from "lit-html/directives/until";
 import env from "~brixi/controllers/env";
 import type { Deck } from "types/cards";
 import dayjs from "dayjs";
 import CardBrowser from "components/card-browser/card-browser";
 import CardFilters from "components/card-filters/card-filters";
+import Spinner from "~brixi/components/progress/spinner/spinner";
 
 interface IEditDeckPage {
     deck: Deck
@@ -25,14 +27,14 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
     }
     async connected(){
         await env.css(["edit-deck-page"]);
-        const deck = await db.query<Deck>("SELECT * FROM decks WHERE id = $id", {
+        const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", {
             id: this.model.deckId,
-        });
-        if (!deck.length){
+        }))?.[0] ?? null;
+        if (!deck){
             navigateTo("/decks");
         }
         this.set({
-            deck: deck[0],
+            deck: deck,
         });
         this.render();
     }
@@ -54,10 +56,6 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
     };
 
     private async renderHeader(){
-        const mystics = await db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = mystic", { cards: this.model.deck.cards });
-        const commons = await db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = common", { cards: this.model.deck.cards });
-        const rares = await db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = rare", { cards: this.model.deck.cards });
-        const uncommons = await db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = uncommon", { cards: this.model.deck.cards });
         return html`
             <header>
                 <div flex="row wrap items-center">
@@ -71,19 +69,51 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
                 </div>
                 <div class="bg-grey-100 px-3 py-2 radius-0.5">
                     <div class="inline-block mr-3">
-                        <span style="color:#ff9f00;" class="font-2xl block font-medium">${mystics[0]["COUNT(*)"]}</span>
+                        <span style="color:#ff9f00;" class="font-2xl block font-medium">${until(
+                            db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = mystic", { cards: this.model.deck.cards }).then(results => {
+                                return results[0]["COUNT(*)"];
+                            }),
+                            new Spinner({
+                                size: 24,
+                                color: "grey",
+                            })
+                        )}</span>
                         <span class="font-xs font-grey-600 block">Mythics</span>
                     </div>
                     <div class="inline-block mr-3">
-                        <span style="color:#e6a52f;" class="font-2xl block font-medium">${rares[0]["COUNT(*)"]}</span>
+                        <span style="color:#e6a52f;" class="font-2xl block font-medium">${until(
+                            db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = rare", { cards: this.model.deck.cards }).then(results => {
+                                return results[0]["COUNT(*)"];
+                            }),
+                            new Spinner({
+                                size: 24,
+                                color: "grey",
+                            })
+                        )}</span>
                         <span class="font-xs font-grey-600 block">Rares</span>
                     </div>
                     <div class="inline-block mr-3">
-                        <span style="color:#9b97ae;" class="font-2xl block font-medium">${uncommons[0]["COUNT(*)"]}</span>
+                        <span style="color:#9b97ae;" class="font-2xl block font-medium">${until(
+                            db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = uncommon", { cards: this.model.deck.cards }).then(results => {
+                                return results[0]["COUNT(*)"];
+                            }), 
+                            new Spinner({
+                                size: 24,
+                                color: "grey",
+                            })
+                        )}</span>
                         <span class="font-xs font-grey-600 block">Uncommons</span>
                     </div>
                     <div class="inline-block">
-                        <span style="color:#9270a3;" class="font-2xl block font-medium">${commons[0]["COUNT(*)"]}</span>
+                        <span style="color:#9270a3;" class="font-2xl block font-medium">${until(
+                            db.query("SELECT COUNT(*) FROM cards WHERE id IN $cards AND rarity = common", { cards: this.model.deck.cards }).then(results => {
+                                return results[0]["COUNT(*)"];
+                            }),
+                            new Spinner({
+                                size: 24,
+                                color: "grey",
+                            })
+                        )}</span>
                         <span class="font-xs font-grey-600 block">Commons</span>
                     </div>
                 </div>
