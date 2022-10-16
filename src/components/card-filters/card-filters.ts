@@ -8,7 +8,8 @@ import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import editor from "controllers/editor";
 import db from "@codewithkyle/jsql";
 import {until} from "lit-html/directives/until";
-import Spinner from "~brixi/components/progress/spinner/spinner";
+import {unsafeHTML} from "lit-html/directives/unsafe-html";
+import {parse} from "utils/symbols";
 
 interface ICardFilters {
     query: string,
@@ -220,15 +221,15 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                 )}
                 <div class="mana">
                     <input @change=${this.handleManaColorChange} type="checkbox" value="white" id="white">
-                    <label tooltip="White" for="white">W</label>
+                    <label tooltip="White" for="white">${unsafeHTML(parse("{W}"))}</label>
                     <input @change=${this.handleManaColorChange} type="checkbox" value="black" id="black">
-                    <label tooltip="Black" for="black">B</label>
+                    <label tooltip="Black" for="black">${unsafeHTML(parse("{B}"))}</label>
                     <input @change=${this.handleManaColorChange} type="checkbox" value="blue" id="blue">
-                    <label tooltip="Blue" for="blue">U</label>
+                    <label tooltip="Blue" for="blue">${unsafeHTML(parse("{U}"))}</label>
                     <input @change=${this.handleManaColorChange} type="checkbox" value="red" id="red">
-                    <label tooltip="Red" for="red">R</label>
+                    <label tooltip="Red" for="red">${unsafeHTML(parse("{R}"))}</label>
                     <input @change=${this.handleManaColorChange} type="checkbox" value="green" id="green">
-                    <label tooltip="Green" for="green">G</label>
+                    <label tooltip="Green" for="green">${unsafeHTML(parse("{G}"))}</label>
                 </div>
             </div>
             <div flex="row nowrap items-center">
