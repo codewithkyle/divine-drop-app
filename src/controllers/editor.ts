@@ -10,7 +10,7 @@ class Editor {
         red: boolean,
         green: boolean,
     }
-    private types: string[];
+    private type: string;
     private subtypes: string[];
 
     constructor(){
@@ -23,7 +23,7 @@ class Editor {
             red: false,
             green: false,
         }
-        this.types = [];
+        this.type = null;
         this.subtypes = [];
     }
 
@@ -32,8 +32,8 @@ class Editor {
             colors: this.colors,
             query: this.query,
             sort: this.sort,
-            types: this.types,
-            subtypes: this.subtypes,
+            type: this.type,
+            subtypes: [...this.subtypes],
         });
     }
 
@@ -52,15 +52,8 @@ class Editor {
         this.dispatch();
     }
 
-    public addType(type:string):void{
-        this.types.push(type);
-        this.types = [...new Set(this.types)];
-        this.dispatch();
-    }
-
-    public removeType(value:string):void{
-        const index = this.types.indexOf(value);
-        this.types.splice(index, 1);
+    public setType(type:string):void{
+        this.type = type;
         this.dispatch();
     }
 

@@ -5,8 +5,20 @@ card-filters{
     gap: 1rem;
     margin-bottom: 2rem;
 
+    chips-component{
+        white-space: nowrap;
+        overflow-x: auto;
+
+        button{
+            margin: 0 !important;
+        }
+    }
+
     .mana{
         position: relative;
+        display: inline-flex;
+        align-items: center;
+        flex-flow: row nowrap;
 
         input{
             position: absolute;
