@@ -1,0 +1,17 @@
+deck-component{
+    background-color: var(--white);
+    border-radius: 0.5rem;
+    border: 1px solid var(--grey-300);
+    height: calc(100vh - 211px - 4rem);
+    overflow-y: auto;
+    display: inline-block;
+    position: sticky;
+    top: 2rem;
+
+    .placeholder{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

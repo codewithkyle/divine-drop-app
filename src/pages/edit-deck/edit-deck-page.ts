@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import CardBrowser from "components/card-browser/card-browser";
 import CardFilters from "components/card-filters/card-filters";
 import Spinner from "~brixi/components/progress/spinner/spinner";
+import DeckComponent from "components/deck-component/deck-component";
 
 interface IEditDeckPage {
     deck: Deck
@@ -121,28 +122,6 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
         `;
     }
 
-    private async renderDeck(){
-        if (!this.model.deck.cards.length){
-            return html`
-                <div class="text-center placeholder">
-                    <svg class="font-grey-400 block mx-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M19 11v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path>
-                       <path d="M13 13l9 3l-4 2l-2 4l-3 -9"></path>
-                       <line x1="3" y1="3" x2="3" y2="3.01"></line>
-                       <line x1="7" y1="3" x2="7" y2="3.01"></line>
-                       <line x1="11" y1="3" x2="11" y2="3.01"></line>
-                       <line x1="15" y1="3" x2="15" y2="3.01"></line>
-                       <line x1="3" y1="7" x2="3" y2="7.01"></line>
-                       <line x1="3" y1="11" x2="3" y2="11.01"></line>
-                       <line x1="3" y1="15" x2="3" y2="15.01"></line>
-                    </svg>
-                    <span class="font-xs font-grey-400 mt-0.25 block">Drop cards here to begin.</span>
-                </div>
-            `;
-        }
-    }
-
     async render(){
         const view = html`
             ${await this.renderHeader()}
@@ -151,9 +130,7 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
                     ${new CardFilters()}
                     ${new CardBrowser()}
                 </div>
-                <deck-component>
-                    ${await this.renderDeck()}
-                </deck-component>
+                ${new DeckComponent()}
             </deck-builder>
         `;
         render(view, this);

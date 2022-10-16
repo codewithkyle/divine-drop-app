@@ -285,23 +285,25 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
             </div>
-            ${new Chips({
-                callback: this.removeChip.bind(this),
-                type: "dynamic",
-                css: "flex:1;",
-                class: "pt-0.125",
-                chips: [...(this.model.subtypes.map(type => {
-                    return {
-                        label: type,
-                        name: type,
-                    };
-                })), ...(this.model.keywords.map(type => {
-                    return {
-                        label: type,
-                        name: type,
-                    };
-                }))],
-            })}
+            ${(!this.model.keywords.length && !this.model.subtypes.length) ? "" : 
+                new Chips({
+                    callback: this.removeChip.bind(this),
+                    type: "dynamic",
+                    css: "flex:1;",
+                    class: "pt-0.125",
+                    chips: [...(this.model.subtypes.map(type => {
+                        return {
+                            label: type,
+                            name: type,
+                        };
+                    })), ...(this.model.keywords.map(type => {
+                        return {
+                            label: type,
+                            name: type,
+                        };
+                    }))],
+                })
+            }
         `;
         render(view, this);
         setTimeout(()=>{
