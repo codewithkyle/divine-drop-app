@@ -95,14 +95,15 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
         editor.setRarity(value);
     }
 
-    private addSubtypeChip(value:string){
-        if (value !== null){
+    private addSubtype = (e) => {
+        const target = e.currentTarget;
+        const value = target.dataset.value;
+        if (value !== ""){
             editor.addSubtype(value);
             this.chipsEl.addChip({
                 label: value,
                 name: value,
             });
-            this.subtypeEl?.render();
         }
     }
 
@@ -114,8 +115,10 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
         }
     }
 
-    private addKeyword(value:string){
-        if (value !== null){
+    private addKeyword = (e) => {
+        const target = e.currentTarget;
+        const value = target.dataset.value;
+        if (value !== ""){
             editor.addKeyword(value);
             this.chipsEl.addChip({
                 label: value,
@@ -235,19 +238,23 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             <div flex="row nowrap items-center">
                 ${until(
                     db.query("SELECT UNIQUE subtypes FROM cards").then(subtypes => {
-                        return new Select({
-                            name: "subtype",
-                            value: null,
-                            css: "width:200px;",
-                            class: "mr-0.5",
-                            options: [{ label: "Filter by subtype", value: null}, ...(subtypes.map((type) => {
-                                return {
-                                    label: type,
-                                    value: type,
-                                }
-                            }))],
-                            callback: this.addSubtypeChip.bind(this),
-                        })
+                        return html`
+                            <custom-select class="mr-1" tabindex="0" role="button">
+                                <span>Filter By Subtypes</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                   <polyline points="8 9 12 5 16 9"></polyline>
+                                   <polyline points="16 15 12 19 8 15"></polyline>
+                                </svg>
+                                <custom-select-options>
+                                    ${subtypes.map(subtype => {
+                                        return html`
+                                            <button @click=${this.addSubtype} data-value="${subtype}">${subtype}</button>
+                                        `;
+                                    })}
+                                </custom-select-options>
+                            </custom-select>
+                        `;
                     }),
                     html`
                         <div class="skeleton -button mr-1" style="width:200px;"></div>
@@ -255,19 +262,23 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                 )}
                 ${until(
                     db.query("SELECT UNIQUE keywords FROM cards").then(keywords => {
-                        return new Select({
-                            name: "keyword",
-                            value: null,
-                            css: "width:200px;",
-                            class: "mr-0.5",
-                            options: [{ label: "Filter by keyword", value: null}, ...(keywords.map((type) => {
-                                return {
-                                    label: type,
-                                    value: type,
-                                }
-                            }))],
-                            callback: this.addKeyword.bind(this),
-                        })
+                        return html`
+                            <custom-select tabindex="0" role="button">
+                                <span>Filter By Keywords</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                   <polyline points="8 9 12 5 16 9"></polyline>
+                                   <polyline points="16 15 12 19 8 15"></polyline>
+                                </svg>
+                                <custom-select-options>
+                                    ${keywords.map(keyword => {
+                                        return html`
+                                            <button @click=${this.addKeyword} data-value="${keyword}">${keyword}</button>
+                                        `;
+                                    })}
+                                </custom-select-options>
+                            </custom-select>
+                        `;
                     }),
                     html`
                         <div class="skeleton -button mr-1" style="width:200px;"></div>
@@ -277,7 +288,6 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             ${new Chips({
                 callback: this.removeChip.bind(this),
                 type: "dynamic",
-                kind: "text",
                 css: "flex:1;",
                 class: "pt-0.125",
                 chips: [...(this.model.subtypes.map(type => {
