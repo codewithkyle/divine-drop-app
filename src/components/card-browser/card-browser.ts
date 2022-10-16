@@ -2,26 +2,29 @@ import db from "@codewithkyle/jsql";
 import SuperComponent from "@codewithkyle/supercomponent";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
-import Input from "~brixi/types/input";
-import Select from "~brixi/types/select";
 import type { Card } from "types/cards";
 import Pagination from "~brixi/types/pagination";
+import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 
 interface ICardBrowser{
     cards: Card[],
-    query: string,
-    sort: string,
     page: number,
     totalPages: number,
+    query: string,
+    sort: string,
     colors: {
         white: boolean,
         black: boolean,
         blue: boolean,
         red: boolean,
         green: boolean,
-    }
+    },
+    types: string[],
+    subtypes: string[],
 }
 export default class CardBrowser extends SuperComponent<ICardBrowser>{
+    private ticket:string;
+
     constructor(){
         super();
         this.state = "LOADING";
@@ -36,18 +39,21 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         };
         this.model = {
             cards: [],
-            query: "",
-            sort: "name",
             page: 1,
             totalPages: 1,
+            query: "",
+            sort: "name",
             colors: {
                 white: false,
                 black: false,
                 blue: false,
                 red: false,
                 green: false,
-            }
+            },
+            types: [],
+            subtypes: [],
         };
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     async connected(){
@@ -56,29 +62,27 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         this.queryCards();
     }
 
-    private handleSearch(value){
-        this.set({
-            query: value.trim(),
-            page: 1,
-        }, true);
-        this.queryCards();
+    disconnected(): void {
+        unsubscribe(this.ticket);
     }
 
-    private handleManaColorChange = (e) => {
-        const input = e.currentTarget as HTMLInputElement;
-        const value = input.value;
-        const updated = this.get();
-        updated.colors[value] = input.checked;
-        updated.page = 1;
-        this.set(updated, true);
-        this.queryCards();
+    private inbox(data){
+        this.set(data, true);
+        this.queryCards(true);
     }
 
     private async queryCards(resetPage = false){
         this.trigger("LOAD");
 
+        if (resetPage){
+            this.set({
+                page: 1,
+            }, true);
+        }
+
+
         const data = {};
-        let cardQuery = "SELECT id, front, name FROM cards";
+        let cardQuery = "SELECT * FROM cards";
         let countQuery = "SELECT COUNT(*) FROM cards"
 
         if (this.model.query.length || this.model.colors.black || this.model.colors.blue || this.model.colors.green || this.model.colors.red || this.model.colors.white){
@@ -128,65 +132,32 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         `;
     }
 
-    private renderFilters(){
-        return html`
-            <div class="w-full mb-2" grid="rows 1 gap-1">
-                <div flex="row nowrap items-center">
-                    ${new Input({
-                        name: "search",
-                        placeholder: "Search cards",
-                        class: "w-full",
-                        css: "flex:1;",
-                        value: this.model.query,
-                        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>`,
-                        callback: this.debounce(this.handleSearch.bind(this), 300),
-                    })}
-                    <div class="ml-1 mana" flex="row nowrap items-center">
-                        <input @change=${this.handleManaColorChange} type="checkbox" value="white" id="white">
-                        <label for="white">W</label>
-                        <input @change=${this.handleManaColorChange} type="checkbox" value="black" id="black">
-                        <label for="black">B</label>
-                        <input @change=${this.handleManaColorChange} type="checkbox" value="blue" id="blue">
-                        <label for="blue">U</label>
-                        <input @change=${this.handleManaColorChange} type="checkbox" value="red" id="red">
-                        <label for="red">R</label>
-                        <input @change=${this.handleManaColorChange} type="checkbox" value="green" id="green">
-                        <label for="green">G</label>
-                    </div>
-                    ${new Select({
-                        name: "sort",
-                        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="4" y1="6" x2="13" y2="6"></line><line x1="4" y1="12" x2="11" y2="12"></line><line x1="4" y1="18" x2="11" y2="18"></line><polyline points="15 15 18 18 21 15"></polyline><line x1="18" y1="6" x2="18" y2="18"></line></svg>`,
-                        options: [
-                            { label: "Name", value: "name" },
-                            { label: "Mana Cost (low - high)", value: "totalManaCost" },
-                            { label: "Mana Cost (high - low)", value: "totalManaCost DESC" },
-                        ],
-                        value: this.model.sort,
-                        class: "ml-1",
-                        css: "width:auto;",
-                        callback: (value) => {
-                            this.set({
-                                sort: value,
-                                page: 1,
-                            }, true);
-                            this.queryCards();
-                        },
-                    })}
-                </div>
-            </div>
-        `;
-    }
-
     private renderCards(){
-        return html`
-            ${this.model.cards.map(card => {
-                return html`
-                    <button class="card">
-                        <img src="${card.front}" draggable="false" onload="this.style.opacity = '1';">
-                    </button>
-                `;
-            })}
-        `;
+        if (this.model.cards.length){
+            return html`
+                ${this.model.cards.map(card => {
+                    return html`
+                        <button class="card">
+                            <img src="${card.front}" draggable="false" onload="this.style.opacity = '1';">
+                        </button>
+                    `;
+                })}
+            `;
+        } else {
+            return html`
+                <div class="block mx-auto text-center absolute center pt-4 mt-4">
+                    <svg class="font-grey-400 mb-0.5" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                       <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                       <path d="M12 17v.01"></path>
+                       <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
+                    </svg>
+                    <span class="font-grey-800 font-medium font-xl block mx-auto">No cards found.</span>
+                    <span class="block mx-auto font-sm font-grey-700 mt-0.25">Your search didn't match any cards.</span>
+                </div>
+            `;
+        }
     }
 
     async render(){
@@ -200,7 +171,6 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
                 break;
         }
         const view = html`
-            ${this.renderFilters()}
             <card-grid>
                 ${cards}
             </card-grid>

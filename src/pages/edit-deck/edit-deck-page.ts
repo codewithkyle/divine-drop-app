@@ -6,6 +6,7 @@ import env from "~brixi/controllers/env";
 import type { Deck } from "types/cards";
 import dayjs from "dayjs";
 import CardBrowser from "components/card-browser/card-browser";
+import CardFilters from "components/card-filters/card-filters";
 
 interface IEditDeckPage {
     deck: Deck
@@ -116,7 +117,10 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
         const view = html`
             ${await this.renderHeader()}
             <deck-builder>
-                ${new CardBrowser()}
+                <div>
+                    ${new CardFilters()}
+                    ${new CardBrowser()}
+                </div>
                 <deck-component>
                     ${await this.renderDeck()}
                 </deck-component>
