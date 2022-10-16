@@ -24,10 +24,13 @@ interface ICardFilters {
     subtypes: string[],
     legality: string,
     rarity: string,
+    keywords: string[],
 }
 export default class CardFilters extends SuperComponent<ICardFilters>{
     private ticket:string;
     private chipsEl: Chips;
+    private keywordEl: Select;
+    private subtypeEl: Select;
 
     constructor(){
         super();
@@ -45,8 +48,11 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             subtypes: [],
             legality: null,
             rarity: null,
+            keywords: [],
         };
         this.chipsEl = null;
+        this.keywordEl = null;
+        this.subtypeEl = null;
         this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
     async connected(){
@@ -95,11 +101,26 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                 label: value,
                 name: value,
             });
+            this.subtypeEl?.render();
         }
     }
 
     private removeChip(value:string){
-        editor.removeSubtype(value);
+        if (this.model.keywords.includes(value)){
+            editor.removeKeyword(value);
+        } else if (this.model.subtypes.includes(value)){
+            editor.removeSubtype(value);
+        }
+    }
+
+    private addKeyword(value:string){
+        if (value !== null){
+            editor.addKeyword(value);
+            this.chipsEl.addChip({
+                label: value,
+                name: value,
+            });
+        }
     }
 
     async render(){
@@ -214,7 +235,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                 ${until(
                     db.query("SELECT UNIQUE subtypes FROM cards").then(subtypes => {
                         return new Select({
-                            name: "type",
+                            name: "subtype",
                             value: null,
                             css: "width:200px;",
                             class: "mr-0.5",
@@ -231,25 +252,50 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                         <div class="skeleton -button mr-1" style="width:200px;"></div>
                     `
                 )}
-                ${new Chips({
-                    callback: this.removeChip.bind(this),
-                    type: "dynamic",
-                    kind: "text",
-                    css: "flex:1;",
-                    class: "pt-0.125",
-                    chips: (this.model.subtypes.map(type => {
-                        return {
-                            label: type,
-                            name: type,
-                        };
-                    })),
-                })}
+                ${until(
+                    db.query("SELECT UNIQUE keywords FROM cards").then(keywords => {
+                        return new Select({
+                            name: "keyword",
+                            value: null,
+                            css: "width:200px;",
+                            class: "mr-0.5",
+                            options: [{ label: "Filter by keyword", value: null}, ...(keywords.map((type) => {
+                                return {
+                                    label: type,
+                                    value: type,
+                                }
+                            }))],
+                            callback: this.addKeyword.bind(this),
+                        })
+                    }),
+                    html`
+                        <div class="skeleton -button mr-1" style="width:200px;"></div>
+                    `
+                )}
             </div>
+            ${new Chips({
+                callback: this.removeChip.bind(this),
+                type: "dynamic",
+                kind: "text",
+                css: "flex:1;",
+                class: "pt-0.125",
+                chips: [...(this.model.subtypes.map(type => {
+                    return {
+                        label: type,
+                        name: type,
+                    };
+                })), ...(this.model.keywords.map(type => {
+                    return {
+                        label: type,
+                        name: type,
+                    };
+                }))],
+            })}
         `;
         render(view, this);
         setTimeout(()=>{
             this.chipsEl = this.querySelector("chips-component");
-        }, 80);
+        }, 100);
     }
 }
 env.bind("card-filters", CardFilters);

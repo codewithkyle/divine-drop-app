@@ -14,6 +14,7 @@ class Editor {
     private subtypes: string[];
     private legality: string;
     private rarity: string;
+    private keywords: string[];
 
     constructor(){
         this.query = "";
@@ -29,6 +30,7 @@ class Editor {
         this.subtypes = [];
         this.legality = null;
         this.rarity = null;
+        this.keywords = [];
     }
 
     private dispatch(){
@@ -40,6 +42,7 @@ class Editor {
             subtypes: [...this.subtypes],
             legality: this.legality,
             rarity: this.rarity,
+            keywords: [...this.keywords],
         });
     }
 
@@ -82,6 +85,18 @@ class Editor {
     public removeSubtype(value:string):void{
         const index = this.subtypes.indexOf(value);
         this.subtypes.splice(index, 1);
+        this.dispatch();
+    }
+
+    public addKeyword(type:string):void{
+        this.keywords.push(type);
+        this.keywords = [...new Set(this.keywords)];
+        this.dispatch();
+    }
+
+    public removeKeyword(value:string):void{
+        const index = this.keywords.indexOf(value);
+        this.keywords.splice(index, 1);
         this.dispatch();
     }
 }
