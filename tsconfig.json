@@ -7,6 +7,7 @@
         "module": "ES2022",
         "moduleResolution": "Node",
         "baseUrl": "src",
+        "allowSyntheticDefaultImports": true,
         "paths": {
             "~brixi/*": ["framework/*"]
         },
@@ -16,6 +17,8 @@
     },
     "include": ["src"],
     "exclude": [
-        "src/lib"
+        "src/lib",
+        "src/framework",
+        "node_modules"
     ]
 }

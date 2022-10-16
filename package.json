@@ -15,7 +15,7 @@
     "production:bundle": "npm run bundle",
     "production:js": "twist --type=esbuild",
     "production:css": "cssmonster --env=production",
-    "deploy": "npm run production && node ./build/deploy.js"
+    "deploy": "node ./build/deploy.js"
   },
   "devDependencies": {
     "@codewithkyle/jsql": "^1.2.0",

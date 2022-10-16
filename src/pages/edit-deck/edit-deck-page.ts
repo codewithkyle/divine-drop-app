@@ -3,7 +3,7 @@ import {navigateTo} from "@codewithkyle/router";
 import SuperComponent from "@codewithkyle/supercomponent";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
-import type { Deck } from "../../types/cards.d.ts";
+import type { Deck } from "types/cards";
 import dayjs from "dayjs";
 import CardBrowser from "components/card-browser/card-browser";
 
@@ -36,7 +36,7 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
         this.render();
     }
 
-    private async updateLabel(value:string){
+     private async updateLabel(value:string){
         await db.query("UPDATE decks SET label = $value WHERE id = $id", {
             value: value.trim(),
             id: this.model.deck.id,

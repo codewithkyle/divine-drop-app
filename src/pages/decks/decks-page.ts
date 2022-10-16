@@ -5,7 +5,7 @@ import {UUID} from "@codewithkyle/uuid";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
 import Button from "~brixi/components/buttons/button/button";
-import type { Deck, Card } from "../types/cards.d.ts";
+import type { Deck, Card } from "types/cards";
 
 interface IDecksPage{}
 export default class DecksPage extends SuperComponent<IDecksPage>{
@@ -25,8 +25,8 @@ export default class DecksPage extends SuperComponent<IDecksPage>{
             label: "Untitled",
             commanderId: null,
             cards: [],
-            dateCreated: timestamp,
-            dateUpdated: timestamp,
+            dateCreated: timestamp.toString(),
+            dateUpdated: timestamp.toString(),
         };
         await db.query("INSERT INTO decks VALUES ($deck)", {
             deck: deck,
