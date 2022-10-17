@@ -22,7 +22,6 @@ export default class DeckHeader extends SuperComponent<IDeckHeader>{
             deck: null,
             updatedNow: false,
         };
-        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     override async connected(){
@@ -31,6 +30,7 @@ export default class DeckHeader extends SuperComponent<IDeckHeader>{
         this.set({
             deck: deck,
         });
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     override disconnected(): void {

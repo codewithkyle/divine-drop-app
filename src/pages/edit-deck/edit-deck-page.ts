@@ -11,10 +11,9 @@ import DeckHeader from "components/deck-header/deck-header";
 
 interface IEditDeckPage {}
 export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
-    private ticket:string;
     private deckId: string;
 
-    constructor(tokens, params){
+    constructor(tokens){
         super();
         this.deckId = tokens["ID"];
     }

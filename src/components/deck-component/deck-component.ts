@@ -26,7 +26,6 @@ export default class DeckComponent extends SuperComponent<IDeckComponent>{
         this.model = {
             deck: null,
         };
-        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     async connected(){
@@ -36,6 +35,7 @@ export default class DeckComponent extends SuperComponent<IDeckComponent>{
         this.set({
             deck: deck,
         });
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
         this.addEventListener("drop", this.handleDrop);
         this.addEventListener("dragover", (e) => e.preventDefault());
     }
@@ -108,6 +108,7 @@ export default class DeckComponent extends SuperComponent<IDeckComponent>{
                 </div>
             `;
         } else {
+            this.querySelectorAll(".card").forEach(el => el.remove() );
             view = html`
                 ${this.model.deck.cards.map(deckCard => {
                     return html`

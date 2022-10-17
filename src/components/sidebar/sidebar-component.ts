@@ -18,7 +18,6 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
         this.model = {
             decksOpen: false,
         };
-        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     private inbox({ type, data }){
@@ -44,6 +43,7 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
             this.model.decksOpen = true;
         }
         this.render();
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     disconnected(): void {

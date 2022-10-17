@@ -54,11 +54,11 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
         this.chipsEl = null;
         this.keywordEl = null;
         this.subtypeEl = null;
-        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
     async connected(){
         await env.css(["card-filters"]);
         this.render();
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     disconnected(): void {

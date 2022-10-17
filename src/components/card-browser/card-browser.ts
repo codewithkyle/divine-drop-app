@@ -62,13 +62,13 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
             rarity: null,
             keywords: [],
         };
-        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     async connected(){
         await env.css(["card-browser", "skeletons"]);
         this.render();
         this.queryCards();
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     disconnected(): void {

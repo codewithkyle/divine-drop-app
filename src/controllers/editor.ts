@@ -39,6 +39,7 @@ class Editor {
     }
 
     public async removeCard(cardId: string, deckId: string){
+        if (!cardId || !deckId) return;
         const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", { id: deckId }))[0];
         for (let i = 0; i < deck.cards.length; i++){
             if (deck.cards[i].id === cardId){
@@ -57,6 +58,7 @@ class Editor {
     }
 
     public async addCard(cardId: string, rarity: string, deckId: string){
+        if (!cardId || !rarity || !deckId) return;
         const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", { id: deckId }))[0];
         let isNew = true;
         for (let i = 0; i < deck.cards.length; i++){
@@ -85,6 +87,11 @@ class Editor {
     }
 
     public async updateDeck(deck:Deck){
+        for (let i = deck.cards.length - 1; i >= 0; i--){
+            if (deck.cards[i] == null){
+                deck.cards.splice(i, 1);
+            }
+        }
         await db.query("UPDATE decks SET $deck WHERE id = $id", {
             deck: deck,
             id: deck.id,
