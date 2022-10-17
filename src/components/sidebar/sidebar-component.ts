@@ -23,6 +23,9 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
 
     private inbox({ type, data }){
         switch (type){
+            case "sync":
+                this.render();
+                break;
             case "create":
                 this.render();
                 break;
@@ -41,6 +44,10 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
             this.model.decksOpen = true;
         }
         this.render();
+    }
+
+    disconnected(): void {
+        unsubscribe(this.ticket);
     }
 
     private toggleDeck = (e) => {
@@ -87,9 +94,13 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
                 </a>
             ` : ""}
             ${this.model.decksOpen ? decks.map((deck, index) => {
+                let cardCount:number = 0;
+                for (let i = 0; i < deck.cards.length; i++){
+                    cardCount += deck.cards[i].count;
+                }
                 return html`
                     <a href="/deck/${deck.id}" class="deck">
-                        <count>${deck.cards?.length}</count>
+                        <count>${cardCount}</count>
                         <span>${deck.label}</span>
                     </a>
                 `;
@@ -111,8 +122,7 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
     }
 
     async render(){
-        const decks = await db.query("SELECT * FROM decks");
-        console.log(decks);
+        const decks = await db.query<Deck>("SELECT * FROM decks");
         const view = html`
             <a href="/" id="logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="458.84" height="442.65" viewBox="0 0 458.84 442.65">

@@ -38,12 +38,20 @@ class Editor {
         this.keywords = [];
     }
 
+    public async updateLabel(value:string, id:string){
+        await db.query("UPDATE decks SET label = $value, dateUpdated = $ts WHERE id = $id", {
+            value: value.trim(),
+            id: id,
+            ts: new Date().getTime(),
+        });
+    }
+
     public async importDeck(){
         const importString = window.prompt("Deck Code:");
         if (importString?.length){
             try{
                 const data = JSON.parse(importString);
-                const timestamp = new Date().getTime().toString();
+                const timestamp = new Date().getTime();
                 data.id = UUID();
                 data.dateCreated = timestamp;
                 data.dateUpdated = timestamp;
@@ -75,7 +83,7 @@ class Editor {
 
     public createDeck = async (e) => {
         const id = UUID();
-        const timestamp = new Date().getTime().toString();
+        const timestamp = new Date().getTime();
         const deck:Deck = {
             id: id,
             label: "Untitled",

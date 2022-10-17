@@ -41,11 +41,17 @@ export interface Legalities {
     premodern:       string;
 }
 
+export interface DeckCard {
+    id: string,
+    count: number,
+    rarity: string,
+}
+
 export interface Deck{
     id: string;
     label: string;
     commanderId: string;
-    cards: string[];
-    dateCreated: string;
-    dateUpdated: string;
+    cards: DeckCard[];
+    dateCreated: number;
+    dateUpdated: number;
 }
