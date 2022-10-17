@@ -65,8 +65,14 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
         unsubscribe(this.ticket);
     }
 
-    private inbox(data){
-        this.set(data, true);
+    private inbox({ type, data }){  
+        switch (type){
+            case "sync":
+                this.set(data, true);
+                break;
+            default:
+                break;
+        }
     }
 
     private handleSearch(value){

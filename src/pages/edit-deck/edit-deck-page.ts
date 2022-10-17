@@ -39,9 +39,9 @@ export default class EditDeckPage extends SuperComponent<IEditDeckPage>{
             <deck-builder>
                 <div>
                     ${new CardFilters()}
-                    ${new CardBrowser()}
+                    ${new CardBrowser(this.deckId)}
                 </div>
-                ${new DeckComponent()}
+                ${new DeckComponent(this.deckId)}
             </deck-builder>
         `;
         render(view, this);

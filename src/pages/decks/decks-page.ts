@@ -54,7 +54,7 @@ export default class DecksPage extends SuperComponent<IDecksPage>{
                     let cardImage = null;
                     if (deck.commanderId || deck.cards.length){
                         const card = await db.query<Card>("SELECT front FROM cards WHERE id = $id", {
-                            id: deck.commanderId || deck.cards?.[0]
+                            id: deck.commanderId || deck.cards?.[0].id
                         });
                         cardImage = card[0].front;
                     }

@@ -1,21 +1,63 @@
 import SuperComponent from "@codewithkyle/supercomponent";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
+import Sortable from "sortablejs";
+import type { Deck } from "types/cards";
+import db from "@codewithkyle/jsql";
+import editor from "controllers/editor";
+import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 
-interface IDeckComponent {}
+interface IDeckComponent {
+    deck: Deck,
+}
 export default class DeckComponent extends SuperComponent<IDeckComponent>{
     private mainEl: HTMLElement;
     private height: number;
+    private deckId: string;
+    private ticket: string;
 
-    constructor(){
+    constructor(deckId: string){
         super();
+        this.deckId = deckId;
         this.mainEl = document.body.querySelector("main");
+        this.model = {
+            deck: null,
+        };
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
     }
 
     async connected(){
         await env.css(["deck-component"]);
         this.mainEl.addEventListener("scroll", this.handleScroll);
-        this.render();
+        const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", { id: this.deckId }))[0];
+        this.set({
+            deck: deck,
+        });
+        this.addEventListener("drop", this.handleDrop);
+        this.addEventListener("dragover", (e) => e.preventDefault());
+    }
+
+    override disconnected(): void {
+        unsubscribe(this.ticket);
+    }
+
+    private inbox({ type, data }){
+        switch(type){
+            case "sync":
+                this.set({
+                    deck: data,
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
+    private handleDrop = async (e) => {
+        const cardId = e.dataTransfer.getData("cardId");
+        const rarity = e.dataTransfer.getData("rarity");
+        if (!cardId || !rarity) return;
+        editor.addCard(cardId, rarity, this.deckId);
     }
 
     private handleScroll = (e) => {
@@ -25,25 +67,54 @@ export default class DeckComponent extends SuperComponent<IDeckComponent>{
         this.style.height = `${height <= maxHeight ? height : maxHeight}px`;
     }
 
+    private sortable(){
+        new Sortable(this, {
+            sort: true,
+            onEnd: (e) => {
+                if (e.oldIndex === e.newIndex) return;
+                const updated = this.get();
+                const temp = updated.deck.cards.splice(e.oldIndex, 1)[0];
+                updated.deck.cards.splice(e.newIndex, 0, temp);
+                db.query("UPDATE decks SET $deck WHERE id = $id", {
+                    id: updated.deck.id,
+                    deck: updated.deck,
+                });
+                this.set(updated, true);
+            }
+        });
+    }
+
     render(){
-        const view = html`
-            <div class="text-center placeholder">
-                <svg class="font-grey-400 block mx-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                   <path d="M19 11v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path>
-                   <path d="M13 13l9 3l-4 2l-2 4l-3 -9"></path>
-                   <line x1="3" y1="3" x2="3" y2="3.01"></line>
-                   <line x1="7" y1="3" x2="7" y2="3.01"></line>
-                   <line x1="11" y1="3" x2="11" y2="3.01"></line>
-                   <line x1="15" y1="3" x2="15" y2="3.01"></line>
-                   <line x1="3" y1="7" x2="3" y2="7.01"></line>
-                   <line x1="3" y1="11" x2="3" y2="11.01"></line>
-                   <line x1="3" y1="15" x2="3" y2="15.01"></line>
-                </svg>
-                <span class="font-xs font-grey-400 mt-0.25 block">Drop cards here to begin.</span>
-            </div>
-        `;
+        let view;
+        if (!this.model.deck.cards.length){
+            view = html`
+                <div class="text-center placeholder">
+                    <svg class="font-grey-400 block mx-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M19 11v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path>
+                       <path d="M13 13l9 3l-4 2l-2 4l-3 -9"></path>
+                       <line x1="3" y1="3" x2="3" y2="3.01"></line>
+                       <line x1="7" y1="3" x2="7" y2="3.01"></line>
+                       <line x1="11" y1="3" x2="11" y2="3.01"></line>
+                       <line x1="15" y1="3" x2="15" y2="3.01"></line>
+                       <line x1="3" y1="7" x2="3" y2="7.01"></line>
+                       <line x1="3" y1="11" x2="3" y2="11.01"></line>
+                       <line x1="3" y1="15" x2="3" y2="15.01"></line>
+                    </svg>
+                    <span class="font-xs font-grey-400 mt-0.25 block">Drop cards here to begin.</span>
+                </div>
+            `;
+        } else {
+            view = html`
+                ${this.model.deck.cards.map(card => {
+                    return html`
+                        <div class="block w-full p-1">${card.id}</div>
+                    `;
+                })}
+            `;
+        }
         render(view, this);
+        setTimeout(this.sortable.bind(this), 100);
     }
 }
 env.bind("deck-component", DeckComponent);

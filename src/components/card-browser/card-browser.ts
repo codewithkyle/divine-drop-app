@@ -5,6 +5,7 @@ import env from "~brixi/controllers/env";
 import type { Card } from "types/cards";
 import Pagination from "~brixi/types/pagination";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
+import editor from "controllers/editor";
 
 interface ICardBrowser{
     cards: Card[],
@@ -27,9 +28,11 @@ interface ICardBrowser{
 }
 export default class CardBrowser extends SuperComponent<ICardBrowser>{
     private ticket:string;
+    private deckId: string;
 
-    constructor(){
+    constructor(deckId:string){
         super();
+        this.deckId = deckId;
         this.state = "LOADING";
         this.stateMachine = {
             LOADING: {
@@ -64,13 +67,11 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
 
     async connected(){
         await env.css(["card-browser", "skeletons"]);
-        console.log("conencted");
         this.render();
         this.queryCards();
     }
 
     disconnected(): void {
-        console.log("disconnet");
         unsubscribe(this.ticket);
     }
 
@@ -93,8 +94,6 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
                 page: 1,
             }, true);
         }
-
-        console.log(this.model);
 
         const data = {};
         let cardQuery = "SELECT * FROM cards";
@@ -167,6 +166,18 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
         this.trigger("DONE");
     }
 
+    private handleDragStart = (e) => {
+        e.dataTransfer.setData("cardId", e.currentTarget.dataset.id);
+        e.dataTransfer.setData("rarity", e.currentTarget.dataset.rarity);
+    }
+
+    private addCardToDeck = (e) => {
+        const target = e.currentTarget;
+        const cardId = target.dataset.id;
+        const rarity = target.dataset.rarity;
+        editor.addCard(cardId, rarity, this.deckId);
+    }
+
     private renderLoading(){
         return html`
             ${Array(30).fill(null).map(() => {
@@ -182,7 +193,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
             return html`
                 ${this.model.cards.map(card => {
                     return html`
-                        <button class="card">
+                        <button @click=${this.addCardToDeck} draggable="true" class="card" data-id="${card.id}" data-rarity="${card.rarity}" @dragstart=${this.handleDragStart}>
                             <img src="${card.front}" draggable="false" onload="this.style.opacity = '1';">
                         </button>
                     `;

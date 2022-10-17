@@ -38,6 +38,45 @@ class Editor {
         this.keywords = [];
     }
 
+    public async addCard(cardId: string, rarity: string, deckId: string){
+        const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", { id: deckId }))[0];
+        let isNew = true;
+        for (let i = 0; i < deck.cards.length; i++){
+            if (deck.cards[i].id === cardId){
+                isNew = false;
+                deck.cards[i].count++;
+                break;
+            }
+        }
+        if (isNew){
+            const card: DeckCard = {
+                id: cardId,
+                count: 1,
+                rarity: rarity,
+            };
+            deck.cards.push(card);
+        }
+        await db.query("UPDATE decks SET $deck WHERE id = $id", {
+            deck: deck,
+            id: deck.id,
+        });
+        publish("deck-editor", {
+            type: "sync",
+            data: deck,
+        });
+    }
+
+    public async updateDeck(deck:Deck){
+        await db.query("UPDATE decks SET $deck WHERE id = $id", {
+            deck: deck,
+            id: deck.id,
+        });
+        publish("deck-editor", {
+            type: "sync",
+            data: deck,
+        });
+    }
+
     public async updateLabel(value:string, id:string){
         await db.query("UPDATE decks SET label = $value, dateUpdated = $ts WHERE id = $id", {
             value: value.trim(),
