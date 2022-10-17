@@ -38,6 +38,24 @@ class Editor {
         this.keywords = [];
     }
 
+    public async removeCard(cardId: string, deckId: string){
+        const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", { id: deckId }))[0];
+        for (let i = 0; i < deck.cards.length; i++){
+            if (deck.cards[i].id === cardId){
+                deck.cards.splice(i, 1);
+                break;
+            }
+        }
+        await db.query("UPDATE decks SET $deck WHERE id = $id", {
+            deck: deck,
+            id: deck.id,
+        });
+        publish("deck-editor", {
+            type: "sync",
+            data: deck,
+        });
+    }
+
     public async addCard(cardId: string, rarity: string, deckId: string){
         const deck = (await db.query<Deck>("SELECT * FROM decks WHERE id = $id", { id: deckId }))[0];
         let isNew = true;
