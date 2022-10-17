@@ -1,40 +1,15 @@
 decks-page{
     width: 100%;
+    min-height: 100%;
     position: absolute;
-    padding: 2rem;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 300px));
-    gap: 2rem;
+    display: block; 
+    background-color: var(--white);
 
-    .create-deck{
-        aspect-ratio: 12/17;
-        border: 1px dashed var(--grey-300);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        color: var(--grey-700);
-        border-radius: 0.5rem;
-        flex-flow: column wrap;
-        transition: all 150ms var(--ease-in-out);
-
-        &:hover,
-        &:focus-visible{
-            background-color: var(--grey-50);
-            transition: transform 80ms var(--ease-in);
-        }
-        
-        &:active{
-            transform: scale(0.98);
-        }
-        
-        svg{
-            width: 48px;
-            height: 48px;
-            color: var(--grey-200);
-            display: block;
-            margin-bottom: 0.5rem;
-        }
+    deck-browser{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 300px));
+        gap: 2rem;
+        padding: 2.25rem 2rem 2rem;
     }
 
     card-shell{
@@ -44,6 +19,7 @@ decks-page{
         background-color: var(--white);
         display: block;
         width: 100%;
+        box-shadow: var(--shadow-grey-sm);
 
         &::after{
             width: calc(100% - 1rem) !important;
@@ -56,5 +32,23 @@ decks-page{
 
     .deck{
         display: inline-block;
+        padding: 1.75rem 2.5rem 1rem;
+        background-color: transparent;
+        border-radius: 0.5rem;
+        transition: all 150ms var(--ease-in-out);
+
+        &:hover,
+        &:focus-within,
+        &:focus-visible{
+            background-color: var(--grey-50);
+        }
+
+        &:active{
+            background-color: var(--grey-100);
+        }
+
+        img{
+            filter: drop-shadow(0px 1px 2px hsl(var(--shadow-color) / 0.7));
+        }
     }
 }

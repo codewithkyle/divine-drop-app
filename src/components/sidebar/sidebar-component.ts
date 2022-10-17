@@ -1,18 +1,37 @@
 import db from "@codewithkyle/jsql";
-import {navigateTo} from "@codewithkyle/router";
 import SuperComponent from "@codewithkyle/supercomponent";
+import editor from "controllers/editor";
 import {html, render} from "lit-html";
+import Button from "~brixi/components/buttons/button/button";
 import env from "~brixi/controllers/env";
+import type { Deck } from "types/cards";
+import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 
 interface ISidebarComponent{
     decksOpen: boolean,
 }
 export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
+    private ticket:string;
+
     constructor(){
         super();
         this.model = {
             decksOpen: false,
         };
+        this.ticket = subscribe("deck-editor", this.inbox.bind(this));
+    }
+
+    private inbox({ type, data }){
+        switch (type){
+            case "create":
+                this.render();
+                break;
+            case "delete":
+                this.render();
+                break;
+            default:
+                break;
+        }
     }
     
     async connected(){
@@ -31,7 +50,7 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
         });
     }
 
-    private renderDecks(decks){
+    private renderDecks(decks:Deck[]){
         return html`
             <input @change=${this.toggleDeck} type="checkbox" ?checked=${this.model.decksOpen} id="decks">
             <label for="decks">
@@ -75,6 +94,19 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
                     </a>
                 `;
             }) : ""}
+            ${this.model.decksOpen ? html`
+                <div class="w-full px-1 pb-1 pt-0.5 bg-neutral-700">
+                    ${new Button({
+                        kind: "text",
+                        color: "white",
+                        label: "Create Deck",
+                        class: "w-full pr-1.75",
+                        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><path d="M14 17h6m-3 -3v6"></path></svg>`,
+                        iconPosition: "left",
+                        callback: editor.createDeck
+                    })}
+                </div>
+            ` : ""}
         `;
     }
 
