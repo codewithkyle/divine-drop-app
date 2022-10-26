@@ -7,7 +7,7 @@ deck-component{
     display: inline-block;
     position: sticky;
     top: 2rem;
-    transition: all 150ms var(--ease-in-out);
+    transition: all 150ms var(--ease-in-out), height 0ms 0ms linear;
 
     &.has-hover{
         border-color: var(--primary-400);
