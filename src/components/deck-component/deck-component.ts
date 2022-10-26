@@ -106,6 +106,7 @@ export default class DeckComponent extends SuperComponent<IDeckComponent>{
     private sortable(){
         new Sortable(this, {
             sort: true,
+            animation: 150,
             onEnd: (e) => {
                 if (e.oldIndex === e.newIndex) return;
                 const updated = this.get();

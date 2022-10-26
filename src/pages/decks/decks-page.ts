@@ -1,7 +1,6 @@
 import db from "@codewithkyle/jsql";
 import {navigateTo} from "@codewithkyle/router";
 import SuperComponent from "@codewithkyle/supercomponent";
-import {UUID} from "@codewithkyle/uuid";
 import {html, render} from "lit-html";
 import env from "~brixi/controllers/env";
 import Button from "~brixi/components/buttons/button/button";
@@ -18,7 +17,11 @@ export default class DecksPage extends SuperComponent<IDecksPage>{
         this.render();
     }
 
-    private editDeck = (e) => {
+    private editDeck(id:string) {
+        navigateTo(`/edit/${id}`);
+    }
+
+    private viewDeck = (e) => {
         const target = e.currentTarget;
         const id = target.dataset.id;
         navigateTo(`/deck/${id}`);
@@ -59,7 +62,7 @@ export default class DecksPage extends SuperComponent<IDecksPage>{
                         cardImage = card[0].front;
                     }
                     return html`
-                        <button @click=${this.editDeck} data-id="${deck.id}" class="deck">
+                        <button @click=${this.viewDeck} data-id="${deck.id}" class="deck">
                             <span class="font-grey-800 block font-medium mb-1.5 line-snug">${deck.label}</span>
                             ${cardImage ? html`
                                 <img src="${cardImage}">
@@ -81,6 +84,17 @@ export default class DecksPage extends SuperComponent<IDecksPage>{
                                     color: "grey",
                                     iconPosition: "center",
                                     tooltip: "Export",
+                                })}
+                                ${new Button({
+                                    callback: ()=>{
+                                        this.editDeck(deck.id);
+                                    },
+                                    size: "slim",
+                                    kind: "text",
+                                    color: "grey",
+                                    iconPosition: "center",
+                                    tooltip: "Edit deck",
+                                    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><path d="M14 17h6m-3 -3v6"></path></svg>`,
                                 })}
                                 ${new Button({
                                     callback: async ()=>{
