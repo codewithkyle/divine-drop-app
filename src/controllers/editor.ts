@@ -2,7 +2,7 @@ import db from "@codewithkyle/jsql";
 import { publish } from "@codewithkyle/pubsub";
 import {navigateTo} from "@codewithkyle/router";
 import {UUID} from "@codewithkyle/uuid";
-import type { Deck } from "types/cards";
+import type { Deck, Card, DeckCard } from "types/cards";
 import notifications from "~brixi/controllers/notifications";
 
 class Editor {
@@ -20,6 +20,7 @@ class Editor {
     private legality: string;
     private rarity: string;
     private keywords: string[];
+    public commanderId: string;
 
     constructor(){
         this.query = "";
@@ -36,6 +37,13 @@ class Editor {
         this.legality = null;
         this.rarity = null;
         this.keywords = [];
+    }
+
+    public async setCommander(id:string, deckId:string){
+        await db.query("UPDATE decks SET commanderId = $commanderId WHERE id = $id", {
+            commanderId: id,
+            id: deckId,
+        });
     }
 
     public async removeCard(cardId: string, deckId: string){
@@ -83,6 +91,11 @@ class Editor {
         publish("deck-editor", {
             type: "sync",
             data: deck,
+        });
+        const card = (await db.query<Card>("SELECT * FROM cards WHERE id = $id", { id: cardId }))[0];
+        publish("deck-editor", {
+            type: "add",
+            data: card,
         });
     }
 

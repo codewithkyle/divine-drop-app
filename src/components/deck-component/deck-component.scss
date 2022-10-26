@@ -7,81 +7,18 @@ deck-component{
     display: inline-block;
     position: sticky;
     top: 2rem;
+    transition: all 150ms var(--ease-in-out);
+
+    &.has-hover{
+        border-color: var(--primary-400);
+        box-shadow: 0 0 0 8px var(--primary-100);
+        background-color: var(--primary-50);
+    }
 
     .placeholder{
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-    }
-
-    .card{
-        height: 48px;
-        display: flex;
-        width: 100%;
-        padding: 0 0.5rem;
-        align-items: center;
-        justify-content: space-between;
-        flex-flow: row nowrap;
-        position: relative;
-        overflow: hidden;
-        user-select: none;
-        cursor: grab;
-
-        &:hover,
-        &:focus-within{
-            .actions{
-                background-color: var(--white);
-
-                span{
-                    color: var(--grey-700) !important;
-                }
-
-                button-component{
-                    display: inline-flex !important;
-                }
-
-                &::after{
-                    background: linear-gradient(to left, #fff, transparent);
-                }
-            }
-        }
-
-        .actions{
-            transform: translateX(0px);
-            position: absolute;
-            right: 0;
-            height: 100%;
-            padding: 0 1rem 0 0.5rem;
-
-            button-component{
-                display: none !important;
-            }
-
-            &::after{
-                content: "";
-                position: absolute;
-                top: 0;
-                height: 100%;
-                left: -64px;
-                width: 64px;
-                background: transparent;
-            }
-        }
-
-        span{
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        img{
-            position: absolute;
-            top: 0;
-            width: calc(100% + 60px);
-            left: 50%;
-            transform: translate(-50%, -56px);
-            user-select: none;
-            filter: brightness(0.3);
-        }
     }
 }
