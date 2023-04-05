@@ -59,7 +59,7 @@ export default class DeckCard extends SuperComponent<IDeckCard>{
                 ${new Button({
                     iconPosition: "center",
                     kind: "text",
-                    color: "white",
+                    color: "grey",
                     class: "mr-0.5",
                     tooltip: "Preview",
                     callback: ()=>{

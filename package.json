@@ -1,12 +1,13 @@
 {
   "scripts": {
+    "update": "npm update && run-s install:* && npm run bundle",
     "install:ui": "install-ui --audio=./public/audio --framework=./src/framework",
     "install:brixi": "brixi && mv ./brixi/brixi.css ./src/stylesheets/brixi.css && rmdir ./brixi",
     "bundle": "node ./build/bundle.js",
     "watch": "run-p watch:*",
     "watch:build": "npm-watch",
     "watch:serve": "serve ./public",
-    "lint": "tsc && rm -rf ./_types",
+    "lint": "rm -rf ./_types && tsc",
     "build": "run-p build:*",
     "build:js": "twist --type=esbuild",
     "build:css": "cssmonster --env=dev",
@@ -19,16 +20,15 @@
   },
   "devDependencies": {
     "@codewithkyle/jsql": "^1.2.0",
-    "@codewithkyle/modal-maker": "^1.1.1",
-    "@codewithkyle/notifyjs": "^3.1.1",
+    "@codewithkyle/notifyjs": "^4.1.0",
     "@codewithkyle/pubsub": "^1.1.1",
     "@codewithkyle/router": "^2.1.0",
-    "@codewithkyle/supercomponent": "^1.3.0",
+    "@codewithkyle/supercomponent": "^2.0.0",
     "@codewithkyle/twist": "^2.0.2",
     "@codewithkyle/uuid": "^1.0.1",
     "brixi": "^0.6.2",
-    "brixi-ui": "^0.5.0",
-    "cssmonster": "^0.5.0",
+    "brixi-ui": "^0.8.2",
+    "cssmonster": "^0.7.2",
     "dayjs": "^1.11.5",
     "dotenv": "^16.0.3",
     "esbuild": "^0.15.10",
@@ -47,16 +47,24 @@
     "typescript": "^4.8.4"
   },
   "bundle": [
-    "@codewithkyle/notifyjs",
-    "@codewithkyle/modal-maker",
+    {
+        "in": "@codewithkyle/notifyjs/snackbar.js",
+        "out": "snackbar.js"
+    },
+    {
+        "in": "@codewithkyle/notifyjs/notifications.js",
+        "out": "notifications.js"
+    },
+    {
+        "in": "@codewithkyle/notifyjs/toaster.js",
+        "out": "toaster.js"
+    },
     "@codewithkyle/pubsub",
     "@codewithkyle/uuid",
     "tooltipper",
     "@codewithkyle/jsql",
     "@codewithkyle/router",
     "@codewithkyle/supercomponent",
-    "@codewithkyle/modal-maker",
-    "@codewithkyle/notifyjs",
     "flatpickr",
     "lit-html",
     "lit-html/directives/unsafe-html.js",

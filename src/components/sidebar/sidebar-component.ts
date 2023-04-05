@@ -109,7 +109,7 @@ export default class SidebarComponent extends SuperComponent<ISidebarComponent>{
                 <div class="w-full px-1 pb-1 pt-0.5 bg-neutral-700">
                     ${new Button({
                         kind: "text",
-                        color: "white",
+                        color: "grey",
                         label: "Create Deck",
                         class: "w-full pr-1.75",
                         icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><path d="M14 17h6m-3 -3v6"></path></svg>`,

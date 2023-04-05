@@ -157,7 +157,7 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
             data["rarity"] = this.model.rarity;
         }
 
-        const cards = await db.query<Card>(`${cardQuery} ${conditions.join(" AND ")} OFFSET ${(this.model.page - 1) * 30} LIMIT 30 ORDER BY ${this.model.sort}`, data);
+        const cards = await db.query<Card>(`${cardQuery} ${conditions.join(" AND ").trim()} OFFSET ${(this.model.page - 1) * 30} LIMIT 30 ORDER BY ${this.model.sort}`, data);
         const cardCount = (await db.query<Card>(`${countQuery} ${conditions.join(" AND ")}`, data))[0]["COUNT(*)"];
         this.set({
             cards: cards,

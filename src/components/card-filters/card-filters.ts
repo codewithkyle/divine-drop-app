@@ -3,7 +3,6 @@ import { html, render } from "lit-html";
 import env from "~brixi/controllers/env";
 import Input from "~brixi/components/inputs/input/input";
 import Select from "~brixi/components/select/select";
-import Chips from "~brixi/components/chips/chips";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import editor from "controllers/editor";
 import db from "@codewithkyle/jsql";
@@ -29,9 +28,6 @@ interface ICardFilters {
 }
 export default class CardFilters extends SuperComponent<ICardFilters>{
     private ticket:string;
-    private chipsEl: Chips;
-    private keywordEl: Select;
-    private subtypeEl: Select;
 
     constructor(){
         super();
@@ -51,9 +47,6 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
             rarity: null,
             keywords: [],
         };
-        this.chipsEl = null;
-        this.keywordEl = null;
-        this.subtypeEl = null;
     }
     async connected(){
         await env.css(["card-filters"]);
@@ -106,10 +99,6 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
         const value = target.dataset.value;
         if (value !== ""){
             editor.addSubtype(value);
-            this.chipsEl.addChip({
-                label: value,
-                name: value,
-            });
         }
     }
 
@@ -126,10 +115,6 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
         const value = target.dataset.value;
         if (value !== ""){
             editor.addKeyword(value);
-            this.chipsEl.addChip({
-                label: value,
-                name: value,
-            });
         }
     }
 
@@ -143,7 +128,9 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     css: "flex:1;",
                     value: this.model.query,
                     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>`,
-                    callback: this.debounce(this.handleSearch.bind(this), 300),
+                    callbacks: {
+                        onInput: this.debounce(this.handleSearch.bind(this), 300),
+                    },
                 })}
                 ${new Select({
                     name: "sort",
@@ -171,7 +158,7 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                             name: "type",
                             value: this.model.type,
                             css: "flex:1;",
-                            options: [{ label: "All types", value: null}, ...(types.map((type) => {
+                            options: [{ label: "All types", value: null}, ...(types.map((type:string) => {
                                 return {
                                     label: type,
                                     value: type,
@@ -296,29 +283,8 @@ export default class CardFilters extends SuperComponent<ICardFilters>{
                     `
                 )}
             </div>
-            ${new Chips({
-                    callback: this.removeChip.bind(this),
-                    type: "dynamic",
-                    css: "flex:1;",
-                    class: "pt-1",
-                    chips: [...(this.model.subtypes.map(type => {
-                        return {
-                            label: type,
-                            name: type,
-                        };
-                    })), ...(this.model.keywords.map(type => {
-                        return {
-                            label: type,
-                            name: type,
-                        };
-                    }))],
-                })
-            }
         `;
         render(view, this);
-        setTimeout(()=>{
-            this.chipsEl = this.querySelector("chips-component");
-        }, 100);
     }
 }
 env.bind("card-filters", CardFilters);

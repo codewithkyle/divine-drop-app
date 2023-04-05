@@ -3,7 +3,7 @@ import { publish } from "@codewithkyle/pubsub";
 import {navigateTo} from "@codewithkyle/router";
 import {UUID} from "@codewithkyle/uuid";
 import type { Deck, Card, DeckCard } from "types/cards";
-import notifications from "~brixi/controllers/notifications";
+import alerts from "~brixi/controllers/alerts";
 
 class Editor {
     private query: string;
@@ -140,7 +140,7 @@ class Editor {
                     data: data,
                 });
             } catch (e){
-                notifications.error("Deck Import Error", "Failed to parse deck code.");
+                alerts.error("Deck Import Error", "Failed to parse deck code.");
             }
         }
     }
