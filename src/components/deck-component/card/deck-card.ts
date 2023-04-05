@@ -59,7 +59,8 @@ export default class DeckCard extends SuperComponent<IDeckCard>{
                 ${new Button({
                     iconPosition: "center",
                     kind: "text",
-                    color: "grey",
+                    // @ts-ignore
+                    color: "white",
                     class: "mr-0.5",
                     tooltip: "Preview",
                     callback: ()=>{
@@ -68,7 +69,7 @@ export default class DeckCard extends SuperComponent<IDeckCard>{
                     },
                     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="12" r="2"></circle><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7"></path></svg>`,
                 })}
-                <span class="font-white font-medium font-sm inline-block" style="flex:1;width: 215px;overflow:hidden;">${this.card.name}</span>
+                <span class="name font-white font-medium font-sm inline-block" style="flex:1;width: 215px;overflow:hidden;">${this.card.name}</span>
             </div>
             <div flex="row nowrap items-center" class="actions">
                 ${new Button({
@@ -100,7 +101,8 @@ export default class DeckCard extends SuperComponent<IDeckCard>{
                 ${new Button({
                     iconPosition: "center",
                     kind: "text",
-                    color: "grey",
+                    // @ts-ignore
+                    color: "white",
                     callback: ()=>{
                         const updated = this.get();
                         updated.count--;
@@ -115,7 +117,8 @@ export default class DeckCard extends SuperComponent<IDeckCard>{
                 ${new Button({
                     iconPosition: "center",
                     kind: "text",
-                    color: "grey",
+                    // @ts-ignore
+                    color: "white",
                     class: "mr-0.5",
                     callback: this.add.bind(this),
                     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`,

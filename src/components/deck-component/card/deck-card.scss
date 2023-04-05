@@ -14,19 +14,19 @@ deck-card{
     &:hover,
     &:focus-within{
         .actions{
-            background-color: var(--white);
-
-            span{
-                color: var(--grey-700) !important;
-            }
-
             button-component{
-                display: inline-flex !important;
+                opacity: 1;
+                visibility: visible;
             }
+        }
 
-            &::after{
-                background: linear-gradient(to left, #fff, transparent);
-            }
+        img{
+            filter: brightness(0.1);
+        }
+
+        .name{
+            opacity: 0;
+            visibility: hidden;
         }
     }
 
@@ -38,23 +38,21 @@ deck-card{
         padding: 0 1rem 0 0.5rem;
 
         button-component{
-            display: none !important;
-        }
-
-        &::after{
-            content: "";
-            position: absolute;
-            top: 0;
-            height: 100%;
-            left: -64px;
-            width: 64px;
-            background: transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 150ms var(--ease-in-out);
         }
     }
 
     span{
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+
+    .name {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 150ms var(--ease-in-out);
     }
 
     img{
@@ -65,5 +63,6 @@ deck-card{
         transform: translate(-50%, -56px);
         user-select: none;
         filter: brightness(0.3);
+        transition: filter 150ms var(--ease-in-out);
     }
 }

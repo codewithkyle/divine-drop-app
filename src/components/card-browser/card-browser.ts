@@ -6,6 +6,7 @@ import type { Card } from "types/cards";
 import Pagination from "~brixi/types/pagination";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import editor from "controllers/editor";
+import { UUID } from "@codewithkyle/uuid";
 
 interface ICardBrowser{
     cards: Card[],
@@ -29,10 +30,12 @@ interface ICardBrowser{
 export default class CardBrowser extends SuperComponent<ICardBrowser>{
     private ticket:string;
     private deckId: string;
+    private requestId: string;
 
     constructor(deckId:string){
         super();
         this.deckId = deckId;
+        this.requestId = "";
         this.state = "LOADING";
         this.stateMachine = {
             LOADING: {
@@ -88,6 +91,9 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
 
     private async queryCards(resetPage = false){
         this.trigger("LOAD");
+
+        const requestId = UUID();
+        this.requestId = requestId;
 
         if (resetPage){
             this.set({
@@ -159,11 +165,14 @@ export default class CardBrowser extends SuperComponent<ICardBrowser>{
 
         const cards = await db.query<Card>(`${cardQuery} ${conditions.join(" AND ").trim()} OFFSET ${(this.model.page - 1) * 30} LIMIT 30 ORDER BY ${this.model.sort}`, data);
         const cardCount = (await db.query<Card>(`${countQuery} ${conditions.join(" AND ")}`, data))[0]["COUNT(*)"];
-        this.set({
-            cards: cards,
-            totalPages: Math.ceil(cardCount / 30),
-        });
-        this.trigger("DONE");
+
+        if (requestId === this.requestId){
+            this.set({
+                cards: cards,
+                totalPages: Math.ceil(cardCount / 30),
+            });
+            this.trigger("DONE");
+        }
     }
 
     private handleDragStart = (e) => {

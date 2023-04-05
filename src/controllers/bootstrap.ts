@@ -102,7 +102,6 @@ async function prepDatabase(){
             ],
         },
     });
-    console.log("db started");
 
     const res = await fetch("https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards.jsonl", {
         method: "HEAD",
@@ -117,7 +116,6 @@ async function prepDatabase(){
         await db.ingest("https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards.jsonl", "cards", "NDJSON");
         localStorage.setItem("db-timestamp", lastModified);
     }
-    console.log("db ready");
     document.dispatchEvent(new CustomEvent("init:app"));
 }
 
