@@ -18,7 +18,7 @@ const install = require("esinstall").install;
     }
 	await install(bundle);
 	
-	const libDir = path.join(cwd, "src", "lib");
+	const libDir = path.join(cwd, "scripts", "lib");
 	if (fs.existsSync(libDir)) {
 		fs.rmdirSync(libDir, { recursive: true });
 	}
