@@ -17,19 +17,7 @@ module.exports = {
             800: "#27272A",
             900: "#18181B",
         },
-        neutral: {
-            50: "#FAFAFA",
-            100: "#F5F5F5",
-            200: "#E5E5E5",
-            300: "#D4D4D4",
-            400: "#A3A3A3",
-            500: "#737373",
-            600: "#525252",
-            700: "#404040",
-            800: "#262626",
-            900: "#171717",
-        },
-        primary: {
+        blue: {
             50: "#EFF6FF",
             100: "#DBEAFE",
             200: "#BFDBFE",
@@ -41,19 +29,7 @@ module.exports = {
             800: "#1E40AF",
             900: "#1E3A8A",
         },
-        info: {
-            50: "#EFF6FF",
-            100: "#DBEAFE",
-            200: "#BFDBFE",
-            300: "#93C5FD",
-            400: "#60A5FA",
-            500: "#3B82F6",
-            600: "#2563EB",
-            700: "#1D4ED8",
-            800: "#1E40AF",
-            900: "#1E3A8A",
-        },
-        success: {
+        green: {
             50: "#ECFDF5",
             100: "#D1FAE5",
             200: "#A7F3D0",
@@ -65,7 +41,7 @@ module.exports = {
             800: "#065F46",
             900: "#064E3B",
         },
-        danger: {
+        red: {
             50: "#FFF1F2",
             100: "#FFE4E6",
             200: "#FECDD3",
@@ -77,7 +53,7 @@ module.exports = {
             800: "#9F1239",
             900: "#881337",
         },
-        warning: {
+        yellow: {
             50: "#FFFBEB",
             100: "#FEF3C7",
             200: "#FDE68A",
@@ -94,16 +70,11 @@ module.exports = {
         units: "px",
         styles: ["solid"],
         widths: [1],
-        radius: [0.125, 0.25, 0.5],
+        radius: [0.25, 0.5, 1],
     },
     variables: {
         "focus-ring": "1px auto var(--primary-500)",
         "focus-ring-offset": "5px",
-        "bevel": "0 1px 0 hsl(0deg 0% 0% / 0.1), inset 0 -2px 0 hsl(0deg 0% 0% / 0.05)",
-        "primary-opaque-hover": "rgba(var(--primary-500-rgb),0.05)",
-        "primary-opaque-active": "rgba(var(--primary-500-rgb),0.1)",
-        "input-border": "1px solid var(--grey-300)",
-        "button-shadow": "0px 1px 2px -1px rgba(0, 0, 0, 0.09), 0px 7px 14px -5px rgba(0, 0, 0, 0.06), 0px 3px 7px -2px rgba(0, 0, 0, 0.04), inset 0px -1px 0px 1px rgba(0, 0, 0, 0.06)",
     },
     shadows: {
         colors: {
