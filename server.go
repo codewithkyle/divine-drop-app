@@ -3,6 +3,8 @@ package main
 import (
     "log"
     "os"
+    "strings"
+    "net/url"
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/template/html/v2"
     "github.com/joho/godotenv"
@@ -42,24 +44,46 @@ func main() {
     app.Get("/", func(c *fiber.Ctx) error {
         var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT front FROM Cards LIMIT 20").Scan(&cards)
+        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", "%%").Scan(&cards)
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Page": "card-browser",
             "Cards": cards,
+            "Search": "",
+            "NextPage": 1,
         }, "layouts/main")
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
         search := c.FormValue("search")
 
-        search = "%" + search + "%"
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
 
         var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20", search).Scan(&cards)
+        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", searchQuery).Scan(&cards)
+
+        return c.Render("pages/card-browser/index", fiber.Map{
+            "Cards": cards,
+            "Search": url.QueryEscape(search),
+            "NextPage": 1,
+            "SearchRaw": search,
+        })
+    })
+    app.Get("/partials/card-browser", func(c *fiber.Ctx) error {
+        search := c.Query("search")
+        page := c.QueryInt("page")
+
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        var offset = page * 20
+
+        var cards []models.Card
+        db := connectDB()
+        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET ?", searchQuery, offset).Scan(&cards)
 
         return c.Render("partials/card-browser", fiber.Map{
             "Cards": cards,
+            "Search": url.QueryEscape(search),
+            "NextPage": page + 1,
         })
     })
 
