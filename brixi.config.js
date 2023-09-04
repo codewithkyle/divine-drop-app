@@ -78,7 +78,7 @@ module.exports = {
     },
     shadows: {
         colors: {
-            grey: "var(--black-hsl)",
+            black: "var(--black-hsl)",
         },
         sizes: {
             sm: `

@@ -1,0 +1,29 @@
+<button
+    hx-get="/partials/nav/decks-closed"
+    hx-trigger="click"
+    hx-swap="innerHTML"
+    class="is-open"
+    hx-target="#decks"
+>
+    <i>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M5 19l2.757 -7.351a1 1 0 0 1 .936 -.649h12.307a1 1 0 0 1 .986 1.164l-.996 5.211a2 2 0 0 1 -1.964 1.625h-14.026a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2"></path>
+        </svg>
+    </i>
+    <span>Decks</span>
+    <svg class="arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+       <path d="M9 6l6 6l-6 6"></path>
+    </svg>
+</button>
+<deck-list>
+    <a href="#" title="Turtles All The Way Down">
+        <span class="badge">60</span>
+        <span class="title">Turtles All The Way Down</span>
+    </a>
+    <a href="#" title="The Hippo Defense">
+        <span class="badge">5</span>
+        <span class="title">The Hippo Defense</span>
+    </a>
+</deck-list>
