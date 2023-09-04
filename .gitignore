@@ -1,8 +1,5 @@
-src/framework
-src/stylesheets/brixi.css
-src/lib
+scripts/lib
 
-public/audio
 public/js
 public/css
 

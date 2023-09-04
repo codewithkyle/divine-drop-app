@@ -14,6 +14,10 @@ func main() {
         Views: engine,
     })
 
+    app.Static("/css", "./public/css")
+    app.Static("/js", "./public/js")
+    app.Static("/fonts", "./public/fonts")
+
     app.Get("/", func(c *fiber.Ctx) error {
         // Render index within layouts/main
         return c.Render("index", fiber.Map{
