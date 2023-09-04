@@ -1,0 +1,12 @@
+<input 
+    class="card-browser-search"
+    type="text"
+    name="search"
+    placeholder="Search cards..."
+    hx-post="/partials/card-browser"
+    hx-trigger="keyup changed delay:500ms, search"
+    hx-target=".card-browser"
+    hx-swap="outerHTML"
+>
+
+{{ template "partials/card-browser" . }}

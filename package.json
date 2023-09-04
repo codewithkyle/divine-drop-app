@@ -12,7 +12,7 @@
     "@codewithkyle/notifyjs": "^4.1.0",
     "@codewithkyle/supercomponent": "^2.0.0",
     "@codewithkyle/twist": "^2.0.2",
-    "brixi": "^0.6.2",
+    "brixi": "^0.7.1",
     "cssmonster": "^0.7.2",
     "esbuild": "^0.15.10",
     "esinstall": "^1.1.7",
@@ -27,16 +27,16 @@
   },
   "bundle": [
     {
-        "in": "@codewithkyle/notifyjs/snackbar.js",
-        "out": "snackbar.js"
+      "in": "@codewithkyle/notifyjs/snackbar.js",
+      "out": "snackbar.js"
     },
     {
-        "in": "@codewithkyle/notifyjs/notifications.js",
-        "out": "notifications.js"
+      "in": "@codewithkyle/notifyjs/notifications.js",
+      "out": "notifications.js"
     },
     {
-        "in": "@codewithkyle/notifyjs/toaster.js",
-        "out": "toaster.js"
+      "in": "@codewithkyle/notifyjs/toaster.js",
+      "out": "toaster.js"
     },
     "tooltipper",
     "@codewithkyle/supercomponent",
