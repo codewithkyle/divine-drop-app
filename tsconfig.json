@@ -8,9 +8,6 @@
         "moduleResolution": "Node",
         "baseUrl": "src",
         "allowSyntheticDefaultImports": true,
-        "paths": {
-            "~brixi/*": ["framework/*"]
-        },
         "declaration": true,
         "emitDeclarationOnly": true,
         "outDir": "_types"
@@ -18,7 +15,6 @@
     "include": ["src"],
     "exclude": [
         "src/lib",
-        "src/framework",
         "node_modules"
     ]
 }
