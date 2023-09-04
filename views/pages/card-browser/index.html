@@ -4,9 +4,10 @@
     name="search"
     placeholder="Search cards..."
     hx-post="/partials/card-browser"
-    hx-trigger="keyup changed delay:500ms, search"
-    hx-target=".card-browser"
-    hx-swap="outerHTML"
+    hx-trigger="keyup changed delay:1000ms, search"
+    hx-target="main"
+    hx-swap="innerHTML"
+    value="{{ .SearchRaw }}"
 >
 
 {{ template "partials/card-browser" . }}

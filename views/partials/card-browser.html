@@ -1,5 +1,14 @@
-<div class="card-browser">
-    {{ range .Cards }}
-        <img src="{{ .Front }}" onload="this.style.opacity = '1'">
-    {{ end }}
-</div>
+{{ if gt (len .Cards) 0 }}
+    <div class="card-browser">
+        {{ range .Cards }}
+            <img src="{{ .Front }}" onload="this.style.opacity = '1'">
+        {{ end }}
+    </div>
+    <div 
+        class="block w-full"
+        style="height:3rem;"
+        hx-get="/partials/card-browser?page={{ .NextPage }}&search={{ .Search }}"
+        hx-trigger="intersect once"
+        hx-swap="outerHTML"
+    ></div>
+{{ end }}

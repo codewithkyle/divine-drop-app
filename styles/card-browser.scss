@@ -4,7 +4,19 @@
     gap: 1rem;
     max-width: 1600px;
     width: calc(100% - 6rem);
-    margin: 3rem auto;
+    margin: 0 auto;
+
+    &:first-of-type{
+        margin-top: 3rem;
+    }
+
+    &:last-of-type{
+        margin-bottom: 3rem;
+    }
+
+    &:not(:first-of-type){
+        margin-top: 1rem;
+    }
 
     img{
         display: block;
