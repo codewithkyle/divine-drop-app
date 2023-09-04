@@ -1,11 +1,11 @@
 {
   "scripts": {
     "install:brixi": "brixi && mv ./brixi/brixi.css ./public/css/brixi.css && rmdir ./brixi",
-    "bundle": "node ./build/bundle.js",
     "build": "run-s build:*",
     "build:app": "go build",
     "build:css": "cssmonster",
     "build:brixi": "npm run install:brixi",
+    "build:bundle": "node ./build/bundle.js",
     "build:js": "twist --type=esbuild --src=./scripts"
   },
   "devDependencies": {

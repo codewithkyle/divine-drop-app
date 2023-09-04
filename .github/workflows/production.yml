@@ -34,5 +34,5 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Deploy
-        run: rsync -azh --delete-after --exclude={'/.git','/.github','/build','/models','/scripts','/styles','/views','.gitignore','brixi.config.js','cssmonster.config.json','go.mod','go.sum','package.json','package-lock.json','server.go','tsconfig.json'} -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/server
+        run: rsync -azh --delete-after --exclude={'/node_modules','/.git','/.github','/build','/models','/scripts','/styles','/views','.gitignore','brixi.config.js','cssmonster.config.json','go.mod','go.sum','package.json','package-lock.json','server.go','tsconfig.json'} -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/server
 
