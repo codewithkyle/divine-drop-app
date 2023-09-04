@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "install:brixi": "brixi && mv ./brixi/brixi.css ./src/stylesheets/brixi.css && rmdir ./brixi",
+    "install:brixi": "brixi && mv ./brixi/brixi.css ./public/css/brixi.css && rmdir ./brixi",
     "bundle": "node ./build/bundle.js"
   },
   "devDependencies": {
