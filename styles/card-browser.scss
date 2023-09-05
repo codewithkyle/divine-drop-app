@@ -1,10 +1,22 @@
 .card-browser{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(1, minmax(100px, 1fr));
     gap: 1rem;
-    max-width: 1600px;
-    width: calc(100% - 6rem);
+    width: 1400px;
+    max-width: calc(100% - 6rem);
     margin: 0 auto;
+
+    @media (min-width: 768px){
+        grid-template-columns: repeat(2, minmax(100px, 1fr));
+    }
+
+    @media (min-width: 1200px){
+        grid-template-columns: repeat(4, minmax(100px, 1fr));
+    }
+
+    @media (min-width: 1600px){
+        grid-template-columns: repeat(5, minmax(100px, 1fr));
+    }
 
     &:first-of-type{
         margin-top: 3rem;
@@ -31,8 +43,8 @@
 .card-browser-search{
     display: block;
     margin: 3rem auto 0;
-    max-width: 1600px;
-    width: calc(100% - 6rem);
+    width: 1400px;
+    max-width: calc(100% - 6rem);
     height: 48px;
     border-bottom: 1px solid var(--grey-700);
     color: var(--grey-300);
