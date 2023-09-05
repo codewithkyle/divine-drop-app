@@ -27,9 +27,10 @@ header.deck-editor{
         border-radius: 0.5rem;
         background: transparent;
         padding: 0 0.5rem;
-        border: 1px solid transparent;
+        border: 2px solid transparent;
         margin-left: -0.5rem;
         transition: all 150ms var(--ease-in-out);
+        width: 100%;
 
         &:hover{
             border-color: var(--grey-500);

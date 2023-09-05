@@ -61,15 +61,25 @@ func main() {
     app.Static("/fonts", "./public/fonts")
 
     app.Get("/", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, _ := getUser(sessionId)
+
         var cards []models.Card
         db := connectDB()
         db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", "%%").Scan(&cards)
+
+        var decks []models.Deck
+        if user.Id != "" {
+            db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
+        }
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Page": "card-browser",
             "Cards": cards,
             "Search": "",
             "NextPage": 1,
+            "User": user,
+            "Decks": decks,
         }, "layouts/main")
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
@@ -130,17 +140,20 @@ func main() {
 
         deckId := c.Params("id")
         db := connectDB()
-        var deck models.Deck
-        db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, user.Id).Scan(&deck)
-
+        deck := models.GetDeck(db, deckId, user.Id)
+        
         if deck.Id == "" {
             return c.Redirect("/")
         }
 
+        decks := models.GetDecks(db, deckId, user.Id)
+
         return c.Render("pages/deck-builder/index", fiber.Map{
-            "Page": "deck-builder",
+            "Page": "deck-editor",
             "User": user,
             "Deck": deck,
+            "Decks": decks,
+            "ActiveDeckId": deckId,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -158,6 +171,8 @@ func main() {
         deck := models.Deck{}
         db.Raw("SELECT HEX(id) AS id, label, HEX(commander_card_id) AS commander_card_id, user_id FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id).Scan(&deck)
 
+        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + deck.Id + "\"}")
+
         return c.Render("partials/deck-builder/label-input", fiber.Map{
             "Deck": deck,
         })
@@ -169,16 +184,39 @@ func main() {
         if err != nil {
             return c.Redirect("/sign-in")
         }
+        activeDeckId := c.Query("active-deck-id", "")
         db := connectDB()
-        var decks []models.Deck
-        db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
+        decks := models.GetDecks(db, activeDeckId, user.Id)
+
 
         return c.Render("partials/nav/decks-opened", fiber.Map{
             "Decks": decks,
+            "ActiveDeckId": activeDeckId,
         })
     })
     app.Get("/partials/nav/decks-closed", func(c *fiber.Ctx) error {
-        return c.Render("partials/nav/decks-closed", fiber.Map{})
+        activeDeckId := c.Query("active-deck-id")
+        return c.Render("partials/nav/decks-closed", fiber.Map{
+            "ActiveDeckId": activeDeckId,
+        })
+    })
+    app.Get("/partials/nav/decks/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        db := connectDB()
+        deck := models.GetDeck(db, deckId, user.Id)
+
+        return c.Render("partials/nav/deck-link", fiber.Map{
+            "Id": deck.Id,
+            "Label": deck.Label,
+            "CardCount": deck.CardCount,
+            "Active": deck.Active,
+        })
     })
 
     app.Get("/register", func(c *fiber.Ctx) error {
