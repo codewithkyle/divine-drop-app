@@ -1,0 +1,5 @@
+{{ if .Authorized }}
+    <p>Hello</p>
+{{ else }}
+    {{ template "partials/login" . }}
+{{ end }}

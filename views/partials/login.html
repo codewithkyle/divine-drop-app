@@ -1,0 +1,26 @@
+<div id="sign-in"></div>
+<script>
+    const script = document.createElement('script');
+    script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
+    script.async = true;
+    script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+
+    script.addEventListener('load', async function () {
+        await window.Clerk.load();
+
+        const signInComponent = document.querySelector('#sign-in');
+
+        if (window.Clerk.session === null){
+            window.Clerk.mountSignIn(signInComponent, {
+                appearance: {
+                    baseTheme: "dark"
+                },
+                redirectUrl: location.href,
+            });
+        }
+        else {
+            await window.Clerk.session.getToken()
+        }
+    });
+    document.body.appendChild(script);
+</script>
