@@ -10,6 +10,7 @@ import (
     "github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+    //"github.com/clerkinc/clerk-sdk-go/clerk"
     "app/models"
 )
 
@@ -28,6 +29,8 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("failed to load environment variables: %v", err)
 	}
+
+    //client, _ := clerk.NewClient(os.Getenv("CLERK_API_KEY"), nil)
 
     // Create a new engine
     engine := html.New("./views", ".html")
