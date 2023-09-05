@@ -1,5 +1,3 @@
-{{ if .Authorized }}
-    <p>Hello</p>
-{{ else }}
-    {{ template "partials/login" . }}
-{{ end }}
+<p>Hello {{ .User.Username }}</p>
+
+<img src="{{ .User.Avatar }}">

@@ -98,8 +98,20 @@ func main() {
             return c.Redirect("/sign-in")
         }
 
+        db := connectDB()
+        var session models.Session
+        db.Raw("SELECT * FROM Sessions WHERE session_id = UNHEX(?) AND expires > ?", sessionId, time.Now()).Scan(&session)
+        if session.Id == "" {
+            return c.Redirect("/sign-in")
+        }
+        user, err := models.BlobToUser(session.Data)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-builder",
+            "User": user,
         }, "layouts/main")
     })
 
@@ -110,6 +122,9 @@ func main() {
         return c.Render("partials/nav/decks-closed", fiber.Map{})
     })
 
+    app.Get("/register", func(c *fiber.Ctx) error {
+        return c.Render("pages/register/index", fiber.Map{})
+    })
     app.Get("/sign-in", func(c *fiber.Ctx) error {
         return c.Render("pages/sign-in/index", fiber.Map{})
     })
@@ -127,15 +142,37 @@ func main() {
             return c.Redirect("/sign-in")
 		}
 
-        log.Println(*user.Username)
+        email := ""
+        if (len(user.EmailAddresses) > 0) {
+            email = user.EmailAddresses[0].EmailAddress
+        }
+
+        username := ""
+        if (user.Username != nil) {
+            username = *user.Username
+        } else {
+            username = strings.Trim(user.ID, "user_")
+        }
+
+        customUser := models.User{
+            Id: user.ID,
+            Username: username,
+            Email: email,
+            Avatar: user.ProfileImageURL,
+        }
         sessionId := uuid.New().String()
+        sessionId = strings.ReplaceAll(sessionId, "-", "")
+        expires := time.Now().Add(168 * time.Hour)
+        blob, _ := models.UserToBlob(customUser)
 
         // TODO: insert into DB
+        db := connectDB()
+        db.Exec("INSERT INTO Sessions (session_id, user_id, data, expires) VALUES (UNHEX(?), ?, ?, ?)", sessionId, customUser.Id, blob, expires)
 
         c.Cookie(&fiber.Cookie{
             Name: "session_id",
             Value: sessionId,
-            Expires: time.Now().Add(168 * time.Hour),
+            Expires: expires,
             Secure: true,
             HTTPOnly: true,
             SameSite: "Strict",
