@@ -18,12 +18,10 @@
     </svg>
 </button>
 <deck-list>
-    <a href="#" title="Turtles All The Way Down">
-        <span class="badge">60</span>
-        <span class="title">Turtles All The Way Down</span>
-    </a>
-    <a href="#" title="The Hippo Defense">
-        <span class="badge">5</span>
-        <span class="title">The Hippo Defense</span>
-    </a>
+    {{ range .Decks }}
+        <a href="/decks/{{ .Id }}" title="{{ .Label }}">
+            <span class="badge">{{ .CardCount }}</span>
+            <span class="title">{{ .Label }}</span>
+        </a>
+    {{ end }}
 </deck-list>

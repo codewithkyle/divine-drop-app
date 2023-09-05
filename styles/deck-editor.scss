@@ -1,0 +1,44 @@
+header.deck-editor{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem;
+    height: 128px;
+    width: 100%;
+    background-color: var(--grey-900);
+
+    &::after{
+        content: "";
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(to right, hsl(var(--white-hsl) / 0.3), hsl(var(--white-hsl) / 0.6));
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        opacity: 0.15;
+    }
+
+    input{
+        font-size: var(--font-xl);
+        color: var(--grey-300);
+        font-weight: var(--font-medium);
+        margin-bottom: 0.5rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: transparent;
+        padding: 0 0.5rem;
+        border: 1px solid transparent;
+        margin-left: -0.5rem;
+        transition: all 150ms var(--ease-in-out);
+
+        &:hover{
+            border-color: var(--grey-500);
+        }
+
+        &:focus{
+            outline: none;
+            border-color: var(--white);
+            color: var(--white);
+        }
+    }
+}

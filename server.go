@@ -6,6 +6,7 @@ import (
     "strings"
     "time"
     "net/url"
+    "errors"
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/template/html/v2"
     "github.com/joho/godotenv"
@@ -24,6 +25,19 @@ func connectDB() *gorm.DB {
 		log.Fatalf("failed to connect to PlanetScale: %v", err)
 	}
     return db;
+}
+
+func getUser(sessionId string) (models.User, error) {
+    if sessionId == "" {
+        return models.User{}, errors.New("Session not found");
+    }
+    db := connectDB()
+    var session models.Session
+    db.Raw("SELECT * FROM Sessions WHERE session_id = UNHEX(?) AND expires > ?", sessionId, time.Now()).Scan(&session)
+    if session.Id == "" {
+        return models.User{}, errors.New("Session not found");
+    }
+    return models.BlobToUser(session.Data)
 }
 
 func main() {
@@ -93,30 +107,75 @@ func main() {
     })
 
     app.Get("/decks/new", func(c *fiber.Ctx) error {
-        sessionId := c.Cookies("session_id", "")
-        if sessionId == "" {
+        sessionId := c.Cookies("session_id", "") 
+        user, err := getUser(sessionId)
+        if err != nil {
             return c.Redirect("/sign-in")
         }
 
+        uuid := uuid.New().String()
+        uuid = strings.ReplaceAll(uuid, "-", "")
+
         db := connectDB()
-        var session models.Session
-        db.Raw("SELECT * FROM Sessions WHERE session_id = UNHEX(?) AND expires > ?", sessionId, time.Now()).Scan(&session)
-        if session.Id == "" {
-            return c.Redirect("/sign-in")
-        }
-        user, err := models.BlobToUser(session.Data)
+        db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, 'Untitled')", uuid, user.Id)
+
+        return c.Redirect("/decks/" + uuid + "/edit");
+    })
+    app.Get("/decks/:id/edit", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
         if err != nil {
             return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        db := connectDB()
+        var deck models.Deck
+        db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, user.Id).Scan(&deck)
+
+        if deck.Id == "" {
+            return c.Redirect("/")
         }
 
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-builder",
             "User": user,
+            "Deck": deck,
         }, "layouts/main")
+    })
+    app.Patch("/decks/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        db := connectDB()
+        label := c.FormValue("label")
+        db.Exec("UPDATE Decks SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, deckId, user.Id)
+
+        deck := models.Deck{}
+        db.Raw("SELECT HEX(id) AS id, label, HEX(commander_card_id) AS commander_card_id, user_id FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id).Scan(&deck)
+
+        return c.Render("partials/deck-builder/label-input", fiber.Map{
+            "Deck": deck,
+        })
     })
 
     app.Get("/partials/nav/decks-opened", func(c *fiber.Ctx) error {
-        return c.Render("partials/nav/decks-opened", fiber.Map{})
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+        db := connectDB()
+        var decks []models.Deck
+        db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
+
+        return c.Render("partials/nav/decks-opened", fiber.Map{
+            "Decks": decks,
+        })
     })
     app.Get("/partials/nav/decks-closed", func(c *fiber.Ctx) error {
         return c.Render("partials/nav/decks-closed", fiber.Map{})
