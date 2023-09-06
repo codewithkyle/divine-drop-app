@@ -69,7 +69,7 @@ func main() {
 
         var decks []models.Deck
         if user.Id != "" {
-            db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
+            db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
         }
 
         return c.Render("pages/card-browser/index", fiber.Map{
@@ -147,6 +147,9 @@ func main() {
         cards := models.SearchCardsByName(db, "%%", 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
 
+        deckMetadata := models.DeckMetadata{}
+        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deck.Id).Scan(&deckMetadata)
+
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-editor",
             "User": user,
@@ -156,6 +159,7 @@ func main() {
             "Cards": cards,
             "SearchPage": 1,
             "DeckCards": deckCards,
+            "DeckMetadata": deckMetadata,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -246,6 +250,8 @@ func main() {
             db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
         }
 
+        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
+
         deckCards := models.GetDeckCards(db, activeDeckId)
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
@@ -266,8 +272,28 @@ func main() {
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
         deckCards := models.GetDeckCards(db, activeDeckId)
 
+        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
+
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
+        })
+    })
+    app.Get("/partials/deck-builder/card-count/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        _, err := getUser(sessionId)
+        if err != nil {
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
+        }
+
+        deckId := c.Params("id")
+
+        db := connectDB()
+        deckMetadata := models.DeckMetadata{}
+        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deckId).Scan(&deckMetadata)
+
+        return c.Render("partials/deck-builder/card-count", fiber.Map{
+            "DeckMetadata": deckMetadata,
         })
     })
 
@@ -304,10 +330,13 @@ func main() {
         db := connectDB()
         deck := models.GetDeck(db, deckId, user.Id)
 
+        deckMetadata := models.DeckMetadata{}
+        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deck.Id).Scan(&deckMetadata)
+
         return c.Render("partials/nav/deck-link", fiber.Map{
             "Id": deck.Id,
             "Label": deck.Label,
-            "CardCount": deck.CardCount,
+            "CardCount": deckMetadata.CardCount,
             "Active": deck.Active,
         })
     })
