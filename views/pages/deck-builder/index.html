@@ -28,7 +28,7 @@
             <div
                 hx-get="/partials/deck-builder/card-grid-settings"
                 hx-trigger="cardGridReset from:body"
-                hx-include="[name='deck-id']"
+                hx-include="[name='active-deck-id']"
             >
                 {{ template "partials/deck-builder/card-grid-settings" . }}
             </div>

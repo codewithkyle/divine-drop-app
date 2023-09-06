@@ -211,11 +211,12 @@ func main() {
         page := c.QueryInt("page")
         page = page + 1
         return c.Render("partials/deck-builder/card-grid-loader", fiber.Map{
+            "ActiveDeckId": c.Query("active-deck-id"),
             "SearchPage": page,
         })
     })
     app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
-        deckId := c.Query("deck-id")
+        deckId := c.Query("active-deck-id")
         return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
             "SearchPage": 1,
             "ActiveDeckId": deckId,
@@ -229,7 +230,7 @@ func main() {
             return c.Send(nil)
         }
 
-        activeDeckId := c.FormValue("deck-id", "")
+        activeDeckId := c.FormValue("active-deck-id", "")
         cardId := c.Params("id")
 
         db := connectDB()
@@ -258,7 +259,7 @@ func main() {
             return c.Send(nil)
         }
 
-        activeDeckId := c.FormValue("deck-id", "")
+        activeDeckId := c.FormValue("active-deck-id", "")
         cardId := c.Params("id")
 
         db := connectDB()
