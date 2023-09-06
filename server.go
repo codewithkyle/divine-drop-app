@@ -64,8 +64,11 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, _ := getUser(sessionId)
 
+        search := c.Query("search")
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+
         db := connectDB()
-        cards := models.SearchCardsByName(db, "%%", 0, 20)
+        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
 
         var decks []models.Deck
         if user.Id != "" {
@@ -79,15 +82,17 @@ func main() {
             "NextPage": 1,
             "User": user,
             "Decks": decks,
+            "SearchRaw": search,
         }, "layouts/main")
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
         search := c.FormValue("search")
-
         searchQuery := "%" + strings.Trim(search, " ") + "%"
 
         db := connectDB()
         cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+
+        c.Response().Header.Set("HX-Replace-Url", "/?search=" + url.QueryEscape(search))
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Cards": cards,
@@ -105,6 +110,8 @@ func main() {
 
         db := connectDB()
         cards := models.SearchCardsByName(db, searchQuery, offset, 20)
+
+        c.Response().Header.Set("HX-Replace-Url", "/?search=" + url.QueryEscape(search))
 
         return c.Render("partials/card-browser", fiber.Map{
             "Cards": cards,
