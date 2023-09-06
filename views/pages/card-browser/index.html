@@ -9,5 +9,16 @@
     hx-swap="innerHTML"
     value="{{ .SearchRaw }}"
 >
-
-{{ template "partials/card-browser" . }}
+{{ template "partials/card-browser/page-input" . }}
+<div class="card-browser">
+    {{ template "partials/card-browser/card-grid" . }}
+</div>
+<div 
+    class="block w-full"
+    style="height:3rem;"
+    hx-get="/partials/card-browser"
+    hx-trigger="intersect throttle:1000ms"
+    hx-target=".card-browser"
+    hx-swap="beforeend"
+    hx-include="[name='search'], [name='page']"
+></div>
