@@ -4,13 +4,16 @@ import (
     "log"
     "os"
     "strings"
+    "time"
     "net/url"
+    "errors"
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/template/html/v2"
     "github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-    //"github.com/clerkinc/clerk-sdk-go/clerk"
+    "github.com/clerkinc/clerk-sdk-go/clerk"
+    "github.com/google/uuid"
     "app/models"
 )
 
@@ -24,13 +27,26 @@ func connectDB() *gorm.DB {
     return db;
 }
 
+func getUser(sessionId string) (models.User, error) {
+    if sessionId == "" {
+        return models.User{}, errors.New("Session not found");
+    }
+    db := connectDB()
+    var session models.Session
+    db.Raw("SELECT * FROM Sessions WHERE session_id = UNHEX(?) AND expires > ?", sessionId, time.Now()).Scan(&session)
+    if session.Id == "" {
+        return models.User{}, errors.New("Session not found");
+    }
+    return models.BlobToUser(session.Data)
+}
+
 func main() {
     // Load environment variables from file.
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("failed to load environment variables: %v", err)
 	}
 
-    //client, _ := clerk.NewClient(os.Getenv("CLERK_API_KEY"), nil)
+    client, _ := clerk.NewClient(os.Getenv("CLERK_API_KEY"))
 
     // Create a new engine
     engine := html.New("./views", ".html")
@@ -45,15 +61,24 @@ func main() {
     app.Static("/fonts", "./public/fonts")
 
     app.Get("/", func(c *fiber.Ctx) error {
-        var cards []models.Card
+        sessionId := c.Cookies("session_id", "")
+        user, _ := getUser(sessionId)
+
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", "%%").Scan(&cards)
+        cards := models.SearchCardsByName(db, "%%", 0, 20)
+
+        var decks []models.Deck
+        if user.Id != "" {
+            db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(*) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
+        }
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Page": "card-browser",
             "Cards": cards,
             "Search": "",
             "NextPage": 1,
+            "User": user,
+            "Decks": decks,
         }, "layouts/main")
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
@@ -61,9 +86,8 @@ func main() {
 
         searchQuery := "%" + strings.Trim(search, " ") + "%"
 
-        var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", searchQuery).Scan(&cards)
+        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Cards": cards,
@@ -79,9 +103,8 @@ func main() {
         searchQuery := "%" + strings.Trim(search, " ") + "%"
         var offset = page * 20
 
-        var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET ?", searchQuery, offset).Scan(&cards)
+        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
 
         return c.Render("partials/card-browser", fiber.Map{
             "Cards": cards,
@@ -90,11 +113,209 @@ func main() {
         })
     })
 
+    app.Get("/decks/new", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "") 
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        uuid := uuid.New().String()
+        uuid = strings.ReplaceAll(uuid, "-", "")
+
+        db := connectDB()
+        db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, 'Untitled')", uuid, user.Id)
+
+        return c.Redirect("/decks/" + uuid + "/edit");
+    })
+    app.Get("/decks/:id/edit", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        db := connectDB()
+        deck := models.GetDeck(db, deckId, user.Id)
+        
+        if deck.Id == "" {
+            return c.Redirect("/")
+        }
+
+        decks := models.GetDecks(db, deckId, user.Id)
+        cards := models.SearchCardsByName(db, "%%", 0, 20)
+
+        return c.Render("pages/deck-builder/index", fiber.Map{
+            "Page": "deck-editor",
+            "User": user,
+            "Deck": deck,
+            "Decks": decks,
+            "ActiveDeckId": deckId,
+            "Cards": cards,
+            "SearchPage": 1,
+        }, "layouts/main")
+    })
+    app.Patch("/decks/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        db := connectDB()
+        label := c.FormValue("label")
+        db.Exec("UPDATE Decks SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, deckId, user.Id)
+
+        deck := models.Deck{}
+        db.Raw("SELECT HEX(id) AS id, label, HEX(commander_card_id) AS commander_card_id, user_id FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id).Scan(&deck)
+
+        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + deck.Id + "\"}")
+
+        return c.Render("partials/deck-builder/label-input", fiber.Map{
+            "Deck": deck,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid", func(c *fiber.Ctx) error {
+        search := c.Query("search")
+        page := c.QueryInt("page")
+        offset := page * 20
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        db := connectDB()
+        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
+
+        if len(cards) == 20 {
+            c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+        }
+
+        return c.Render("partials/deck-builder/card-grid", fiber.Map{
+            "Cards": cards,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid-search", func(c *fiber.Ctx) error {
+        search := c.Query("search")
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        db := connectDB()
+        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+
+        c.Response().Header.Set("HX-Trigger", "cardGridReset")
+
+        return c.Render("partials/deck-builder/card-grid", fiber.Map{
+            "Cards": cards,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid-loader" , func(c *fiber.Ctx) error {
+        page := c.QueryInt("page")
+        page = page + 1
+        return c.Render("partials/deck-builder/card-grid-loader", fiber.Map{
+            "SearchPage": page,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
+        return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
+            "SearchPage": 1,
+        })
+    })
+
     app.Get("/partials/nav/decks-opened", func(c *fiber.Ctx) error {
-        return c.Render("partials/nav/decks-opened", fiber.Map{})
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+        activeDeckId := c.Query("active-deck-id", "")
+        db := connectDB()
+        decks := models.GetDecks(db, activeDeckId, user.Id)
+
+
+        return c.Render("partials/nav/decks-opened", fiber.Map{
+            "Decks": decks,
+            "ActiveDeckId": activeDeckId,
+        })
     })
     app.Get("/partials/nav/decks-closed", func(c *fiber.Ctx) error {
-        return c.Render("partials/nav/decks-closed", fiber.Map{})
+        activeDeckId := c.Query("active-deck-id")
+        return c.Render("partials/nav/decks-closed", fiber.Map{
+            "ActiveDeckId": activeDeckId,
+        })
+    })
+    app.Get("/partials/nav/decks/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        user, err := getUser(sessionId)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        db := connectDB()
+        deck := models.GetDeck(db, deckId, user.Id)
+
+        return c.Render("partials/nav/deck-link", fiber.Map{
+            "Id": deck.Id,
+            "Label": deck.Label,
+            "CardCount": deck.CardCount,
+            "Active": deck.Active,
+        })
+    })
+
+    app.Get("/register", func(c *fiber.Ctx) error {
+        return c.Render("pages/register/index", fiber.Map{})
+    })
+    app.Get("/sign-in", func(c *fiber.Ctx) error {
+        return c.Render("pages/sign-in/index", fiber.Map{})
+    })
+    app.Get("/authorize", func(c *fiber.Ctx) error {
+        token := c.Cookies("__session", "")
+        if token == "" {
+            return c.Redirect("/sign-in")
+        }
+        sessClaims, err := client.VerifyToken(token)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+        user, err := client.Users().Read(sessClaims.Claims.Subject)
+		if err != nil {
+            return c.Redirect("/sign-in")
+		}
+
+        email := ""
+        if (len(user.EmailAddresses) > 0) {
+            email = user.EmailAddresses[0].EmailAddress
+        }
+
+        username := ""
+        if (user.Username != nil) {
+            username = *user.Username
+        } else {
+            username = strings.Trim(user.ID, "user_")
+        }
+
+        customUser := models.User{
+            Id: user.ID,
+            Username: username,
+            Email: email,
+            Avatar: user.ProfileImageURL,
+        }
+        sessionId := uuid.New().String()
+        sessionId = strings.ReplaceAll(sessionId, "-", "")
+        expires := time.Now().Add(168 * time.Hour)
+        blob, _ := models.UserToBlob(customUser)
+
+        // TODO: insert into DB
+        db := connectDB()
+        db.Exec("INSERT INTO Sessions (session_id, user_id, data, expires) VALUES (UNHEX(?), ?, ?, ?)", sessionId, customUser.Id, blob, expires)
+
+        c.Cookie(&fiber.Cookie{
+            Name: "session_id",
+            Value: sessionId,
+            Expires: expires,
+            Secure: true,
+            HTTPOnly: true,
+            SameSite: "Strict",
+        })
+
+        return c.Redirect("/")
     })
 
     app.Listen(":3000")

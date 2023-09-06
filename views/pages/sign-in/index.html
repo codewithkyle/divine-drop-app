@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Divine Drop</title>
+        <meta name="description" content="MTG deck builder, card browser, and play testing.">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="/css/normalize.css">
+        <link rel="stylesheet" href="/css/brixi.css">
+        <link rel="stylesheet" href="/css/base.css">
+
+        <style>
+            #sign-in{
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        </style>
+    </head>
+    <body class="w-full h-full scroll-none">
+        <div id="sign-in"></div>
+        <script>
+            const script = document.createElement('script');
+            script.async = true;
+            if (location.hostname === "localhost:3000"){
+                script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+                script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
+            } else {
+                script.src = "https://clerk.divinedrop.app/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+                script.setAttribute('data-clerk-publishable-key', 'pk_live_Y2xlcmsuZGl2aW5lZHJvcC5hcHAk');
+            }
+
+            script.addEventListener('load', async function () {
+                await window.Clerk.load();
+
+                const signInComponent = document.querySelector('#sign-in');
+
+                if (window.Clerk.session === null){
+                    window.Clerk.mountSignIn(signInComponent, {
+                        appearance: {
+                            baseTheme: "dark"
+                        },
+                    });
+                }
+                else {
+                    location.href = '/authorize';
+                    //await window.Clerk.session.getToken()
+                }
+            });
+            document.body.appendChild(script);
+        </script>
+    </body>
+</html>

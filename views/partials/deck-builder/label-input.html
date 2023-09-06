@@ -1,0 +1,9 @@
+<input 
+    type="text" 
+    name="label" 
+    value="{{ .Deck.Label }}" 
+    hx-patch="/decks/{{ .Deck.Id }}"
+    hx-swap="outerHTML"
+    hx-trigger="blur"
+    class="block"
+>

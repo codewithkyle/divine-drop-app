@@ -4,6 +4,7 @@
     hx-swap="innerHTML"
     class="is-open"
     hx-target="#decks"
+    hx-include="[name='active-deck-id']"
 >
     <i>
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -18,12 +19,8 @@
     </svg>
 </button>
 <deck-list>
-    <a href="#" title="Turtles All The Way Down">
-        <span class="badge">60</span>
-        <span class="title">Turtles All The Way Down</span>
-    </a>
-    <a href="#" title="The Hippo Defense">
-        <span class="badge">5</span>
-        <span class="title">The Hippo Defense</span>
-    </a>
+    {{ range .Decks }}
+        {{ template "partials/nav/deck-link" .}}
+    {{ end }}
 </deck-list>
+<input type="hidden" name="active-deck-id" value="{{ .ActiveDeckId }}">
