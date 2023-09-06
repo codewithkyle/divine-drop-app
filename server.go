@@ -185,7 +185,9 @@ func main() {
         db := connectDB()
         cards := models.SearchCardsByName(db, searchQuery, offset, 20)
 
-        c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+        if len(cards) == 20 {
+            c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+        }
 
         return c.Render("partials/deck-builder/card-grid", fiber.Map{
             "Cards": cards,
