@@ -59,3 +59,25 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     db.Raw("SELECT C.art, C.front, HEX(DC.card_id) AS id, CN.name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON CN.card_id = DC.card_id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
+
+func FilterCards(db *gorm.DB, name string, sort string, offset int, limit int) []Card {
+    var cards []Card
+    sortColumn := "name"
+    switch sort {
+        case "name":
+            sortColumn = "CN.name"
+        case "tmc":
+            sortColumn = "C.totalManaCost DESC"
+        case "power":
+            sortColumn = "C.power DESC"
+        case "toughness":
+            sortColumn = "C.toughness DESC"
+    }
+    orderBy := "ORDER BY " + sortColumn
+    if name == "%%" {
+        db.Raw("SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id " + orderBy + " LIMIT ? OFFSET ?", limit, offset).Scan(&cards)
+    } else {
+        db.Raw("SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? " + orderBy + " LIMIT ? OFFSET ?", name, limit, offset).Scan(&cards)
+    }
+    return cards
+}
