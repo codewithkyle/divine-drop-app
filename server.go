@@ -85,7 +85,7 @@ func main() {
             "SearchRaw": search,
         }, "layouts/main")
     })
-    app.Post("/partials/card-browser/card-grid", func(c *fiber.Ctx) error {
+    app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
         search := c.FormValue("search")
         searchQuery := "%" + strings.Trim(search, " ") + "%"
 
