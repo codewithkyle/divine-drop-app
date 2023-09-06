@@ -15,7 +15,7 @@ header.deck-editor{
         position: absolute;
         bottom: 0;
         left: 0;
-        opacity: 0.15;
+        opacity: 0.2;
     }
 
     input{
@@ -28,7 +28,7 @@ header.deck-editor{
         background: transparent;
         padding: 0 0.5rem;
         border: 2px solid transparent;
-        margin-left: -0.5rem;
+        margin-left: -0.75rem;
         transition: all 150ms var(--ease-in-out);
         width: 100%;
 
@@ -41,5 +41,88 @@ header.deck-editor{
             border-color: var(--white);
             color: var(--white);
         }
+    }
+}
+deck-builder{
+    position: relative;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0px, 1fr) 300px;
+    padding: 2rem 3rem 3rem;
+    gap: 3rem;
+
+    deck-filters{
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 2.5rem;
+
+        .input{
+            position: relative;
+            width: 300px;
+            margin-right: 1rem;
+
+            &:focus-within{
+                svg{
+                    color: var(--grey-100);
+                }
+            }
+
+            input{
+                background-color: hsl(var(--grey-900-hsl) / 0.6);
+                height: 42px;
+                font-size: var(--font-sm);
+                color: var(--grey-100);
+                border-radius: 0.5rem;
+                padding: 0 calc(18px + 0.5rem) 0 0.75rem;
+                width: 100%;
+
+                &::placeholder{
+                    color: var(--grey-500);
+                }
+            }
+
+            svg{
+                position: absolute;
+                top: 50%;
+                right: 0.5rem;
+                transform: translateY(-50%);
+                width: 18px;
+                height: 18px;
+                color: var(--grey-500);
+                user-select: none;
+                pointer-events: none;
+            }
+        }
+    }
+
+    deck-card-browser{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 1rem;
+        width: 100%;
+
+        img{
+            display: block;
+            width: 100%;
+            box-shadow: var(--shadow-black-md);
+            aspect-ratio: 19/27;
+            border-radius: 4%;
+            transition: opacity 150ms var(--ease-in);
+            opacity: 0;
+        }
+    }
+
+    deck-tray{
+        display: block;
+        width: 100%;
+        border-radius: 1rem;
+        background: linear-gradient(to bottom, var(--grey-800), hsl(var(--grey-900-hsl) / 0.87));
+        border: 1px solid hsl(var(--white-hsl) / 0.15);
+        height: calc(100vh - 128px - 4rem);
+        overflow-y: auto;
+        position: sticky;
+        top: 2rem;
     }
 }

@@ -1,5 +1,7 @@
 package models
 
+import "gorm.io/gorm"
+
 type Card struct {
     Id            string `gorm:"column:id;primary_key;type:binary(16)"`
     Layout        string `gorm:"column:layout"`
@@ -35,3 +37,8 @@ type Card struct {
     ManaCost      string `gorm:"column:manaCost"`
 }
 
+func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
+    var cards []Card
+    db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT ? OFFSET ?", name, limit, offset).Scan(&cards)
+    return cards
+}

@@ -64,9 +64,8 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, _ := getUser(sessionId)
 
-        var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", "%%").Scan(&cards)
+        cards := models.SearchCardsByName(db, "%%", 0, 20)
 
         var decks []models.Deck
         if user.Id != "" {
@@ -87,9 +86,8 @@ func main() {
 
         searchQuery := "%" + strings.Trim(search, " ") + "%"
 
-        var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET 0", searchQuery).Scan(&cards)
+        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Cards": cards,
@@ -105,9 +103,8 @@ func main() {
         searchQuery := "%" + strings.Trim(search, " ") + "%"
         var offset = page * 20
 
-        var cards []models.Card
         db := connectDB()
-        db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT 20 OFFSET ?", searchQuery, offset).Scan(&cards)
+        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
 
         return c.Render("partials/card-browser", fiber.Map{
             "Cards": cards,
@@ -147,6 +144,7 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
+        cards := models.SearchCardsByName(db, "%%", 0, 20)
 
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-editor",
@@ -154,6 +152,8 @@ func main() {
             "Deck": deck,
             "Decks": decks,
             "ActiveDeckId": deckId,
+            "Cards": cards,
+            "SearchPage": 1,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -175,6 +175,44 @@ func main() {
 
         return c.Render("partials/deck-builder/label-input", fiber.Map{
             "Deck": deck,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid", func(c *fiber.Ctx) error {
+        search := c.Query("search")
+        page := c.QueryInt("page")
+        offset := page * 20
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        db := connectDB()
+        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
+
+        c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+
+        return c.Render("partials/deck-builder/card-grid", fiber.Map{
+            "Cards": cards,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid-search", func(c *fiber.Ctx) error {
+        search := c.Query("search")
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        db := connectDB()
+        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+
+        c.Response().Header.Set("HX-Trigger", "cardGridReset")
+
+        return c.Render("partials/deck-builder/card-grid", fiber.Map{
+            "Cards": cards,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid-loader" , func(c *fiber.Ctx) error {
+        page := c.QueryInt("page")
+        page = page + 1
+        return c.Render("partials/deck-builder/card-grid-loader", fiber.Map{
+            "SearchPage": page,
+        })
+    })
+    app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
+        return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
+            "SearchPage": 1,
         })
     })
 
