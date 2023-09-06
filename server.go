@@ -152,6 +152,11 @@ func main() {
         }
 
         deckId := c.Params("id")
+
+        search := c.Query("search")
+        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        sort := c.Query("sort")
+
         db := connectDB()
         deck := models.GetDeck(db, deckId, user.Id)
         
@@ -160,7 +165,7 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.SearchCardsByName(db, "%%", 0, 20)
+        cards := models.FilterCards(db, searchQuery, sort, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -208,6 +213,8 @@ func main() {
             "ContainsR": containsR,
             "ContainsG": containsG,
             "BannerArtUrl": bannerArt,
+            "SearchRaw": search,
+            "Sort": sort,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -233,11 +240,13 @@ func main() {
     })
     app.Get("/partials/deck-builder/card-grid", func(c *fiber.Ctx) error {
         search := c.Query("search")
+        sort := c.Query("sort")
         page := c.QueryInt("page")
         offset := page * 20
         searchQuery := "%" + strings.Trim(search, " ") + "%"
+
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
+        cards := models.FilterCards(db, searchQuery, sort, offset, 20)
 
         if len(cards) > 0 {
             c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
@@ -247,11 +256,18 @@ func main() {
             "Cards": cards,
         })
     })
-    app.Get("/partials/deck-builder/card-grid-search", func(c *fiber.Ctx) error {
-        search := c.Query("search")
+    app.Post("/partials/deck-builder/card-grid-filters", func(c *fiber.Ctx) error {
+
+        search := c.FormValue("search")
         searchQuery := "%" + strings.Trim(search, " ") + "%"
+
+        sort := c.FormValue("sort")
+        deckId := c.FormValue("deck-id")
+
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+        cards := models.FilterCards(db, searchQuery, sort, 0, 20)
+
+        c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort))
 
         c.Response().Header.Set("HX-Trigger", "cardGridReset")
 

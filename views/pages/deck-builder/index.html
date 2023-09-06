@@ -31,22 +31,44 @@
             >
                 {{ template "partials/deck-builder/card-grid-settings" . }}
             </div>
-            <div class="input">
-                <input 
-                    type="text" 
-                    placeholder="Search cards..."
-                    name="search"
-                    hx-get="/partials/deck-builder/card-grid-search"
-                    hx-trigger="keyup changed delay:500ms"
-                    hx-target="deck-card-browser"
-                    hx-swap="innerHTML"
-                >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                    <path d="M21 21l-6 -6"></path>
-                </svg>
-            </div>
+            <form
+                hx-post="/partials/deck-builder/card-grid-filters"
+                hx-target="deck-card-browser"
+                hx-swap="innerHTML"
+                hx-trigger="submit, change"
+                class="deck-filters-form"
+            >
+                <input type="hidden" name="deck-id" value="{{ .ActiveDeckID }}">
+                <div class="input">
+                    <input 
+                        type="text" 
+                        placeholder="Search cards..."
+                        name="search"
+                        value="{{ .SearchRaw }}"
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                        <path d="M21 21l-6 -6"></path>
+                    </svg>
+                </div>
+                <div class="select">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M4 6l9 0"></path>
+                        <path d="M4 12l7 0"></path>
+                        <path d="M4 18l7 0"></path>
+                        <path d="M15 15l3 3l3 -3"></path>
+                        <path d="M18 6l0 12"></path>
+                    </svg>
+                    <select name="sort">
+                        <option {{ if eq .Sort "name" }}selected{{ end }} value="name">Name</option>
+                        <option {{ if eq .Sort "tmc" }}selected{{ end }} value="tmc">Total Mana Cost</option>
+                        <option {{ if eq .Sort "power" }}selected{{ end }} value="power">Power</option>
+                        <option {{ if eq .Sort "toughness" }}selected{{ end }} value="toughness">Toughness</option>
+                    </select>
+                </div>
+            </form>
         </deck-filters>
         <deck-card-browser>
             {{ template "partials/deck-builder/card-grid" . }}
@@ -56,7 +78,7 @@
             hx-trigger="intersect throttle:500ms"
             hx-target="deck-card-browser"
             hx-swap="beforeend"
-            hx-include="[name='search'], [name='page']"
+            hx-include=".deck-filters-form, [name='page']"
         ></div>
     </div>
     {{ template "partials/deck-builder/deck-tray" . }}
