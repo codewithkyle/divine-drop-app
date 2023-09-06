@@ -85,7 +85,7 @@ func main() {
             "SearchRaw": search,
         }, "layouts/main")
     })
-    app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
+    app.Post("/partials/card-browser/card-grid", func(c *fiber.Ctx) error {
         search := c.FormValue("search")
         searchQuery := "%" + strings.Trim(search, " ") + "%"
 
@@ -111,11 +111,20 @@ func main() {
         db := connectDB()
         cards := models.SearchCardsByName(db, searchQuery, offset, 20)
 
-        c.Response().Header.Set("HX-Replace-Url", "/?search=" + url.QueryEscape(search))
+        if len(cards) > 0 {
+            c.Response().Header.Set("HX-Trigger", "cardBrowserChanged")
+        }
 
-        return c.Render("partials/card-browser", fiber.Map{
+        return c.Render("partials/card-browser/card-grid", fiber.Map{
             "Cards": cards,
             "Search": url.QueryEscape(search),
+            "NextPage": page + 1,
+        })
+    })
+    app.Get("/partials/card-browser/page-input", func(c *fiber.Ctx) error {
+        page := c.QueryInt("page")
+
+        return c.Render("partials/card-browser/page-input", fiber.Map{
             "NextPage": page + 1,
         })
     })

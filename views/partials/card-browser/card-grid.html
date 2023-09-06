@@ -1,0 +1,5 @@
+{{ if gt (len .Cards) 0 }}
+    {{ range .Cards }}
+        <img src="{{ .Front }}" onload="this.style.opacity = '1'">
+    {{ end }}
+{{ end }}

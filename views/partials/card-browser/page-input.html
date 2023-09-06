@@ -1,0 +1,8 @@
+<input 
+    type="hidden"
+    name="page"
+    value="{{ .NextPage }}"
+    hx-get="/partials/card-browser/page-input"
+    hx-trigger="cardBrowserChanged from:body"
+    hx-swap="outerHTML"
+>
