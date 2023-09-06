@@ -29,3 +29,9 @@ func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
     deck.Active = "active"
     return deck
 }
+
+func GetDeckColors(db *gorm.DB, deckId string) []string {
+    var colors []string
+    db.Raw("SELECT C.color FROM Colors C WHERE C.id IN (SELECT DISTINCT CC.color_id FROM Deck_Cards DC JOIN Card_Colors CC ON DC.card_id = CC.card_id WHERE DC.deck_id = UNHEX(?));", deckId).Scan(&colors)
+    return colors
+}

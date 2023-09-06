@@ -1,0 +1,22 @@
+<div 
+    flex="row nowrap items-center"
+    hx-get="/partials/deck-builder/mana-types/{{ .DeckMetadata.Id }}"
+    hx-trigger="deckUpdated from:body"
+    hx-swap="outerHTML"
+>
+    {{ if .ContainsW }}
+        <img class="mr-0.5" src="https://divinedrop.nyc3.cdn.digitaloceanspaces.com/symbols/W.svg" width="16" height="16">
+    {{ end }}
+    {{ if .ContainsU }}
+        <img class="mr-0.5" src="https://divinedrop.nyc3.cdn.digitaloceanspaces.com/symbols/U.svg" width="16" height="16">
+    {{ end }}
+    {{ if .ContainsB }}
+        <img class="mr-0.5" src="https://divinedrop.nyc3.cdn.digitaloceanspaces.com/symbols/B.svg" width="16" height="16">
+    {{ end }}
+    {{ if .ContainsR }}
+        <img class="mr-0.5" src="https://divinedrop.nyc3.cdn.digitaloceanspaces.com/symbols/R.svg" width="16" height="16">
+    {{ end }}
+    {{ if .ContainsG }}
+        <img class="mr-0.5" src="https://divinedrop.nyc3.cdn.digitaloceanspaces.com/symbols/G.svg" width="16" height="16">
+    {{ end }}
+</div>

@@ -147,6 +147,27 @@ func main() {
         cards := models.SearchCardsByName(db, "%%", 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
 
+        deckColors := models.GetDeckColors(db, deckId)
+        containsW := false
+        containsU := false
+        containsB := false
+        containsR := false
+        containsG := false
+        for _, color := range deckColors {
+            switch color {
+                case "W":
+                    containsW = true
+                case "U":
+                    containsU = true
+                case "B":
+                    containsB = true
+                case "R":
+                    containsR = true
+                case "G":
+                    containsG = true
+            }
+        }
+
         deckMetadata := models.DeckMetadata{}
         db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deck.Id).Scan(&deckMetadata)
 
@@ -160,6 +181,11 @@ func main() {
             "SearchPage": 1,
             "DeckCards": deckCards,
             "DeckMetadata": deckMetadata,
+            "ContainsW": containsW,
+            "ContainsU": containsU,
+            "ContainsB": containsB,
+            "ContainsR": containsR,
+            "ContainsG": containsG,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -293,6 +319,50 @@ func main() {
         db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deckId).Scan(&deckMetadata)
 
         return c.Render("partials/deck-builder/card-count", fiber.Map{
+            "DeckMetadata": deckMetadata,
+        })
+    })
+    app.Get("/partials/deck-builder/mana-types/:deckId", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        _, err := getUser(sessionId)
+        if err != nil {
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
+        }
+
+        deckId := c.Params("deckId")
+
+        db := connectDB()
+        deckColors := models.GetDeckColors(db, deckId)
+        containsW := false
+        containsU := false
+        containsB := false
+        containsR := false
+        containsG := false
+        for _, color := range deckColors {
+            switch color {
+                case "W":
+                    containsW = true
+                case "U":
+                    containsU = true
+                case "B":
+                    containsB = true
+                case "R":
+                    containsR = true
+                case "G":
+                    containsG = true
+            }
+        }
+
+        deckMetadata := models.DeckMetadata{}
+        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)
+
+        return c.Render("partials/deck-builder/mana-types", fiber.Map{
+            "ContainsW": containsW,
+            "ContainsU": containsU,
+            "ContainsB": containsB,
+            "ContainsR": containsR,
+            "ContainsG": containsG,
             "DeckMetadata": deckMetadata,
         })
     })
