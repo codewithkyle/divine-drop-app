@@ -35,3 +35,9 @@ func GetDeckColors(db *gorm.DB, deckId string) []string {
     db.Raw("SELECT C.color FROM Colors C WHERE C.id IN (SELECT DISTINCT CC.color_id FROM Deck_Cards DC JOIN Card_Colors CC ON DC.card_id = CC.card_id WHERE DC.deck_id = UNHEX(?));", deckId).Scan(&colors)
     return colors
 }
+
+func GetDeckMetadata(db *gorm.DB, deckId string) DeckMetadata {
+    var deckMetadata DeckMetadata
+    db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)
+    return deckMetadata
+}
