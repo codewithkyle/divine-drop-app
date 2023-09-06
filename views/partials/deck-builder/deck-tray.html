@@ -1,0 +1,31 @@
+<deck-tray>
+    {{ range .DeckCards }}
+        <div class="w-full pr-2 pl-1.5 pt-1.5" flex="row nowrap justify-between items-center">
+            <div flex="row nowrap items-center">
+                <a href="{{ .Front }}" target="_blank" class="mr-0.75">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                    </svg>
+                </a>
+                <span class="inline-block">{{ .Name }} ({{ .Qty }})</span>
+            </div>
+            <button
+                hx-delete="/partials/deck-tray/card/{{ .Id }}"
+                hx-target="deck-tray"
+                hx-swap="outerHTML"
+                hx-include="[name='deck-id']"
+                class="font-red-400"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 7h16"></path>
+                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                    <path d="M10 12l4 4m0 -4l-4 4"></path>
+                </svg>
+            </button>
+        </div>
+    {{ end }}
+</deck-tray>

@@ -145,6 +145,7 @@ func main() {
 
         decks := models.GetDecks(db, deckId, user.Id)
         cards := models.SearchCardsByName(db, "%%", 0, 20)
+        deckCards := models.GetDeckCards(db, deckId)
 
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-editor",
@@ -154,6 +155,7 @@ func main() {
             "ActiveDeckId": deckId,
             "Cards": cards,
             "SearchPage": 1,
+            "DeckCards": deckCards,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -215,6 +217,54 @@ func main() {
     app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
         return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
             "SearchPage": 1,
+        })
+    })
+    app.Put("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        _, err := getUser(sessionId)
+        if err != nil {
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
+        }
+
+        activeDeckId := c.FormValue("deck-id", "")
+        cardId := c.Params("id")
+
+        db := connectDB()
+        deckCard := models.DeckCard{}
+        db.Raw("SELECT HEX(deck_id) AS deck_id, HEX(card_id) AS card_id, HEX(id) AS id, qty FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId).Scan(&deckCard)
+        if deckCard.Id != "" {
+            if (deckCard.Qty < 255) {
+                db.Exec("UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty + 1, deckCard.Id)
+            }
+        } else {
+            uuid := uuid.New().String()
+            uuid = strings.ReplaceAll(uuid, "-", "")
+            db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
+        }
+
+        deckCards := models.GetDeckCards(db, activeDeckId)
+        return c.Render("partials/deck-builder/deck-tray", fiber.Map{
+            "DeckCards": deckCards,
+        })
+    })
+    app.Delete("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {
+        sessionId := c.Cookies("session_id", "")
+        _, err := getUser(sessionId)
+        if err != nil {
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
+        }
+
+        activeDeckId := c.FormValue("deck-id", "")
+        cardId := c.Params("id")
+
+        db := connectDB()
+        db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
+        deckCards := models.GetDeckCards(db, activeDeckId)
+
+        return c.Render("partials/deck-builder/deck-tray", fiber.Map{
+            "DeckCards": deckCards,
         })
     })
 

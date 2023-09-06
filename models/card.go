@@ -35,10 +35,26 @@ type Card struct {
     Predh         bool   `gorm:"column:predh"`
     Rarity        uint8  `gorm:"column:rarity"`
     ManaCost      string `gorm:"column:manaCost"`
+    Name          string
+}
+
+type DeckCard struct {
+    Id string `gorm:"column:id;primary_key"`
+    DeckId string `gorm:"column:deck_id"`
+    CardId string `gorm:"column:card_id"`
+    Qty    uint8    `gorm:"column:qty"`
+    Front string 
+    Name string
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
     var cards []Card
-    db.Raw("SELECT C.front FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT ? OFFSET ?", name, limit, offset).Scan(&cards)
+    db.Raw("SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT ? OFFSET ?", name, limit, offset).Scan(&cards)
+    return cards
+}
+
+func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
+    var cards []DeckCard
+    db.Raw("SELECT C.front, HEX(DC.card_id) AS id, CN.name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON CN.card_id = DC.card_id WHERE DC.deck_id = UNHEX(?)", deckId).Scan(&cards)
     return cards
 }
