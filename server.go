@@ -222,12 +222,12 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
-            return c.Redirect("/sign-in")
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
         }
         activeDeckId := c.Query("active-deck-id", "")
         db := connectDB()
         decks := models.GetDecks(db, activeDeckId, user.Id)
-
 
         return c.Render("partials/nav/decks-opened", fiber.Map{
             "Decks": decks,
