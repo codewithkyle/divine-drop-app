@@ -191,7 +191,7 @@ func main() {
         db := connectDB()
         cards := models.SearchCardsByName(db, searchQuery, offset, 20)
 
-        if len(cards) == 20 {
+        if len(cards) > 0 {
             c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
         }
 
