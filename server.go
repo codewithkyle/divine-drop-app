@@ -215,8 +215,10 @@ func main() {
         })
     })
     app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
+        deckId := c.Query("deck-id")
         return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
             "SearchPage": 1,
+            "ActiveDeckId": deckId,
         })
     })
     app.Put("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {

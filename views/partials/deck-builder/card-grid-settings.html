@@ -3,6 +3,6 @@
     hx-trigger="cardGridUpdated from:body"
     hx-include="[name='page']"
 >
-    <input type="hidden" name="deck-id" value="{{ .Deck.Id }}">
+    <input type="hidden" name="deck-id" value="{{ .ActiveDeckId }}">
     {{ template "partials/deck-builder/card-grid-loader" . }}
 </div>
