@@ -24,9 +24,14 @@
         <div id="sign-in"></div>
         <script>
             const script = document.createElement('script');
-            script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
+            if (location.hostname === "localhost:3000"){
+                script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+                script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
+            } else {
+                script.src = "https://clerk.divinedrop.app/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+                script.setAttribute('data-clerk-publishable-key', 'pk_live_Y2xlcmsuZGl2aW5lZHJvcC5hcHAk');
+            }
             script.async = true;
-            script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
 
             script.addEventListener('load', async function () {
                 await window.Clerk.load();
