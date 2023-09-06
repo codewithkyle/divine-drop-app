@@ -55,6 +55,6 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT C.front, HEX(DC.card_id) AS id, CN.name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON CN.card_id = DC.card_id WHERE DC.deck_id = UNHEX(?)", deckId).Scan(&cards)
+    db.Raw("SELECT C.front, HEX(DC.card_id) AS id, CN.name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON CN.card_id = DC.card_id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }

@@ -1,1 +1,6 @@
-<span class="line-snug">{{ .Deck.CardCount }}</span>
+<span 
+    class="line-snug"
+    hx-get="/partials/deck-builder/card-count/{{ .DeckMetadata.Id }}"
+    hx-trigger="deckUpdated from:body"
+    hx-swap="outerHTML"
+>{{ .DeckMetadata.CardCount }}</span>
