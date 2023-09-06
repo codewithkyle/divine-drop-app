@@ -25,7 +25,7 @@
         <script>
             const script = document.createElement('script');
             script.async = true;
-            if (location.hostname === "localhost:3000"){
+            if (location.hostname === "localhost"){
                 script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
                 script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
             } else {
