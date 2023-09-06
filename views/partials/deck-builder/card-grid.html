@@ -1,3 +1,10 @@
 {{ range .Cards }}
-    <img src="{{ .Front }}" onload="this.style.opacity = '1'">
+    <img 
+        src="{{ .Front }}" 
+        onload="this.style.opacity = '1'"
+        hx-put="/partials/deck-tray/card/{{ .Id }}"
+        hx-target="deck-tray"
+        hx-swap="outerHTML"
+        hx-include="[name='deck-id']"
+    >
 {{ end }}
