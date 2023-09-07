@@ -2,7 +2,7 @@
     class="art-banner"
     hx-get="/partials/deck-builder/banner-art"
     hx-trigger="deckUpdated from:body"
-    hx-swap="outerHTML"
+    hx-swap="outerHTML transition:true"
     hx-include="[name='active-deck-id']"
 >
     {{ if ne .BannerArtUrl "" }}
