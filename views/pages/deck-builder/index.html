@@ -26,7 +26,7 @@
         <deck-filters>
             <div
                 hx-get="/partials/deck-builder/card-grid-settings"
-                hx-trigger="cardGridReset from:body"
+                hx-trigger="cardGridReset from:body, cardGridUpdate from:body"
                 hx-include="[name='active-deck-id']"
             >
                 {{ template "partials/deck-builder/card-grid-settings" . }}
@@ -239,10 +239,10 @@
         </deck-filters>
         <deck-card-browser
             hx-post="/partials/deck-builder/card-grid"
-            hx-trigger="cardGridUpdate from:body delay:100ms"
+            hx-trigger="cardGridUpdate from:body"
             hx-include=".deck-filters-form"
             hx-encoding="multipart/form-data"
-            hx-vals='{"page": 1}'
+            hx-vals='{"page": 0}'
         >
             {{ template "partials/deck-builder/card-grid" . }}
         </deck-card-browser>
