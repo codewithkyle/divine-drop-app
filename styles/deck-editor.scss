@@ -516,13 +516,15 @@ deck-builder{
     }
 
     deck-tray{
-        display: flex;
-        flex-flow: column wrap;
+        display: block;
+        overscroll-behavior: contain;
         width: 100%;
         border-radius: 1rem;
         background: linear-gradient(to bottom, var(--grey-800), hsl(var(--grey-900-hsl) / 0.87));
         border: 1px solid hsl(var(--white-hsl) / 0.15);
-        height: calc(100vh - 128px - 4rem);
+        max-height: calc(100vh - 128px - 4rem + min(var(--scroll), 128px));
+        height: 100%;
+        will-change: max-height;
         overflow-y: auto;
         position: sticky;
         top: 2rem;
