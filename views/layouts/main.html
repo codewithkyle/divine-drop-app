@@ -56,12 +56,5 @@
             </nav>
         </side-bar>
         <main>{{ embed }}</main>
-        <script>
-            const main = document.body.querySelector("main");
-            document.documentElement.style.setProperty("--scroll", `${main.scrollTop}px`);
-            main.addEventListener("scroll", () => {
-                document.documentElement.style.setProperty("--scroll", `${main.scrollTop}px`);
-            }, { passive: true });
-        </script>
     </body>
 </html>
