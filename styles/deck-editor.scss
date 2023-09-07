@@ -91,68 +91,340 @@ deck-builder{
             display: flex;
             flex-flow: row nowrap;
             align-items: center;
-        }
 
-        .input{
-            position: relative;
-            width: 300px;
-            margin-right: 1rem;
-
-            &:focus-within{
-                svg{
-                    color: var(--grey-100);
-                }
-            }
-
-            input{
-                background-color: hsl(var(--grey-900-hsl) / 0.6);
-                height: 42px;
-                font-size: var(--font-sm);
-                color: var(--grey-100);
-                border-radius: 0.5rem;
-                padding: 0 calc(18px + 0.5rem) 0 0.75rem;
-                width: 100%;
-
-                &::placeholder{
-                    color: var(--grey-500);
-                }
-            }
-
-            svg{
-                position: absolute;
-                top: 50%;
-                right: 0.5rem;
-                transform: translateY(-50%);
-                width: 18px;
-                height: 18px;
-                color: var(--grey-500);
-                user-select: none;
-                pointer-events: none;
-            }
-        }
-
-        .filters-bttn{
-            &:focus-within{
-                advanced-filters{
-                    visibility: visible;
-                    opacity: 1;
-                    pointer-events: all;
-                }
-            }
-
-            & > button{
+            & > .input{
                 position: relative;
+                width: 300px;
                 margin-right: 1rem;
-                padding: 0 1rem 0 calc(18px + 1rem);
-                background-color: hsl(var(--grey-900-hsl) / 0.6);
-                height: 42px;
-                border-radius: 0.5rem;
-                color: var(--grey-100);
-                font-size: var(--font-sm);
 
                 &:focus-within{
                     svg{
                         color: var(--grey-100);
+                    }
+                }
+
+                input{
+                    background-color: hsl(var(--grey-900-hsl) / 0.6);
+                    height: 42px;
+                    font-size: var(--font-sm);
+                    color: var(--grey-100);
+                    border-radius: 0.5rem;
+                    padding: 0 calc(18px + 0.5rem) 0 0.75rem;
+                    width: 100%;
+
+                    &::placeholder{
+                        color: var(--grey-500);
+                    }
+                }
+
+                svg{
+                    position: absolute;
+                    top: 50%;
+                    right: 0.5rem;
+                    transform: translateY(-50%);
+                    width: 18px;
+                    height: 18px;
+                    color: var(--grey-500);
+                    user-select: none;
+                    pointer-events: none;
+                }
+            }
+
+            .filters-bttn{
+                &:focus-within{
+                    advanced-filters{
+                        visibility: visible;
+                        opacity: 1;
+                        pointer-events: all;
+                    }
+                }
+
+                & > button{
+                    position: relative;
+                    margin-right: 1rem;
+                    padding: 0 1rem 0 calc(18px + 1rem);
+                    background-color: hsl(var(--grey-900-hsl) / 0.6);
+                    height: 42px;
+                    border-radius: 0.5rem;
+                    color: var(--grey-100);
+                    font-size: var(--font-sm);
+
+                    &:focus-within{
+                        svg{
+                            color: var(--grey-100);
+                        }
+                    }
+
+                    svg{
+                        position: absolute;
+                        top: 50%;
+                        left: 0.75rem;
+                        transform: translateY(-50%);
+                        width: 18px;
+                        height: 18px;
+                        color: var(--grey-500);
+                        user-select: none;
+                        pointer-events: none;
+                    }
+                }
+
+                advanced-filters{
+                    display: inline-block;
+                    position: absolute;
+                    top: 100%;
+                    margin-top: 0.5rem;
+                    left: 0;
+                    width: 420px;
+                    background-color: var(--grey-700);
+                    border-radius: 1rem;
+                    box-shadow: var(--shadow-black-lg);
+                    border: 1px solid var(--grey-600);
+                    padding: 1.5rem 2rem 2rem;
+                    z-index: 100;
+                    visibility: hidden;
+                    opacity: 0;
+                    pointer-events: none;
+
+                    .select{
+                        position: relative;
+                        padding: 0 calc(18px + 1rem) 0 0.5rem;
+                        background-color: var(--grey-900);
+                        height: 36px;
+                        border-radius: 0.5rem;
+                        border: 1px solid transparent;
+                        height: 36px;
+                        width: 100%;
+
+                        &:focus-within{
+                            outline: none;
+                            border-color: var(--yellow-400);
+                            background-color: hsl(var(--yellow-400-hsl)/0.05);
+
+                            svg{
+                                color: var(--grey-100);
+                            }
+                        }
+
+                        select{
+                            color: var(--grey-100);
+                            font-size: var(--font-sm);
+                            height: 100%;
+                            width: 100%;
+                            background: transparent;
+                            appearance: none;
+
+                            * {
+                                color: var(--grey-100);
+                                background-color: var(--grey-800);
+                            }
+                        }
+
+                        svg{
+                            position: absolute;
+                            top: 50%;
+                            right: 0.5rem;
+                            transform: translateY(-50%);
+                            width: 18px;
+                            height: 18px;
+                            color: var(--grey-500);
+                            user-select: none;
+                            pointer-events: none;
+                        }       
+                    }
+
+                    .mana-checkbox{
+                        position: relative;
+                        margin-right: 0.5rem;
+
+                        label{
+                            display: flex;
+                            flex-flow: row nowrap;
+                            align-items: center;
+                            justify-content: center;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 0.5rem;
+                            border: 1px solid var(--grey-500);
+                            transition: all 150ms var(--ease-in-out);
+                            background-color: hsl(var(--white-hsl) / 0);
+                            cursor: pointer;
+
+                            &:hover,
+                            &:focus-visible{
+                                border-color: var(--grey-400);
+                                background-color: hsl(var(--white-hsl) / 0.05);
+                            }
+
+                            svg{
+                                width: 20px;
+                                height: 20px;
+                            }
+                        }
+
+                        input{
+                            opacity: 0;
+                            visibility: hidden;
+                            position: absolute;
+
+                            &:checked + label{
+                                background-color: hsl(var(--yellow-400-hsl)/0.05);
+                                border-color: var(--yellow-400);
+                            }
+                        }
+                    }
+
+                    .combox-input{
+                        display: block;
+                        width: 100%;
+                        position: relative;
+
+                        input{
+                            padding: 0 calc(1rem + 18px) 0 0.5rem;
+                            color: var(--grey-100);
+                            background-color: var(--grey-900);
+                            border-radius: 0.5rem;
+                            border: 1px solid transparent;
+                            height: 36px;
+                            width: 100%;
+
+                            &:focus{
+                                outline: none;
+                                border-color: var(--yellow-400);
+                                background-color: hsl(var(--yellow-400-hsl)/0.05);
+
+                                & + svg{
+                                    color: var(--grey-100);
+                                }
+
+                                & ~ dropdown-menu{
+                                    opacity: 1;
+                                    visibility: visible;
+                                    pointer-events: all;
+                                }
+                            }
+
+                            &::placeholder{
+                                color: var(--grey-400);
+                            }
+                        }
+
+                        & > svg{
+                            width: 18px;
+                            height: 18px;
+                            position: absolute;
+                            top: calc((36px - 18px) / 2);
+                            right: 0.75rem;
+                            pointer-events: none;
+                            user-select: none;
+                            color: var(--grey-500);
+                        }
+
+                        dropdown-menu{
+                            position: absolute;
+                            margin-top: 0.5rem;
+                            top: 36px;
+                            left: 0;
+                            width: 100%;
+                            background-color: var(--grey-600);
+                            border: 1px solid var(--grey-500);
+                            border-radius: 0.5rem;
+                            box-shadow: var(--shadow-black-sm);
+                            max-height: 372px;
+                            padding: 0.25rem 0;
+                            overflow-y: auto;
+                            opacity: 0;
+                            visibility: hidden;
+                            pointer-events: none;
+                            overscroll-behavior: contain;
+                            z-index: 110;
+
+                            &:focus-within{
+                                opacity: 1;
+                                visibility: visible;
+                                pointer-events: all;
+                            }
+
+                            button{
+                                display: block;
+                                width: 100%;
+                                padding: 0 0.5rem;
+                                height: 32px;
+                                line-height: 32px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                color: var(--grey-100);
+                                transition: all 150ms var(--ease-in-out);
+                                cursor: pointer;
+                                user-select: none;
+                                text-align: left;
+
+                                &:hover,
+                                &:focus-visible{
+                                    background-color: hsl(var(--grey-900-hsl) / 0.15);
+                                    color: var(--white);
+                                }
+                            }
+                        }
+
+                        .chips{
+                            width: 100%;
+
+                            .chip{
+                                font-size: var(--font-sm);
+                                font-weight: var(--font-medium);
+                                color: var(--grey-300);
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                white-space: nowrap;
+                                flex-flow: row nowrap;
+                                border-radius: 0.5rem;
+                                background-color: hsl(var(--grey-900-hsl) / 0.3);
+                                padding: 0 0.75rem;
+                                cursor: pointer;
+                                margin: 0.5rem 0.5rem 0 0;
+                                height: 32px;
+
+                                svg{
+                                    width: 14px;
+                                    height: 14px;
+                                    cursor: pointer;
+                                    user-select: none;
+                                    color: var(--grey-400);
+                                    margin-left: 0.5rem;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            & > .select{
+                position: relative;
+                margin-right: 1rem;
+                padding: 0 0.75rem 0 calc(18px + 1rem);
+                background-color: hsl(var(--grey-900-hsl) / 0.6);
+                height: 42px;
+                border-radius: 0.5rem;
+
+                &:focus-within{
+                    svg{
+                        color: var(--grey-100);
+                    }
+                }
+
+                select{
+                    color: var(--grey-100);
+                    font-size: var(--font-sm);
+                    width: 100%;
+                    height: 100%;
+                    background: transparent;
+                    appearance: none;
+
+                    * {
+                        color: var(--grey-100);
+                        background-color: var(--grey-800);
                     }
                 }
 
@@ -167,231 +439,6 @@ deck-builder{
                     user-select: none;
                     pointer-events: none;
                 }
-            }
-
-            advanced-filters{
-                display: inline-block;
-                position: absolute;
-                top: 100%;
-                margin-top: 0.5rem;
-                left: 0;
-                width: 420px;
-                background-color: var(--grey-700);
-                border-radius: 1rem;
-                box-shadow: var(--shadow-black-lg);
-                border: 1px solid var(--grey-600);
-                padding: 1.5rem 2rem 2rem;
-                z-index: 100;
-                visibility: hidden;
-                opacity: 0;
-                pointer-events: none;
-
-                .mana-checkbox{
-                    position: relative;
-                    margin-right: 0.5rem;
-
-                    label{
-                        display: flex;
-                        flex-flow: row nowrap;
-                        align-items: center;
-                        justify-content: center;
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 0.5rem;
-                        border: 1px solid var(--grey-500);
-                        transition: all 150ms var(--ease-in-out);
-                        background-color: hsl(var(--white-hsl) / 0);
-                        cursor: pointer;
-
-                        &:hover,
-                        &:focus-visible{
-                            border-color: var(--grey-400);
-                            background-color: hsl(var(--white-hsl) / 0.05);
-                        }
-
-                        svg{
-                            width: 20px;
-                            height: 20px;
-                        }
-                    }
-
-                    input{
-                        opacity: 0;
-                        visibility: hidden;
-                        position: absolute;
-
-                        &:checked + label{
-                            background-color: hsl(var(--yellow-400-hsl)/0.05);
-                            border-color: var(--yellow-400);
-                        }
-                    }
-                }
-
-                .combox-input{
-                    display: block;
-                    width: 100%;
-                    position: relative;
-
-                    input{
-                        padding: 0 calc(1rem + 18px) 0 0.5rem;
-                        color: var(--grey-100);
-                        background-color: var(--grey-900);
-                        border-radius: 0.5rem;
-                        border: 1px solid transparent;
-                        height: 36px;
-                        width: 100%;
-
-                        &:focus{
-                            outline: none;
-                            border-color: var(--yellow-400);
-                            background-color: hsl(var(--yellow-400-hsl)/0.05);
-
-                            & + svg{
-                                color: var(--grey-100);
-                            }
-
-                            & ~ dropdown-menu{
-                                opacity: 1;
-                                visibility: visible;
-                                pointer-events: all;
-                            }
-                        }
-
-                        &::placeholder{
-                            color: var(--grey-400);
-                        }
-                    }
-
-                    & > svg{
-                        width: 18px;
-                        height: 18px;
-                        position: absolute;
-                        top: calc((36px - 18px) / 2);
-                        right: 0.75rem;
-                        pointer-events: none;
-                        user-select: none;
-                        color: var(--grey-500);
-                    }
-
-                    dropdown-menu{
-                        position: absolute;
-                        margin-top: 0.5rem;
-                        top: 36px;
-                        left: 0;
-                        width: 100%;
-                        background-color: var(--grey-600);
-                        border: 1px solid var(--grey-500);
-                        border-radius: 0.5rem;
-                        box-shadow: var(--shadow-black-sm);
-                        max-height: 372px;
-                        padding: 0.25rem 0;
-                        overflow-y: auto;
-                        opacity: 0;
-                        visibility: hidden;
-                        pointer-events: none;
-                        overscroll-behavior: contain;
-                        z-index: 110;
-
-                        &:focus-within{
-                            opacity: 1;
-                            visibility: visible;
-                            pointer-events: all;
-                        }
-
-                        button{
-                            display: block;
-                            width: 100%;
-                            padding: 0 0.5rem;
-                            height: 32px;
-                            line-height: 32px;
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            color: var(--grey-100);
-                            transition: all 150ms var(--ease-in-out);
-                            cursor: pointer;
-                            user-select: none;
-                            text-align: left;
-
-                            &:hover,
-                            &:focus-visible{
-                                background-color: hsl(var(--grey-900-hsl) / 0.15);
-                                color: var(--white);
-                            }
-                        }
-                    }
-
-                    .chips{
-                        width: 100%;
-
-                        .chip{
-                            font-size: var(--font-sm);
-                            font-weight: var(--font-medium);
-                            color: var(--grey-300);
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            white-space: nowrap;
-                            flex-flow: row nowrap;
-                            border-radius: 0.5rem;
-                            background-color: hsl(var(--grey-900-hsl) / 0.3);
-                            padding: 0 0.75rem;
-                            cursor: pointer;
-                            margin: 0.5rem 0.5rem 0 0;
-                            height: 32px;
-
-                            svg{
-                                width: 14px;
-                                height: 14px;
-                                cursor: pointer;
-                                user-select: none;
-                                color: var(--grey-400);
-                                margin-left: 0.5rem;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        .select{
-            position: relative;
-            margin-right: 1rem;
-            padding: 0 0.75rem 0 calc(18px + 1rem);
-            background-color: hsl(var(--grey-900-hsl) / 0.6);
-            height: 42px;
-            border-radius: 0.5rem;
-
-            &:focus-within{
-                svg{
-                    color: var(--grey-100);
-                }
-            }
-
-            select{
-                color: var(--grey-100);
-                font-size: var(--font-sm);
-                width: 100%;
-                height: 100%;
-                background: transparent;
-                appearance: none;
-
-                * {
-                    color: var(--grey-100);
-                    background-color: var(--grey-800);
-                }
-            }
-
-            svg{
-                position: absolute;
-                top: 50%;
-                left: 0.75rem;
-                transform: translateY(-50%);
-                width: 18px;
-                height: 18px;
-                color: var(--grey-500);
-                user-select: none;
-                pointer-events: none;
             }
         }
     }

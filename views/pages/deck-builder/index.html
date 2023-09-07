@@ -235,7 +235,7 @@
                                 {{ template "partials/deck-builder/card-subtype-chips" . }}
                             </div>
                         </div>
-                        <div class="combox-input">
+                        <div class="combox-input mb-1.5">
                             <input 
                                 type="text" 
                                 name="keywords" 
@@ -262,6 +262,27 @@
                             >
                                 {{ template "partials/deck-builder/card-keyword-chips" . }}
                             </div>
+                        </div>
+                        <div class="select">
+                            <select
+                                name="rarity"
+                                hx-post="/partials/deck-builder/card-grid-filters"
+                                hx-target="deck-card-browser"
+                                hx-swap="innerHTML"
+                                hx-trigger="change"
+                                hx-encoding="multipart/form-data"
+                                hx-include=".deck-filters-form"
+                            >
+                                <option {{ if eq .Rarity "" }}selected{{ end }} value="any">Any Rarity</option>
+                                <option {{ if eq .Rarity "common" }}selected{{ end }} value="common">Common</option>
+                                <option {{ if eq .Rarity "uncommon" }}selected{{ end }} value="uncommon">Uncommon</option>
+                                <option {{ if eq .Rarity "rare" }}selected{{ end }} value="rare">Rare</option>
+                                <option {{ if eq .Rarity "mythic" }}selected{{ end }} value="mythic">Mythic</option>
+                            </select>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 9l6 6l6 -6"></path>
+                            </svg>
                         </div>
                     </advanced-filters>
                 </div>

@@ -66,22 +66,9 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT DISTINCT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE 1=1 "
-
-    sortColumn := "CN.name"
-    switch sort {
-        case "name":
-            sortColumn = "CN.name"
-        case "tmc":
-            sortColumn = "C.totalManaCost DESC"
-        case "power":
-            sortColumn = "C.power DESC"
-        case "toughness":
-            sortColumn = "C.toughness DESC"
-    }
-    orderBy := "ORDER BY " + sortColumn
+    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
 
     manaCheck := []string{}
     params := map[string]interface{}{
@@ -134,6 +121,13 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
     keywordLogic := "C.id IN (SELECT ck.card_id FROM Card_Keywords ck WHERE ck.keyword = " + strings.Join(keywordCheck, " OR ck.keyword = ") + ") "
 
+    if rarity != "any" && rarity != "" {
+        params["rarity"] = rarity
+        query += "JOIN Rarities R ON C.rarity = R.id AND R.rarity = @rarity "
+    }
+
+    query += "WHERE 1=1 "
+
     if name != "%%" {
         params["name"] = name
         query += "AND CN.name LIKE @name "
@@ -151,7 +145,18 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         query += "AND " + keywordLogic
     }
 
-    query += orderBy + " LIMIT @limit OFFSET @offset"
+    sortColumn := "CN.name"
+    switch sort {
+        case "name":
+            sortColumn = "CN.name"
+        case "tmc":
+            sortColumn = "C.totalManaCost DESC"
+        case "power":
+            sortColumn = "C.power DESC"
+        case "toughness":
+            sortColumn = "C.toughness DESC"
+    }
+    query += "ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
     log.Println(query)
     return cards
