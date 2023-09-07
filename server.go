@@ -278,7 +278,7 @@ func main() {
         deck := models.Deck{}
         db.Raw("SELECT HEX(id) AS id, label, HEX(commander_card_id) AS commander_card_id, user_id FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id).Scan(&deck)
 
-        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + deck.Id + "\"}")
+        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + deck.Id + "\"}")
 
         return c.Render("partials/deck-builder/label-input", fiber.Map{
             "Deck": deck,
@@ -303,7 +303,7 @@ func main() {
             cards := models.FilterCards(db, searchQuery, sort, mana, types, offset, 20)
 
             if len(cards) > 0 {
-                c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+                c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdated")
             }
 
             c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")))
@@ -350,7 +350,7 @@ func main() {
     app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
         deckId := c.Query("active-deck-id")
         return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
-            "SearchPage": 1,
+            "SearchPage": 0,
             "ActiveDeckId": deckId,
         })
     })
@@ -378,7 +378,7 @@ func main() {
             db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
         }
 
-        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
+        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
 
         deckCards := models.GetDeckCards(db, activeDeckId)
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
@@ -400,7 +400,7 @@ func main() {
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
         deckCards := models.GetDeckCards(db, activeDeckId)
 
-        c.Response().Header.Set("HX-Trigger", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
+        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
 
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
@@ -510,7 +510,7 @@ func main() {
             newType := form.Value["type"][0]
             types = append(types, newType)
 
-            c.Response().Header.Set("HX-Trigger", "cardGridUpdate")
+            c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
 
             return c.Render("partials/deck-builder/card-type-chips", fiber.Map{
                 "TypeChips": types,
@@ -531,7 +531,7 @@ func main() {
                 }
             }
 
-            c.Response().Header.Set("HX-Trigger", "cardGridUpdate")
+            c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
 
             return c.Render("partials/deck-builder/card-type-chips", fiber.Map{
                 "TypeChips": newTypes,

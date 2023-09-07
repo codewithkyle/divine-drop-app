@@ -401,6 +401,7 @@ deck-builder{
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 1rem;
         width: 100%;
+        min-height: 100%;
 
         .card{
             position: relative;
