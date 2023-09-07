@@ -459,6 +459,8 @@ deck-builder{
             aspect-ratio: 19/27;
             box-shadow: var(--shadow-black-md);
             border-radius: 4%;
+            cursor: copy;
+            user-select: none;
 
             &.flip{
                 img:last-of-type{
