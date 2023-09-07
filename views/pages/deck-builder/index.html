@@ -179,34 +179,60 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="w-full block">
-                            <div class="combox-input">
-                                <input 
-                                    type="text" 
-                                    name="types" 
-                                    placeholder="Types"
-                                    hx-get="/partials/deck-builder/card-types"
-                                    hx-trigger="keyup changed delay:500ms"
-                                    hx-target="dropdown-menu"
-                                    autofocus
-                                >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                                    <path d="M21 21l-6 -6"></path>
-                                </svg>
-                                <dropdown-menu>
-                                    {{ template "partials/deck-builder/card-types" . }}
-                                </dropdown-menu>
-                                <div 
-                                    id="type-chips"
-                                    class="chips"
-                                    hx-trigger="cardGridReset from:body"
-                                    hx-get="/partials/deck-builder/card-type-chips"
-                                    hx-include="find .chip input"
-                                >
-                                    {{ template "partials/deck-builder/card-type-chips" . }}
-                                </div>
+                        <div class="combox-input mb-1.5">
+                            <input 
+                                type="text" 
+                                name="types" 
+                                placeholder="Types"
+                                hx-get="/partials/deck-builder/card-types"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-target="next dropdown-menu"
+                                autofocus
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                                <path d="M21 21l-6 -6"></path>
+                            </svg>
+                            <dropdown-menu>
+                                {{ template "partials/deck-builder/card-types" . }}
+                            </dropdown-menu>
+                            <div 
+                                id="type-chips"
+                                class="chips"
+                                hx-trigger="cardGridReset from:body"
+                                hx-get="/partials/deck-builder/card-type-chips"
+                                hx-include="find .chip input"
+                            >
+                                {{ template "partials/deck-builder/card-type-chips" . }}
+                            </div>
+                        </div>
+                        <div class="combox-input">
+                            <input 
+                                type="text" 
+                                name="subtypes" 
+                                placeholder="Subtypes"
+                                hx-get="/partials/deck-builder/card-subtypes"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-target="next dropdown-menu"
+                                autofocus
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                                <path d="M21 21l-6 -6"></path>
+                            </svg>
+                            <dropdown-menu>
+                                {{ template "partials/deck-builder/card-subtypes" . }}
+                            </dropdown-menu>
+                            <div 
+                                id="subtype-chips"
+                                class="chips"
+                                hx-trigger="cardGridReset from:body"
+                                hx-get="/partials/deck-builder/card-subtype-chips"
+                                hx-include="find .chip input"
+                            >
+                                {{ template "partials/deck-builder/card-subtype-chips" . }}
                             </div>
                         </div>
                     </advanced-filters>

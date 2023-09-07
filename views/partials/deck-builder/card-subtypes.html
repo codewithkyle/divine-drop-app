@@ -1,0 +1,12 @@
+{{ range .CardSubtypes }}
+    <button
+        hx-post="/partials/deck-builder/card-subtype-chips"
+        hx-target="#subtype-chips"
+        hx-swap="innerHTML"
+        hx-include="#subtype-chips"
+        hx-encoding="multipart/form-data"
+        hx-vals='{"subtype":"{{ . }}"}'
+    >
+        <span>{{ . }}</span>
+    </button>
+{{ end }}
