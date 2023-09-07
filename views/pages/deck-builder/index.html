@@ -179,35 +179,148 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="w-full block">
-                            <div class="combox-input">
-                                <input 
-                                    type="text" 
-                                    name="types" 
-                                    placeholder="Types"
-                                    hx-get="/partials/deck-builder/card-types"
-                                    hx-trigger="keyup changed delay:500ms"
-                                    hx-target="dropdown-menu"
-                                    autofocus
-                                >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                                    <path d="M21 21l-6 -6"></path>
-                                </svg>
-                                <dropdown-menu>
-                                    {{ template "partials/deck-builder/card-types" . }}
-                                </dropdown-menu>
-                                <div 
-                                    id="type-chips"
-                                    class="chips"
-                                    hx-trigger="cardGridReset from:body"
-                                    hx-get="/partials/deck-builder/card-type-chips"
-                                    hx-include="find .chip input"
-                                >
-                                    {{ template "partials/deck-builder/card-type-chips" . }}
-                                </div>
+                        <div class="combox-input mb-1.5">
+                            <input 
+                                type="text" 
+                                name="types" 
+                                placeholder="Types"
+                                hx-get="/partials/deck-builder/card-types"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-target="next dropdown-menu"
+                                autofocus
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                                <path d="M21 21l-6 -6"></path>
+                            </svg>
+                            <dropdown-menu>
+                                {{ template "partials/deck-builder/card-types" . }}
+                            </dropdown-menu>
+                            <div 
+                                id="type-chips"
+                                class="chips"
+                                hx-trigger="cardGridReset from:body"
+                                hx-post="/partials/deck-builder/card-type-chips"
+                                hx-include="find .chip input"
+                            >
+                                {{ template "partials/deck-builder/card-type-chips" . }}
                             </div>
+                        </div>
+                        <div class="combox-input mb-1.5">
+                            <input 
+                                type="text" 
+                                name="subtypes" 
+                                placeholder="Subtypes"
+                                hx-get="/partials/deck-builder/card-subtypes"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-target="next dropdown-menu"
+                                autofocus
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                                <path d="M21 21l-6 -6"></path>
+                            </svg>
+                            <dropdown-menu>
+                                {{ template "partials/deck-builder/card-subtypes" . }}
+                            </dropdown-menu>
+                            <div 
+                                id="subtype-chips"
+                                class="chips"
+                                hx-trigger="cardGridReset from:body"
+                                hx-post="/partials/deck-builder/card-subtype-chips"
+                                hx-include="find .chip input"
+                            >
+                                {{ template "partials/deck-builder/card-subtype-chips" . }}
+                            </div>
+                        </div>
+                        <div class="combox-input mb-1.5">
+                            <input 
+                                type="text" 
+                                name="keywords" 
+                                placeholder="Keywords"
+                                hx-get="/partials/deck-builder/card-keywords"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-target="next dropdown-menu"
+                                autofocus
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                                <path d="M21 21l-6 -6"></path>
+                            </svg>
+                            <dropdown-menu>
+                                {{ template "partials/deck-builder/card-keywords" . }}
+                            </dropdown-menu>
+                            <div 
+                                id="keyword-chips"
+                                class="chips"
+                                hx-trigger="cardGridReset from:body"
+                                hx-post="/partials/deck-builder/card-keyword-chips"
+                                hx-include="find .chip input"
+                            >
+                                {{ template "partials/deck-builder/card-keyword-chips" . }}
+                            </div>
+                        </div>
+                        <div class="select mb-1.5">
+                            <select
+                                name="rarity"
+                                hx-post="/partials/deck-builder/card-grid-filters"
+                                hx-target="deck-card-browser"
+                                hx-swap="innerHTML"
+                                hx-trigger="change"
+                                hx-encoding="multipart/form-data"
+                                hx-include=".deck-filters-form"
+                            >
+                                <option {{ if eq .Rarity "" }}selected{{ end }} value="">Any Rarity</option>
+                                <option {{ if eq .Rarity "common" }}selected{{ end }} value="common">Common</option>
+                                <option {{ if eq .Rarity "uncommon" }}selected{{ end }} value="uncommon">Uncommon</option>
+                                <option {{ if eq .Rarity "rare" }}selected{{ end }} value="rare">Rare</option>
+                                <option {{ if eq .Rarity "mythic" }}selected{{ end }} value="mythic">Mythic</option>
+                            </select>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 9l6 6l6 -6"></path>
+                            </svg>
+                        </div>
+                        <div class="select">
+                            <select
+                                name="legality"
+                                hx-post="/partials/deck-builder/card-grid-filters"
+                                hx-target="deck-card-browser"
+                                hx-swap="innerHTML"
+                                hx-trigger="change"
+                                hx-encoding="multipart/form-data"
+                                hx-include=".deck-filters-form"
+                            >
+                                <option {{ if eq .Legality "" }}selected{{ end }} value="">No Restrictions</option>
+                                <option {{ if eq .Legality "standard" }}selected{{ end }} value="standard">Standard</option>
+                                <option {{ if eq .Legality "future" }}selected{{ end }} value="future">Future</option>
+                                <option {{ if eq .Legality "historic" }}selected{{ end }} value="historic">Historic</option>
+                                <option {{ if eq .Legality "gladiator" }}selected{{ end }} value="gladiator">Gladiator</option>
+                                <option {{ if eq .Legality "pioneer" }}selected{{ end }} value="pioneer">Pioneer</option>
+                                <option {{ if eq .Legality "explorer" }}selected{{ end }} value="explorer">Explorer</option>
+                                <option {{ if eq .Legality "modern" }}selected{{ end }} value="modern">Modern</option>
+                                <option {{ if eq .Legality "legacy" }}selected{{ end }} value="legacy">Legacy</option>
+                                <option {{ if eq .Legality "pauper" }}selected{{ end }} value="pauper">Pauper</option>
+                                <option {{ if eq .Legality "vintage" }}selected{{ end }} value="vintage">Vintage</option>
+                                <option {{ if eq .Legality "penny" }}selected{{ end }} value="penny">Penny</option>
+                                <option {{ if eq .Legality "commander" }}selected{{ end }} value="commander">Commander</option>
+                                <option {{ if eq .Legality "oathbreaker" }}selected{{ end }} value="oathbreaker">Oathbreaker</option>
+                                <option {{ if eq .Legality "brawl" }}selected{{ end }} value="brawl">Brawl</option>
+                                <option {{ if eq .Legality "historicbrawl" }}selected{{ end }} value="historicbrawl">Historic Brawl</option>
+                                <option {{ if eq .Legality "alchemy" }}selected{{ end }} value="alchemy">Alchemy</option>
+                                <option {{ if eq .Legality "paupercommander" }}selected{{ end }} value="paupercommander">Pauper Commander</option>
+                                <option {{ if eq .Legality "duel" }}selected{{ end }} value="duel">Duel</option>
+                                <option {{ if eq .Legality "oldschool" }}selected{{ end }} value="oldschool">Oldschool</option>
+                                <option {{ if eq .Legality "premodern" }}selected{{ end }} value="premodern">Premodern</option>
+                                <option {{ if eq .Legality "predh" }}selected{{ end }} value="predh">preDH</option>
+                            </select>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 9l6 6l6 -6"></path>
+                            </svg>
                         </div>
                     </advanced-filters>
                 </div>

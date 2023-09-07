@@ -158,6 +158,8 @@ func main() {
         search := c.Query("search")
         searchQuery := "%" + strings.Trim(search, " ") + "%"
         sort := c.Query("sort")
+        rarity := c.Query("rarity")
+        legality := c.Query("legality")
 
         manaStr := c.Query("mana")
         mana := []string{}
@@ -171,6 +173,18 @@ func main() {
             types = strings.Split(typesStr, ",")
         }
 
+        subtypesStr := c.Query("subtypes")
+        subtypes := []string{}
+        if subtypesStr != "" {
+            subtypes = strings.Split(subtypesStr, ",")
+        }
+
+        keywordStr := c.Query("keywords")
+        keywords := []string{}
+        if keywordStr != "" {
+            keywords = strings.Split(keywordStr, ",")
+        }
+
         db := connectDB()
         deck := models.GetDeck(db, deckId, user.Id)
         
@@ -179,10 +193,12 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, searchQuery, sort, mana, types, 0, 20)
+        cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
         cardTypes := models.GetCardTypes(db)
+        cardSubtypes := models.GetCardSubtypes(db)
+        cardKeywords := models.GetCardKeywords(db)
 
         deckColors := models.GetDeckColors(db, deckId)
         containsW := false
@@ -261,6 +277,12 @@ func main() {
             "ManaFilterC": manaFilterC,
             "CardTypes": cardTypes,
             "TypeChips": types,
+            "CardSubtypes": cardSubtypes,
+            "SubtypeChips": subtypes,
+            "KeywordChips": keywords,
+            "CardKeywords": cardKeywords,
+            "Rarity": rarity,
+            "Legality": legality,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -293,20 +315,24 @@ func main() {
             sort := form.Value["sort"][0]
             mana := form.Value["mana[]"]
             types := form.Value["types[]"]
+            subtypes := form.Value["subtypes[]"]
+            keywords := form.Value["keywords[]"]
             deckId := form.Value["deck-id"][0]
+            rarity := form.Value["rarity"][0]
+            legality := form.Value["legality"][0]
             page := form.Value["page"][0]
             var pageInt int
             fmt.Sscan(page, &pageInt)
             offset := pageInt * 20
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, offset, 20)
+            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
 
             if len(cards) > 0 {
                 c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdated")
             }
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
                 "Cards": cards,
@@ -325,11 +351,15 @@ func main() {
             deckId := form.Value["deck-id"][0]
             mana := form.Value["mana[]"]
             types := form.Value["types[]"]
+            subtypes := form.Value["subtypes[]"]
+            keywords := form.Value["keywords[]"]
+            rarity := form.Value["rarity"][0]
+            legality := form.Value["legality"][0]
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, 0, 20)
+            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
             c.Response().Header.Set("HX-Trigger", "cardGridReset")
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
@@ -350,7 +380,7 @@ func main() {
     app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
         deckId := c.Query("active-deck-id")
         return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
-            "SearchPage": 0,
+            "SearchPage": 1,
             "ActiveDeckId": deckId,
         })
     })
@@ -535,6 +565,96 @@ func main() {
 
             return c.Render("partials/deck-builder/card-type-chips", fiber.Map{
                 "TypeChips": newTypes,
+            })
+        } else {
+            return c.Send(nil)
+        }
+    })
+    app.Get("/partials/deck-builder/card-subtypes", func(c *fiber.Ctx) error {
+        subtypeStr := c.Query("subtypes")
+        db := connectDB()
+        subtypes := models.SearchCardSubtypes(db, subtypeStr)
+        return c.Render("partials/deck-builder/card-subtypes", fiber.Map{
+            "CardSubtypes": subtypes,
+        })
+    })
+    app.Post("/partials/deck-builder/card-subtype-chips", func(c *fiber.Ctx) error {
+        form, err := c.MultipartForm()
+        if err == nil {
+            subtypes := form.Value["subtypes[]"]
+            newSubtype := form.Value["subtype"][0]
+            subtypes = append(subtypes, newSubtype)
+
+            c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
+
+            return c.Render("partials/deck-builder/card-subtype-chips", fiber.Map{
+                "SubtypeChips": subtypes,
+            })
+        } else {
+            return c.Send(nil)
+        }
+    })
+    app.Delete("/partials/deck-builder/card-subtype-chips", func(c *fiber.Ctx) error {
+        form, err := c.MultipartForm()
+        if err == nil {
+            subtypes := form.Value["subtypes[]"]
+            subtypeToDelete := form.Value["subtype"][0]
+            newSubtypes := []string{}
+            for _, t := range subtypes {
+                if t != subtypeToDelete {
+                    newSubtypes = append(newSubtypes, t)
+                }
+            }
+
+            c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
+
+            return c.Render("partials/deck-builder/card-subtype-chips", fiber.Map{
+                "SubtypeChips": newSubtypes,
+            })
+        } else {
+            return c.Send(nil)
+        }
+    })
+    app.Get("/partials/deck-builder/card-keywords", func(c *fiber.Ctx) error {
+        keywordStr := c.Query("keywords")
+        db := connectDB()
+        keywords := models.SearchCardKeywords(db, keywordStr)
+        return c.Render("partials/deck-builder/card-keywords", fiber.Map{
+            "CardKeywords": keywords,
+        })
+    })
+    app.Post("/partials/deck-builder/card-keyword-chips", func(c *fiber.Ctx) error {
+        form, err := c.MultipartForm()
+        if err == nil {
+            keywords := form.Value["keywords[]"]
+            newKeyword := form.Value["keyword"][0]
+            keywords = append(keywords, newKeyword)
+
+            c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
+
+            return c.Render("partials/deck-builder/card-keyword-chips", fiber.Map{
+                "KeywordChips": keywords,
+            })
+        } else {
+            return c.Send(nil)
+        }
+    })
+    app.Delete("/partials/deck-builder/card-keyword-chips", func(c *fiber.Ctx) error {
+        form, err := c.MultipartForm()
+        if err == nil {
+            keywords := form.Value["keywords[]"]
+            keywordToDelete := form.Value["keyword"][0]
+            newKeywords := []string{}
+            for _, t := range keywords {
+                if t != keywordToDelete {
+                    newKeywords = append(newKeywords, t)
+                }
+            }
+
+            c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
+
+            return c.Render("partials/deck-builder/card-keyword-chips", fiber.Map{
+                "KeywordChips": newKeywords,
             })
         } else {
             return c.Send(nil)
