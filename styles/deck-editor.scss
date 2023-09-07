@@ -427,7 +427,7 @@ deck-builder{
                 top: 0;
                 left: 0;
 
-                &:last-of-type{
+                &:last-of-type:not(:only-of-type){
                     opacity: 0;
                     pointer-events: none;
                 }
