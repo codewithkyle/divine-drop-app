@@ -8,6 +8,7 @@
     hx-target="main"
     hx-swap="innerHTML"
     value="{{ .SearchRaw }}"
+    autocomplete="off"
 >
 {{ template "partials/card-browser/page-input" . }}
 <div class="card-browser">
@@ -15,6 +16,7 @@
 </div>
 <div 
     class="block w-full"
+    style="height:1rem;"
     style="height:3rem;"
     hx-get="/partials/card-browser"
     hx-trigger="intersect throttle:1000ms"
