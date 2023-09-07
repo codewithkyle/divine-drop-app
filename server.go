@@ -165,6 +165,12 @@ func main() {
             mana = strings.Split(manaStr, ",")
         }
 
+        typesStr := c.Query("types")
+        types := []string{}
+        if typesStr != "" {
+            types = strings.Split(typesStr, ",")
+        }
+
         db := connectDB()
         deck := models.GetDeck(db, deckId, user.Id)
         
@@ -173,9 +179,10 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, searchQuery, sort, mana, 0, 20)
+        cards := models.FilterCards(db, searchQuery, sort, mana, types, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
+        cardTypes := models.GetCardTypes(db)
 
         deckColors := models.GetDeckColors(db, deckId)
         containsW := false
@@ -252,6 +259,8 @@ func main() {
             "ManaFilterR": manaFilterR,
             "ManaFilterG": manaFilterG,
             "ManaFilterC": manaFilterC,
+            "CardTypes": cardTypes,
+            "TypeChips": types,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -283,17 +292,21 @@ func main() {
             searchQuery := "%" + strings.Trim(search, " ") + "%"
             sort := form.Value["sort"][0]
             mana := form.Value["mana[]"]
+            types := form.Value["types[]"]
+            deckId := form.Value["deck-id"][0]
             page := form.Value["page"][0]
             var pageInt int
             fmt.Sscan(page, &pageInt)
             offset := pageInt * 20
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, offset, 20)
+            cards := models.FilterCards(db, searchQuery, sort, mana, types, offset, 20)
 
             if len(cards) > 0 {
                 c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
             }
+
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")))
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
                 "Cards": cards,
@@ -311,11 +324,12 @@ func main() {
             sort := form.Value["sort"][0]
             deckId := form.Value["deck-id"][0]
             mana := form.Value["mana[]"]
+            types := form.Value["types[]"]
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, 0, 20)
+            cards := models.FilterCards(db, searchQuery, sort, mana, types, 0, 20)
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")))
             c.Response().Header.Set("HX-Trigger", "cardGridReset")
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
@@ -480,6 +494,51 @@ func main() {
         return c.Render("partials/deck-builder/banner-art", fiber.Map{
             "BannerArtUrl": bannerArt,
         })
+    })
+    app.Get("/partials/deck-builder/card-types", func(c *fiber.Ctx) error {
+        typeStr := c.Query("types")
+        db := connectDB()
+        cardTypes := models.SearchCardTypes(db, typeStr)
+        return c.Render("partials/deck-builder/card-types", fiber.Map{
+            "CardTypes": cardTypes,
+        })
+    })
+    app.Post("/partials/deck-builder/card-type-chips", func(c *fiber.Ctx) error {
+        form, err := c.MultipartForm()
+        if err == nil {
+            types := form.Value["types[]"]
+            newType := form.Value["type"][0]
+            types = append(types, newType)
+
+            c.Response().Header.Set("HX-Trigger", "cardGridUpdate")
+
+            return c.Render("partials/deck-builder/card-type-chips", fiber.Map{
+                "TypeChips": types,
+            })
+        } else {
+            return c.Send(nil)
+        }
+    })
+    app.Delete("/partials/deck-builder/card-type-chips", func(c *fiber.Ctx) error {
+        form, err := c.MultipartForm()
+        if err == nil {
+            types := form.Value["types[]"]
+            typeToDelete := form.Value["type"][0]
+            newTypes := []string{}
+            for _, t := range types {
+                if t != typeToDelete {
+                    newTypes = append(newTypes, t)
+                }
+            }
+
+            c.Response().Header.Set("HX-Trigger", "cardGridUpdate")
+
+            return c.Render("partials/deck-builder/card-type-chips", fiber.Map{
+                "TypeChips": newTypes,
+            })
+        } else {
+            return c.Send(nil)
+        }
     })
 
     app.Get("/partials/nav/decks-opened", func(c *fiber.Ctx) error {

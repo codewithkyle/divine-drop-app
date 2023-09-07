@@ -1,0 +1,12 @@
+{{ range .CardTypes }}
+    <button
+        hx-post="/partials/deck-builder/card-type-chips"
+        hx-target="#type-chips"
+        hx-swap="innerHTML"
+        hx-include="#type-chips"
+        hx-encoding="multipart/form-data"
+        hx-vals='{"type":"{{ . }}"}'
+    >
+        <span>{{ . }}</span>
+    </button>
+{{ end }}

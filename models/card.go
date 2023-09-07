@@ -65,9 +65,9 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
+    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE 1=1 "
 
     sortColumn := "CN.name"
     switch sort {
@@ -100,26 +100,52 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, offset in
     }
     colorLogic := "C.id NOT IN (SELECT cc.card_id FROM Card_Colors cc JOIN Colors c ON cc.color_id = c.id WHERE c.color <> " + strings.Join(manaCheck, " AND c.color <> ") + ") "
     if includeColorless == false {
-        colorLogic += "AND EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id)"
+        colorLogic += "AND EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id) "
     }
     if len(mana) == 1 && includeColorless {
-        colorLogic = "NOT EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id)"
+        colorLogic = "NOT EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id) "
     }
+
+    typeCheck := []string{}
+    if len(types) > 0 {
+        for i := 0; i < len(types); i++ {
+            typeCheck = append(typeCheck, "@type" + fmt.Sprint(i))
+            params["type" + fmt.Sprint(i)] = types[i]
+        }
+    }
+    typeLogic := "(C.type = " + strings.Join(typeCheck, " OR C.type = ") + ") "
 
     if name == "%%" {
         if len(mana) > 0 {
-            query += " WHERE " + colorLogic + " " + orderBy + " LIMIT @limit OFFSET @offset"
-        } else {
-            query += orderBy + " LIMIT @limit OFFSET @offset"
+            query += "AND " + colorLogic
+        }
+        if len(types) > 0 {
+            query += "AND " + typeLogic
         }
     } else {
         params["name"] = name
+        query += "AND CN.name LIKE @name "
         if len(mana) > 0 {
-            query += " WHERE CN.name LIKE @name AND " + colorLogic + " " + orderBy + " LIMIT @limit OFFSET @offset"
-        } else {
-            query += " WHERE CN.name LIKE @name " + orderBy + " LIMIT @limit OFFSET @offset"
+            query += "AND " + colorLogic
+        }
+        if len(types) > 0 {
+            query += "AND " + typeLogic
         }
     }
+    query += orderBy + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
     return cards
+}
+
+func GetCardTypes(db *gorm.DB) []string {
+    var types []string
+    db.Raw("SELECT DISTINCT type FROM Cards").Scan(&types)
+    return types
+}
+
+func SearchCardTypes(db *gorm.DB, name string) []string {
+    name = "%" + strings.Trim(name, " ") + "%"
+    var types []string
+    db.Raw("SELECT DISTINCT type FROM Cards WHERE type LIKE ?", name).Scan(&types)
+    return types
 }
