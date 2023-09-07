@@ -200,6 +200,11 @@ func main() {
         cardSubtypes := models.GetCardSubtypes(db)
         cardKeywords := models.GetCardKeywords(db)
 
+        mythicsCount := models.GetMythicsCount(db, deckId)
+        uncommonsCount := models.GetUncommonsCount(db, deckId)
+        commonsCount := models.GetCommonsCount(db, deckId)
+        raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
+
         deckColors := models.GetDeckColors(db, deckId)
         containsW := false
         containsU := false
@@ -284,6 +289,10 @@ func main() {
             "CardKeywords": cardKeywords,
             "Rarity": rarity,
             "Legality": legality,
+            "MythicsCount": mythicsCount,
+            "UncommonsCount": uncommonsCount,
+            "CommonsCount": commonsCount,
+            "RaresCount": raresCount,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -305,6 +314,21 @@ func main() {
 
         return c.Render("partials/deck-builder/label-input", fiber.Map{
             "Deck": deck,
+        })
+    })
+    app.Get("/partials/deck-builder/rarity-counts", func(c *fiber.Ctx) error {
+        deckId := c.Query("active-deck-id")
+        db := connectDB()
+        mythicsCount := models.GetMythicsCount(db, deckId)
+        uncommonsCount := models.GetUncommonsCount(db, deckId)
+        commonsCount := models.GetCommonsCount(db, deckId)
+        deckMetadata := models.GetDeckMetadata(db, deckId)
+        raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
+        return c.Render("partials/deck-builder/rarity-counts", fiber.Map{
+            "MythicsCount": mythicsCount,
+            "UncommonsCount": uncommonsCount,
+            "CommonsCount": commonsCount,
+            "RaresCount": raresCount,
         })
     })
     app.Post("/partials/deck-builder/card-grid", func(c *fiber.Ctx) error {

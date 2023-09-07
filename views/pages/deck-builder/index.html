@@ -10,8 +10,16 @@
             {{ template "partials/deck-builder/mana-types" . }}
         </div>
     </div>
-    <div>
-        <button class="font-grey-500">
+    <div flex="row nowrap items-start">
+        <div 
+            class="rarity-counts"
+            hx-get="/partials/deck-builder/rarity-counts"
+            hx-trigger="deckUpdated from:body throttle:1000ms"
+            hx-include="[name='active-deck-id']"
+        >
+            {{ template "partials/deck-builder/rarity-counts" . }}
+        </div>
+        <button class="font-grey-500 ml-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
