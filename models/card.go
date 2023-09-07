@@ -66,7 +66,7 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, offset int, limit int) []Card {
     var cards []Card
     query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE 1=1 "
 
@@ -125,6 +125,15 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
     subtypeLogic := "C.id IN (SELECT cs.card_id FROM Card_Subtypes cs WHERE cs.subtype = " + strings.Join(subtypeCheck, " OR s.subtype = ") + ") "
 
+    keywordCheck := []string{}
+    if len(keywords) > 0 {
+        for i := 0; i < len(keywords); i++ {
+            keywordCheck = append(keywordCheck, "@keyword" + fmt.Sprint(i))
+            params["keyword" + fmt.Sprint(i)] = keywords[i]
+        }
+    }
+    keywordLogic := "C.id IN (SELECT ck.card_id FROM Card_Keywords ck WHERE ck.keyword = " + strings.Join(keywordCheck, " OR ck.keyword = ") + ") "
+
     if name != "%%" {
         params["name"] = name
         query += "AND CN.name LIKE @name "
@@ -137,6 +146,9 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
     if len(subtypes) > 0 {
         query += "AND " + subtypeLogic
+    }
+    if len(keywords) > 0 {
+        query += "AND " + keywordLogic
     }
 
     query += orderBy + " LIMIT @limit OFFSET @offset"
@@ -169,4 +181,17 @@ func SearchCardSubtypes(db *gorm.DB, name string) []string {
     var subtypes []string
     db.Raw("SELECT DISTINCT subtype FROM Card_Subtypes WHERE subtype LIKE ? ORDER BY subtype", name).Scan(&subtypes)
     return subtypes
+}
+
+func GetCardKeywords(db *gorm.DB) []string {
+    var keywords []string
+    db.Raw("SELECT DISTINCT keyword FROM Card_Keywords ORDER BY keyword").Scan(&keywords)
+    return keywords
+}
+
+func SearchCardKeywords(db *gorm.DB, name string) []string {
+    name = "%" + strings.Trim(name, " ") + "%"
+    var keywords []string
+    db.Raw("SELECT DISTINCT keyword FROM Card_Keywords WHERE keyword LIKE ? ORDER BY keyword", name).Scan(&keywords)
+    return keywords
 }
