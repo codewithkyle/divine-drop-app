@@ -363,3 +363,40 @@
     </div>
     {{ template "partials/deck-builder/deck-tray" . }}
 </deck-builder>
+<script type="module">
+    import Sortable from "/js/sortablejs.js";
+    htmx.onLoad(function(content){
+        const grid = document.body.querySelector("deck-card-browser");
+        if (grid){
+            new Sortable(grid, {
+                animation: 0,
+                group: {
+                    name: "card-grid",
+                    pull: "clone",
+                    put: false
+                },
+                sort: false,
+            });
+        }
+
+        const tray = document.body.querySelector("deck-tray")
+        if (tray) {
+            new Sortable(tray, {
+                animation: 0,
+                group: {
+                    name: "card-grid",
+                },
+                sort: false,
+                onAdd: (evt) => {
+                    evt.item.style.order = '-1 !important';
+                    document.body.querySelector("deck-card-browser").dispatchEvent(new CustomEvent("addCard", {
+                        bubbles: false,
+                        detail: {
+                            id: evt.item.dataset.id,
+                        }
+                    }));
+                }
+            });
+        }
+    })
+</script>

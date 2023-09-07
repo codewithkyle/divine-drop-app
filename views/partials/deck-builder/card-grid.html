@@ -1,14 +1,18 @@
 {{ range .Cards }}
-    <div class="card">
+    <div 
+        class="card"
+        hx-put="/partials/deck-tray/card/{{ .Id }}"
+        hx-target="deck-tray"
+        hx-swap="outerHTML"
+        hx-include="[name='active-deck-id']"
+        hx-trigger="addCard[detail.id == '{{ .Id }}'] from:deck-card-browser"
+        data-id="{{ .Id }}"
+    >
         <img 
             src="{{ .Front }}" 
             onload="this.style.opacity = '1'"
             width="200"
             loading="lazy"
-            hx-put="/partials/deck-tray/card/{{ .Id }}"
-            hx-target="deck-tray"
-            hx-swap="outerHTML"
-            hx-include="[name='active-deck-id']"
         >
         {{ if ne .Back "" }}
             <img 
