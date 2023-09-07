@@ -159,6 +159,7 @@ func main() {
         searchQuery := "%" + strings.Trim(search, " ") + "%"
         sort := c.Query("sort")
         rarity := c.Query("rarity")
+        legality := c.Query("legality")
 
         manaStr := c.Query("mana")
         mana := []string{}
@@ -192,7 +193,7 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, 0, 20)
+        cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
         cardTypes := models.GetCardTypes(db)
@@ -281,6 +282,7 @@ func main() {
             "KeywordChips": keywords,
             "CardKeywords": cardKeywords,
             "Rarity": rarity,
+            "Legality": legality,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -317,19 +319,20 @@ func main() {
             keywords := form.Value["keywords[]"]
             deckId := form.Value["deck-id"][0]
             rarity := form.Value["rarity"][0]
+            legality := form.Value["legality"][0]
             page := form.Value["page"][0]
             var pageInt int
             fmt.Sscan(page, &pageInt)
             offset := pageInt * 20
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, offset, 20)
+            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
 
             if len(cards) > 0 {
                 c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdated")
             }
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
                 "Cards": cards,
@@ -351,11 +354,12 @@ func main() {
             subtypes := form.Value["subtypes[]"]
             keywords := form.Value["keywords[]"]
             rarity := form.Value["rarity"][0]
+            legality := form.Value["legality"][0]
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, 0, 20)
+            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
             c.Response().Header.Set("HX-Trigger", "cardGridReset")
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{

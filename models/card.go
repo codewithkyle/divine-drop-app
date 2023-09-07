@@ -66,7 +66,7 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, offset int, limit int) []Card {
     var cards []Card
     query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
 
@@ -143,6 +143,53 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
     if len(keywords) > 0 {
         query += "AND " + keywordLogic
+    }
+
+    if legality != "any" && legality != "" {
+        switch legality {
+            case "standard":
+                query += "AND C.standard = 1 "
+            case "future":
+                query += "AND C.future = 1 "
+            case "historic":
+                query += "AND C.historic = 1 "
+            case "gladiator":
+                query += "AND C.gladiator = 1 "
+            case "pioneer":
+                query += "AND C.pioneer = 1 "
+            case "explorer":
+                query += "AND C.explorer = 1 "
+            case "modern":
+                query += "AND C.modern = 1 "
+            case "legacy":
+                query += "AND C.legacy = 1 "
+            case "pauper":
+                query += "AND C.pauper = 1 "
+            case "vintage":
+                query += "AND C.vintage = 1 "
+            case "penny":
+                query += "AND C.penny = 1 "
+            case "commander":
+                query += "AND C.commander = 1 "
+            case "oathbreaker":
+                query += "AND C.oathbreaker = 1 "
+            case "brawl":
+                query += "AND C.brawl = 1 "
+            case "historicbrawl":
+                query += "AND C.historicbrawl = 1 "
+            case "alchemy":
+                query += "AND C.alchemy = 1 "
+            case "paupercommander":
+                query += "AND C.paupercommander = 1 "
+            case "duel":
+                query += "AND C.duel = 1 "
+            case "oldschool":
+                query += "AND C.oldschool = 1 "
+            case "premodern":
+                query += "AND C.premodern = 1 "
+            case "predh":
+                query += "AND C.predh = 1 "
+        }
     }
 
     sortColumn := "CN.name"
