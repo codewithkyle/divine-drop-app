@@ -26,7 +26,7 @@
         <deck-filters>
             <div
                 hx-get="/partials/deck-builder/card-grid-settings"
-                hx-trigger="cardGridReset from:body, cardGridUpdate from:body"
+                hx-trigger="cardGridReset from:body throttle:1000ms, cardGridUpdate from:body throttle:1000ms"
                 hx-include="[name='active-deck-id']"
             >
                 {{ template "partials/deck-builder/card-grid-settings" . }}
