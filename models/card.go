@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"strings"
+
 	"gorm.io/gorm"
 )
 
@@ -66,9 +67,9 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
 
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
+    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
 
-    sortColumn := "name"
+    sortColumn := "CN.name"
     switch sort {
         case "name":
             sortColumn = "CN.name"
