@@ -260,6 +260,7 @@ func main() {
             "Cards": cards,
             "SearchPage": 1,
             "DeckCards": deckCards,
+            "DeckCardsCount": len(deckCards),
             "DeckMetadata": deckMetadata,
             "ContainsW": containsW,
             "ContainsU": containsU,
@@ -413,6 +414,7 @@ func main() {
         deckCards := models.GetDeckCards(db, activeDeckId)
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
+            "DeckCardsCount": len(deckCards),
         })
     })
     app.Delete("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {
@@ -434,6 +436,7 @@ func main() {
 
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
+            "DeckCardsCount": len(deckCards),
         })
     })
     app.Get("/partials/deck-builder/card-count/:id", func(c *fiber.Ctx) error {
