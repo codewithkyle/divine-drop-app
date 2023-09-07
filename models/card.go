@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+	"strings"
+	"gorm.io/gorm"
+)
 
 type Card struct {
     Id            string `gorm:"column:id;primary_key;type:binary(16)"`
@@ -60,8 +64,10 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, offset int, limit int) []Card {
     var cards []Card
+    query := "SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
+
     sortColumn := "name"
     switch sort {
         case "name":
@@ -74,10 +80,45 @@ func FilterCards(db *gorm.DB, name string, sort string, offset int, limit int) [
             sortColumn = "C.toughness DESC"
     }
     orderBy := "ORDER BY " + sortColumn
-    if name == "%%" {
-        db.Raw("SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id " + orderBy + " LIMIT ? OFFSET ?", limit, offset).Scan(&cards)
-    } else {
-        db.Raw("SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? " + orderBy + " LIMIT ? OFFSET ?", name, limit, offset).Scan(&cards)
+
+    manaCheck := []string{}
+    params := map[string]interface{}{
+        "limit": limit,
+        "offset": offset,
     }
+    includeColorless := false
+    if len(mana) > 0 {
+        for i := 0; i < len(mana); i++ {
+            if mana[i] == "C" {
+                includeColorless = true
+            } else {
+                manaCheck = append(manaCheck, "@mana" + fmt.Sprint(i))
+                params["mana" + fmt.Sprint(i)] = mana[i]
+            }
+        }
+    }
+    colorLogic := "C.id NOT IN (SELECT cc.card_id FROM Card_Colors cc JOIN Colors c ON cc.color_id = c.id WHERE c.color <> " + strings.Join(manaCheck, " AND c.color <> ") + ") "
+    if includeColorless == false {
+        colorLogic += "AND EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id)"
+    }
+    if len(mana) == 1 && includeColorless {
+        colorLogic = "NOT EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id)"
+    }
+
+    if name == "%%" {
+        if len(mana) > 0 {
+            query += " WHERE " + colorLogic + " " + orderBy + " LIMIT @limit OFFSET @offset"
+        } else {
+            query += orderBy + " LIMIT @limit OFFSET @offset"
+        }
+    } else {
+        params["name"] = name
+        if len(mana) > 0 {
+            query += " WHERE CN.name LIKE @name AND " + colorLogic + " " + orderBy + " LIMIT @limit OFFSET @offset"
+        } else {
+            query += " WHERE CN.name LIKE @name " + orderBy + " LIMIT @limit OFFSET @offset"
+        }
+    }
+    db.Raw(query, params).Scan(&cards)
     return cards
 }

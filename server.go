@@ -1,20 +1,22 @@
 package main
 
 import (
-    "log"
-    "os"
-    "strings"
-    "time"
-    "net/url"
-    "errors"
-    "github.com/gofiber/fiber/v2"
-    "github.com/gofiber/template/html/v2"
-    "github.com/joho/godotenv"
+	"app/models"
+	"errors"
+	"fmt"
+	"log"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/clerkinc/clerk-sdk-go/clerk"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-    "github.com/clerkinc/clerk-sdk-go/clerk"
-    "github.com/google/uuid"
-    "app/models"
 )
 
 func connectDB() *gorm.DB {
@@ -157,6 +159,9 @@ func main() {
         searchQuery := "%" + strings.Trim(search, " ") + "%"
         sort := c.Query("sort")
 
+        manaStr := c.Query("mana")
+        mana := strings.Split(manaStr, ",")
+
         db := connectDB()
         deck := models.GetDeck(db, deckId, user.Id)
         
@@ -165,7 +170,7 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, searchQuery, sort, 0, 20)
+        cards := models.FilterCards(db, searchQuery, sort, mana, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -187,6 +192,29 @@ func main() {
                     containsR = true
                 case "G":
                     containsG = true
+            }
+        }
+
+        manaFilterW := false
+        manaFilterU := false
+        manaFilterB := false
+        manaFilterR := false
+        manaFilterG := false
+        manaFilterC := false
+        for _, color := range mana {
+            switch color {
+                case "W":
+                    manaFilterW = true
+                case "U":
+                    manaFilterU = true
+                case "B":
+                    manaFilterB = true
+                case "R":
+                    manaFilterR = true
+                case "G":
+                    manaFilterG = true
+                case "C":
+                    manaFilterC = true
             }
         }
 
@@ -215,6 +243,12 @@ func main() {
             "BannerArtUrl": bannerArt,
             "SearchRaw": search,
             "Sort": sort,
+            "ManaFilterW": manaFilterW,
+            "ManaFilterU": manaFilterU,
+            "ManaFilterB": manaFilterB,
+            "ManaFilterR": manaFilterR,
+            "ManaFilterG": manaFilterG,
+            "ManaFilterC": manaFilterC,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -238,42 +272,55 @@ func main() {
             "Deck": deck,
         })
     })
-    app.Get("/partials/deck-builder/card-grid", func(c *fiber.Ctx) error {
-        search := c.Query("search")
-        sort := c.Query("sort")
-        page := c.QueryInt("page")
-        offset := page * 20
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
+    app.Post("/partials/deck-builder/card-grid", func(c *fiber.Ctx) error {
 
-        db := connectDB()
-        cards := models.FilterCards(db, searchQuery, sort, offset, 20)
+        form, err := c.MultipartForm()
+        if err == nil {
+            search := form.Value["search"][0]
+            searchQuery := "%" + strings.Trim(search, " ") + "%"
+            sort := form.Value["sort"][0]
+            mana := form.Value["mana[]"]
+            page := form.Value["page"][0]
+            var pageInt int
+            fmt.Sscan(page, &pageInt)
+            offset := pageInt * 20
 
-        if len(cards) > 0 {
-            c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+            db := connectDB()
+            cards := models.FilterCards(db, searchQuery, sort, mana, offset, 20)
+
+            if len(cards) > 0 {
+                c.Response().Header.Set("HX-Trigger", "cardGridUpdated")
+            }
+
+            return c.Render("partials/deck-builder/card-grid", fiber.Map{
+                "Cards": cards,
+            })
+        } else {
+            return c.Send(nil)
         }
-
-        return c.Render("partials/deck-builder/card-grid", fiber.Map{
-            "Cards": cards,
-        })
     })
     app.Post("/partials/deck-builder/card-grid-filters", func(c *fiber.Ctx) error {
 
-        search := c.FormValue("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
+        form, err := c.MultipartForm()
+        if err == nil {
+            search := form.Value["search"][0]
+            searchQuery := "%" + strings.Trim(search, " ") + "%"
+            sort := form.Value["sort"][0]
+            deckId := form.Value["deck-id"][0]
+            mana := form.Value["mana[]"]
 
-        sort := c.FormValue("sort")
-        deckId := c.FormValue("deck-id")
+            db := connectDB()
+            cards := models.FilterCards(db, searchQuery, sort, mana, 0, 20)
 
-        db := connectDB()
-        cards := models.FilterCards(db, searchQuery, sort, 0, 20)
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")))
+            c.Response().Header.Set("HX-Trigger", "cardGridReset")
 
-        c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort))
-
-        c.Response().Header.Set("HX-Trigger", "cardGridReset")
-
-        return c.Render("partials/deck-builder/card-grid", fiber.Map{
-            "Cards": cards,
-        })
+            return c.Render("partials/deck-builder/card-grid", fiber.Map{
+                "Cards": cards,
+            })
+        } else {
+            return c.Send(nil)
+        }
     })
     app.Get("/partials/deck-builder/card-grid-loader" , func(c *fiber.Ctx) error {
         page := c.QueryInt("page")
