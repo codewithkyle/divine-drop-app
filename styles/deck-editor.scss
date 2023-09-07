@@ -18,6 +18,49 @@ header.deck-editor{
         opacity: 0.2;
     }
 
+    .rarity-counts{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+
+        .rarity-tracker{
+            height: 32px;
+            padding: 0 1rem 0 0.75rem;
+            background-color: var(--grey-800);
+            border-radius: 0.5rem;
+            font-size: var(--font-sm);
+            color: var(--grey-200);
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+
+            .badge{
+                height: 18px;
+                border-radius: 9px;
+                padding: 0 0.5rem;
+                font-weight: var(--font-medium);
+                margin-right: 0.75rem;
+                background-color: hsl(var(--grey-300-hsl) / 0.05);
+                line-height: 18px;
+
+                &.-red{
+                    color: var(--red-300);
+                    background-color: hsl(var(--red-300-hsl) / 0.05);
+                }
+
+                &.-yellow{
+                    color: var(--yellow-300);
+                    background-color: hsl(var(--yellow-300-hsl) / 0.05);
+                }
+
+                &.-blue{
+                    color: var(--blue-300);
+                    background-color: hsl(var(--blue-300-hsl) / 0.05);
+                }
+            }
+        }
+    }
+
     input{
         font-size: var(--font-xl);
         color: var(--grey-300);

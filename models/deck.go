@@ -41,3 +41,27 @@ func GetDeckMetadata(db *gorm.DB, deckId string) DeckMetadata {
     db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)
     return deckMetadata
 }
+
+func GetMythicsCount(db *gorm.DB, deckId string) int {
+    var count int
+    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'mythic'", deckId).Scan(&count)
+    return count
+}
+
+func GetUncommonsCount(db *gorm.DB, deckId string) int {
+    var count int
+    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'uncommon'", deckId).Scan(&count)
+    return count
+}
+
+func GetCommonsCount(db *gorm.DB, deckId string) int {
+    var count int
+    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'common'", deckId).Scan(&count)
+    return count
+}
+
+func GetRaresCount(db *gorm.DB, deckId string) int {
+    var count int
+    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'rare'", deckId).Scan(&count)
+    return count
+}
