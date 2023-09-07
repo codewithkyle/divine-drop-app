@@ -517,17 +517,13 @@ deck-builder{
 
     deck-tray{
         display: block;
-        overscroll-behavior: contain;
         width: 100%;
         border-radius: 1rem;
         background: linear-gradient(to bottom, var(--grey-800), hsl(var(--grey-900-hsl) / 0.87));
         border: 1px solid hsl(var(--white-hsl) / 0.15);
-        max-height: calc(100vh - 128px - 4rem + min(var(--scroll), 128px));
-        height: 100%;
-        will-change: max-height;
-        overflow-y: auto;
-        position: sticky;
-        top: 2rem;
+        overflow: hidden;
+        margin-bottom: auto;
+        min-height: calc(48px * 6);
 
         #deck-tray-spinner{
             position: absolute;
@@ -556,7 +552,7 @@ deck-builder{
 
         .card{
             height: 48px;
-            width: 100%;
+            width: 300px;
             padding: 0 0.75rem;
             color: var(--grey-200);
 
