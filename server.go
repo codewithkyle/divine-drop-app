@@ -537,8 +537,11 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             types := form.Value["types[]"]
-            newType := form.Value["type"][0]
-            types = append(types, newType)
+            if len(form.Value["type"]) > 0 {
+                newType := form.Value["type"][0]
+                types = append(types, newType)
+            }
+            types = removeDuplicates(types)
 
             c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
 
@@ -582,8 +585,11 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             subtypes := form.Value["subtypes[]"]
-            newSubtype := form.Value["subtype"][0]
-            subtypes = append(subtypes, newSubtype)
+            if len(form.Value["subtype"]) > 0 {
+                newSubtype := form.Value["subtype"][0]
+                subtypes = append(subtypes, newSubtype)
+            }
+            subtypes = removeDuplicates(subtypes)
 
             c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
 
@@ -627,8 +633,11 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             keywords := form.Value["keywords[]"]
-            newKeyword := form.Value["keyword"][0]
-            keywords = append(keywords, newKeyword)
+            if len(form.Value["keyword"]) > 0 {
+                newKeyword := form.Value["keyword"][0]
+                keywords = append(keywords, newKeyword)
+            }
+            keywords = removeDuplicates(keywords)
 
             c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdate")
 
@@ -765,4 +774,18 @@ func main() {
     })
 
     app.Listen(":3000")
+}
+
+func removeDuplicates(inputSlice []string) []string {
+    uniqueElements := make(map[string]bool)
+    resultSlice := []string{}
+
+    for _, element := range inputSlice {
+        if !uniqueElements[element] {
+            uniqueElements[element] = true
+            resultSlice = append(resultSlice, element)
+        }
+    }
+
+    return resultSlice
 }
