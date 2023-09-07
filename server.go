@@ -372,7 +372,7 @@ func main() {
     app.Get("/partials/deck-builder/card-grid-settings" , func(c *fiber.Ctx) error {
         deckId := c.Query("active-deck-id")
         return c.Render("partials/deck-builder/card-grid-settings", fiber.Map{
-            "SearchPage": 0,
+            "SearchPage": 1,
             "ActiveDeckId": deckId,
         })
     })

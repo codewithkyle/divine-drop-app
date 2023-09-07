@@ -201,7 +201,7 @@
                                 id="type-chips"
                                 class="chips"
                                 hx-trigger="cardGridReset from:body"
-                                hx-get="/partials/deck-builder/card-type-chips"
+                                hx-post="/partials/deck-builder/card-type-chips"
                                 hx-include="find .chip input"
                             >
                                 {{ template "partials/deck-builder/card-type-chips" . }}
@@ -229,7 +229,7 @@
                                 id="subtype-chips"
                                 class="chips"
                                 hx-trigger="cardGridReset from:body"
-                                hx-get="/partials/deck-builder/card-subtype-chips"
+                                hx-post="/partials/deck-builder/card-subtype-chips"
                                 hx-include="find .chip input"
                             >
                                 {{ template "partials/deck-builder/card-subtype-chips" . }}
@@ -257,7 +257,7 @@
                                 id="keyword-chips"
                                 class="chips"
                                 hx-trigger="cardGridReset from:body"
-                                hx-get="/partials/deck-builder/card-keyword-chips"
+                                hx-post="/partials/deck-builder/card-keyword-chips"
                                 hx-include="find .chip input"
                             >
                                 {{ template "partials/deck-builder/card-keyword-chips" . }}

@@ -68,7 +68,7 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
 
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE 1=1 "
+    query := "SELECT DISTINCT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE 1=1 "
 
     sortColumn := "CN.name"
     switch sort {
