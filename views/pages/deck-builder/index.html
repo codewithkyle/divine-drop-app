@@ -369,26 +369,27 @@
         const grid = document.body.querySelector("deck-card-browser");
         if (grid){
             new Sortable(grid, {
-                animation: 0,
+                animation: 150,
                 group: {
                     name: "card-grid",
-                    pull: "clone",
+                    pull: true,
                     put: false
                 },
                 sort: false,
+                draggable: ".card"
             });
         }
 
         const tray = document.body.querySelector("deck-tray")
         if (tray) {
             new Sortable(tray, {
-                animation: 0,
+                animation: 150,
                 group: {
                     name: "card-grid",
                 },
                 sort: false,
                 onAdd: (evt) => {
-                    evt.item.style.order = '-1 !important';
+                    document.activeElement?.blur();
                     document.body.querySelector("deck-card-browser").dispatchEvent(new CustomEvent("addCard", {
                         bubbles: false,
                         detail: {
