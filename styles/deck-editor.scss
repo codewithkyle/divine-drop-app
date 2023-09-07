@@ -413,7 +413,7 @@ deck-builder{
 
             &.flip{
                 img:last-of-type{
-                    opacity: 1;
+                    opacity: 1 !important;
                 }
             }
 
