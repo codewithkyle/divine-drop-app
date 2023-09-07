@@ -205,6 +205,8 @@ func main() {
         commonsCount := models.GetCommonsCount(db, deckId)
         raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
 
+        landCount := models.GetLandCount(db, deckId)
+
         deckColors := models.GetDeckColors(db, deckId)
         containsW := false
         containsU := false
@@ -293,6 +295,7 @@ func main() {
             "UncommonsCount": uncommonsCount,
             "CommonsCount": commonsCount,
             "RaresCount": raresCount,
+            "LandCount": landCount,
         }, "layouts/main")
     })
     app.Patch("/decks/:id", func(c *fiber.Ctx) error {
@@ -464,13 +467,6 @@ func main() {
         })
     })
     app.Get("/partials/deck-builder/card-count/:id", func(c *fiber.Ctx) error {
-        sessionId := c.Cookies("session_id", "")
-        _, err := getUser(sessionId)
-        if err != nil {
-            c.Response().Header.Add("HX-Redirect", "/sign-in")
-            return c.Send(nil)
-        }
-
         deckId := c.Params("id")
 
         db := connectDB()
@@ -479,6 +475,16 @@ func main() {
 
         return c.Render("partials/deck-builder/card-count", fiber.Map{
             "DeckMetadata": deckMetadata,
+        })
+    })
+    app.Get("/partials/deck-builder/land-count/:id", func(c *fiber.Ctx) error {
+        deckId := c.Params("id")
+        db := connectDB()
+        landCount := models.GetLandCount(db, deckId)
+
+        return c.Render("partials/deck-builder/land-count", fiber.Map{
+            "LandCount": landCount,
+            "ActiveDeckId": deckId,
         })
     })
     app.Get("/partials/deck-builder/mana-types/:deckId", func(c *fiber.Ctx) error {

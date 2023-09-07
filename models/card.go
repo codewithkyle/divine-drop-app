@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"gorm.io/gorm"
@@ -205,7 +204,6 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
     query += "ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
-    log.Println(query)
     return cards
 }
 

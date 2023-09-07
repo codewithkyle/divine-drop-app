@@ -1,6 +1,8 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Deck struct {
     Id string `gorm:"column:id;primary_key"`
@@ -63,5 +65,11 @@ func GetCommonsCount(db *gorm.DB, deckId string) int {
 func GetRaresCount(db *gorm.DB, deckId string) int {
     var count int
     db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'rare'", deckId).Scan(&count)
+    return count
+}
+
+func GetLandCount(db *gorm.DB, deckId string) int {
+    var count int
+    db.Raw("SELECT SUM(DC.qty) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON C.id = CN.card_id WHERE DC.deck_id = UNHEX(?) AND C.type IN ('Land', 'Basic Land', 'Artifact Land', 'Legendary Land')", deckId).Scan(&count)
     return count
 }
