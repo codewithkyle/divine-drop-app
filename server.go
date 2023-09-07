@@ -160,7 +160,10 @@ func main() {
         sort := c.Query("sort")
 
         manaStr := c.Query("mana")
-        mana := strings.Split(manaStr, ",")
+        mana := []string{}
+        if manaStr != "" {
+            mana = strings.Split(manaStr, ",")
+        }
 
         db := connectDB()
         deck := models.GetDeck(db, deckId, user.Id)

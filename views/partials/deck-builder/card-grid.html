@@ -1,12 +1,28 @@
 {{ range .Cards }}
-    <img 
-        src="{{ .Front }}" 
-        onload="this.style.opacity = '1'"
-        hx-put="/partials/deck-tray/card/{{ .Id }}"
-        hx-target="deck-tray"
-        hx-swap="outerHTML"
-        hx-include="[name='active-deck-id']"
-        width="200"
-        loading="lazy"
-    >
+    <div class="card">
+        <img 
+            src="{{ .Front }}" 
+            onload="this.style.opacity = '1'"
+            width="200"
+            loading="lazy"
+            hx-put="/partials/deck-tray/card/{{ .Id }}"
+            hx-target="deck-tray"
+            hx-swap="outerHTML"
+            hx-include="[name='active-deck-id']"
+        >
+        {{ if ne .Back "" }}
+            <img 
+                src="{{ .Back }}" 
+                width="200"
+                loading="lazy"
+            >
+            <button onclick="this.parentElement.classList.toggle('flip')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                </svg>
+            </button>
+        {{ end }}
+    </div>
 {{ end }}
