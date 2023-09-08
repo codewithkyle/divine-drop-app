@@ -71,10 +71,7 @@ func main() {
         db := connectDB()
         cards := models.SearchCardsByName(db, search, 0, 20)
 
-        var decks []models.Deck
-        if user.Id != "" {
-            db.Raw("SELECT HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT COUNT(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE user_id = ?", user.Id).Scan(&decks)
-        }
+        decks := models.GetDecks(db, "", user.Id)
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Page": "card-browser",
