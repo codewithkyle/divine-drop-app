@@ -67,10 +67,9 @@ func main() {
         user, _ := getUser(sessionId)
 
         search := c.Query("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
 
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+        cards := models.SearchCardsByName(db, search, 0, 20)
 
         var decks []models.Deck
         if user.Id != "" {
@@ -89,10 +88,9 @@ func main() {
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
         search := c.FormValue("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
 
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+        cards := models.SearchCardsByName(db, search, 0, 20)
 
         c.Response().Header.Set("HX-Replace-Url", "/?search=" + url.QueryEscape(search))
 
@@ -107,11 +105,10 @@ func main() {
         search := c.Query("search")
         page := c.QueryInt("page")
 
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
         var offset = page * 20
 
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
+        cards := models.SearchCardsByName(db, search, offset, 20)
 
         if len(cards) > 0 {
             c.Response().Header.Set("HX-Trigger", "cardBrowserChanged")
@@ -172,7 +169,6 @@ func main() {
         deckId := c.Params("id")
 
         search := c.Query("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
         sort := c.Query("sort")
         rarity := c.Query("rarity")
         legality := c.Query("legality")
@@ -209,7 +205,7 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
+        cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
         cardTypes := models.GetCardTypes(db)
@@ -363,7 +359,6 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             search := form.Value["search"][0]
-            searchQuery := "%" + strings.Trim(search, " ") + "%"
             sort := form.Value["sort"][0]
             mana := form.Value["mana[]"]
             types := form.Value["types[]"]
@@ -378,7 +373,7 @@ func main() {
             offset := pageInt * 20
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
+            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
 
             if len(cards) > 0 {
                 c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdated")
@@ -398,7 +393,6 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             search := form.Value["search"][0]
-            searchQuery := "%" + strings.Trim(search, " ") + "%"
             sort := form.Value["sort"][0]
             deckId := form.Value["deck-id"][0]
             mana := form.Value["mana[]"]
@@ -409,7 +403,7 @@ func main() {
             legality := form.Value["legality"][0]
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
+            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
 
             c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
             c.Response().Header.Set("HX-Trigger", "cardGridReset")
