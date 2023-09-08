@@ -571,6 +571,7 @@ deck-builder{
         position: sticky;
         overflow-y: auto;
         overscroll-behavior: contain;
+        box-shadow: var(--shadow-black-md);
 
         #deck-tray-spinner{
             position: absolute;

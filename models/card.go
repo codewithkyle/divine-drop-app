@@ -54,6 +54,7 @@ type DeckCard struct {
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
+    name = "%" + strings.Trim(name, " ") + "%"
     var cards []Card
     db.Raw("SELECT C.front, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id WHERE CN.name LIKE ? LIMIT ? OFFSET ?", name, limit, offset).Scan(&cards)
     return cards
@@ -61,7 +62,7 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT C.art, C.front, HEX(DC.card_id) AS id, CN.name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON CN.card_id = DC.card_id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT C.art, C.front, HEX(DC.card_id) AS id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
@@ -127,6 +128,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
 
     query += "WHERE 1=1 "
 
+    name = "%" + strings.Trim(name, " ") + "%"
     if name != "%%" {
         params["name"] = name
         query += "AND CN.name LIKE @name "

@@ -67,10 +67,9 @@ func main() {
         user, _ := getUser(sessionId)
 
         search := c.Query("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
 
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+        cards := models.SearchCardsByName(db, search, 0, 20)
 
         var decks []models.Deck
         if user.Id != "" {
@@ -89,10 +88,9 @@ func main() {
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {
         search := c.FormValue("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
 
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, 0, 20)
+        cards := models.SearchCardsByName(db, search, 0, 20)
 
         c.Response().Header.Set("HX-Replace-Url", "/?search=" + url.QueryEscape(search))
 
@@ -107,11 +105,10 @@ func main() {
         search := c.Query("search")
         page := c.QueryInt("page")
 
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
         var offset = page * 20
 
         db := connectDB()
-        cards := models.SearchCardsByName(db, searchQuery, offset, 20)
+        cards := models.SearchCardsByName(db, search, offset, 20)
 
         if len(cards) > 0 {
             c.Response().Header.Set("HX-Trigger", "cardBrowserChanged")
@@ -135,6 +132,14 @@ func main() {
         sessionId := c.Cookies("session_id", "") 
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.Request().URI().String(),
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -150,13 +155,20 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.Request().URI().String(),
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
         deckId := c.Params("id")
 
         search := c.Query("search")
-        searchQuery := "%" + strings.Trim(search, " ") + "%"
         sort := c.Query("sort")
         rarity := c.Query("rarity")
         legality := c.Query("legality")
@@ -193,7 +205,7 @@ func main() {
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
+        cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
         cardTypes := models.GetCardTypes(db)
@@ -302,6 +314,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.Request().URI().String(),
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -339,7 +359,6 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             search := form.Value["search"][0]
-            searchQuery := "%" + strings.Trim(search, " ") + "%"
             sort := form.Value["sort"][0]
             mana := form.Value["mana[]"]
             types := form.Value["types[]"]
@@ -354,7 +373,7 @@ func main() {
             offset := pageInt * 20
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
+            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
 
             if len(cards) > 0 {
                 c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdated")
@@ -374,7 +393,6 @@ func main() {
         form, err := c.MultipartForm()
         if err == nil {
             search := form.Value["search"][0]
-            searchQuery := "%" + strings.Trim(search, " ") + "%"
             sort := form.Value["sort"][0]
             deckId := form.Value["deck-id"][0]
             mana := form.Value["mana[]"]
@@ -385,7 +403,7 @@ func main() {
             legality := form.Value["legality"][0]
 
             db := connectDB()
-            cards := models.FilterCards(db, searchQuery, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
+            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
 
             c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
             c.Response().Header.Set("HX-Trigger", "cardGridReset")
@@ -416,6 +434,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         _, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -448,6 +474,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         _, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -491,6 +525,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         _, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -535,6 +577,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -707,6 +757,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -729,6 +787,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -752,6 +818,10 @@ func main() {
     })
     app.Get("/sign-in", func(c *fiber.Ctx) error {
         return c.Render("pages/sign-in/index", fiber.Map{})
+    })
+    app.Get("/sign-out", func(c *fiber.Ctx) error {
+        c.ClearCookie("session_id")
+        return c.Render("pages/sign-out/index", fiber.Map{})
     })
     app.Get("/authorize", func(c *fiber.Ctx) error {
         token := c.Cookies("__session", "")
@@ -803,7 +873,14 @@ func main() {
             SameSite: "Strict",
         })
 
-        return c.Redirect("/")
+        postLoginRedirect := c.Cookies("post_login_redirect", "/")
+        c.ClearCookie("post_login_redirect")
+
+        return c.Redirect(postLoginRedirect)
+    })
+
+    app.Get("/privacy-policy", func(c *fiber.Ctx) error {
+        return c.Render("pages/privacy-policy/index", fiber.Map{}, "layouts/main")
     })
 
     app.Listen(":3000")
