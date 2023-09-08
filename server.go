@@ -806,6 +806,10 @@ func main() {
         return c.Redirect("/")
     })
 
+    app.Get("/privacy-policy", func(c *fiber.Ctx) error {
+        return c.Render("pages/privacy-policy/index", fiber.Map{}, "layouts/main")
+    })
+
     app.Listen(":3000")
 }
 
