@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Divine Drop</title>
+        <meta name="description" content="MTG deck builder, card browser, and play testing.">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="/css/normalize.css">
+        <link rel="stylesheet" href="/css/brixi.css">
+        <link rel="stylesheet" href="/css/base.css">
+    </head>
+    <body class="w-full h-full scroll-none">
+        Logging out... 
+        <script>
+            const script = document.createElement('script');
+            script.async = true;
+            if (location.hostname === "localhost"){
+                script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+                script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
+            } else {
+                script.src = "https://clerk.divinedrop.app/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
+                script.setAttribute('data-clerk-publishable-key', 'pk_live_Y2xlcmsuZGl2aW5lZHJvcC5hcHAk');
+            }
+
+            script.addEventListener('load', async function () {
+                await window.Clerk.load();
+                if (window.Clerk.session != null){
+                     await window.Clerk.signOut();
+                }
+                location.href = '/';
+            });
+            document.body.appendChild(script);
+        </script>
+    </body>
+</html>

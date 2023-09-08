@@ -753,6 +753,10 @@ func main() {
     app.Get("/sign-in", func(c *fiber.Ctx) error {
         return c.Render("pages/sign-in/index", fiber.Map{})
     })
+    app.Get("/sign-out", func(c *fiber.Ctx) error {
+        c.ClearCookie("session_id")
+        return c.Render("pages/sign-out/index", fiber.Map{})
+    })
     app.Get("/authorize", func(c *fiber.Ctx) error {
         token := c.Cookies("__session", "")
         if token == "" {
