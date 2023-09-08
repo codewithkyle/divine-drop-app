@@ -135,6 +135,14 @@ func main() {
         sessionId := c.Cookies("session_id", "") 
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.Request().URI().String(),
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -150,6 +158,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.Request().URI().String(),
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -302,6 +318,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.Request().URI().String(),
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -416,6 +440,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         _, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -448,6 +480,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         _, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -491,6 +531,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         _, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -535,6 +583,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -707,6 +763,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
@@ -729,6 +793,14 @@ func main() {
         sessionId := c.Cookies("session_id", "")
         user, err := getUser(sessionId)
         if err != nil {
+            c.Cookie(&fiber.Cookie{
+                Name: "post_login_redirect",
+                Value: c.GetReqHeaders()["Hx-Current-Url"],
+                Expires: time.Now().Add(time.Minute),
+                Secure: true,
+                HTTPOnly: true,
+                SameSite: "Strict",
+            })
             return c.Redirect("/sign-in")
         }
 
@@ -807,7 +879,10 @@ func main() {
             SameSite: "Strict",
         })
 
-        return c.Redirect("/")
+        postLoginRedirect := c.Cookies("post_login_redirect", "/")
+        c.ClearCookie("post_login_redirect")
+
+        return c.Redirect(postLoginRedirect)
     })
 
     app.Get("/privacy-policy", func(c *fiber.Ctx) error {
