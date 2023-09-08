@@ -70,6 +70,6 @@ func GetRaresCount(db *gorm.DB, deckId string) int {
 
 func GetLandCount(db *gorm.DB, deckId string) int {
     var count int
-    db.Raw("SELECT SUM(DC.qty) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON C.id = CN.card_id WHERE DC.deck_id = UNHEX(?) AND C.type IN ('Land', 'Basic Land', 'Artifact Land', 'Legendary Land')", deckId).Scan(&count)
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Card_Names CN ON C.id = CN.card_id WHERE DC.deck_id = UNHEX(?) AND C.type IN ('Land', 'Basic Land', 'Artifact Land', 'Legendary Land')", deckId).Scan(&count)
     return count
 }
