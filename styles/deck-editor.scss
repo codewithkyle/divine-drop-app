@@ -512,9 +512,15 @@ deck-builder{
                 transition: all 50ms var(--ease-out);
             }
 
-            &.flip{
+            &.flipped{
                 img:last-of-type{
                     opacity: 1 !important;
+                }
+
+                button{
+                    svg{
+                        transform: rotate(180deg);
+                    }
                 }
             }
 
@@ -550,6 +556,7 @@ deck-builder{
                 cursor: pointer;
                 user-select: none;
                 z-index: 3;
+                transition: all 150ms var(--ease-in-out);
 
                 &:hover,
                 &:focus-visible{
@@ -560,6 +567,7 @@ deck-builder{
                 svg{
                     width: 24px;
                     height: 24px;
+                    transition: all 300ms var(--ease-bounce);
                 }
             }
         }
