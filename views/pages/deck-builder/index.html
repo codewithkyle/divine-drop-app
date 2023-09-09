@@ -1,5 +1,11 @@
 <header class="deck-editor">
-    {{ template "partials/deck-builder/banner-art" . }}
+    <div 
+        class="art-banner"
+        x-data="{ url: decodeURIComponent('{{ .BannerArtUrl }}') }"
+        x-on:banner-art-update.document="if ($event.detail.value != $data.url) $data.url = event.detail.value;"
+    >
+            <img x-show="url != ''" :src="url">
+    </div>
     <div class="w-1/2">
         {{ template "partials/deck-builder/label-input" . }}
         <div flex="row nowrap items-center">

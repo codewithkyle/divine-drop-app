@@ -136,7 +136,7 @@ func DeckEditorControllers(app *fiber.App){
             "ContainsB": containsB,
             "ContainsR": containsR,
             "ContainsG": containsG,
-            "BannerArtUrl": bannerArt,
+            "BannerArtUrl": url.QueryEscape(bannerArt),
             "SearchRaw": search,
             "Sort": sort,
             "ManaFilterW": manaFilterW,
@@ -278,9 +278,19 @@ func DeckEditorControllers(app *fiber.App){
             db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
         }
 
-        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
-
         deckCards := models.GetDeckCards(db, activeDeckId)
+
+        bannerArt := ""
+        if deck.CommanderCardId != "" {
+            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + deck.CommanderCardId +  "-art.png"
+        } else {
+            if len(deckCards) > 0 {
+                bannerArt = deckCards[len(deckCards) - 1].Art
+            }
+        }
+
+        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
+
 
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
@@ -309,7 +319,16 @@ func DeckEditorControllers(app *fiber.App){
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
         deckCards := models.GetDeckCards(db, activeDeckId)
 
-        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
+        bannerArt := ""
+        if deck.CommanderCardId != "" {
+            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + deck.CommanderCardId +  "-art.png"
+        } else {
+            if len(deckCards) > 0 {
+                bannerArt = deckCards[len(deckCards) - 1].Art
+            }
+        }
+
+        c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
 
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
@@ -362,33 +381,6 @@ func DeckEditorControllers(app *fiber.App){
             "ContainsR": containsR,
             "ContainsG": containsG,
             "DeckMetadata": deckMetadata,
-        })
-    })
-
-    app.Get("/partials/deck-builder/banner-art", func(c *fiber.Ctx) error {
-        user, err := helpers.GetUserFromSession(c)
-        if err != nil {
-            c.Response().Header.Add("HX-Redirect", "/sign-in")
-            return c.Send(nil)
-        }
-
-        deckId := c.Query("active-deck-id")
-
-        db := helpers.ConnectDB()
-        deck := models.GetDeck(db, deckId, user.Id)
-
-        bannerArt := ""
-        if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + deck.CommanderCardId +  "-art.png"
-        } else {
-            deckCards := models.GetDeckCards(db, deckId)
-            if len(deckCards) > 0 {
-                bannerArt = deckCards[len(deckCards) - 1].Art
-            }
-        }
-
-        return c.Render("partials/deck-builder/banner-art", fiber.Map{
-            "BannerArtUrl": bannerArt,
         })
     })
 
