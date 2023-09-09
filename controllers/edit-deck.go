@@ -87,26 +87,7 @@ func DeckEditorControllers(app *fiber.App){
 
         landCount := models.GetLandCount(db, deckId)
 
-        deckColors := models.GetDeckColors(db, deckId)
-        containsW := false
-        containsU := false
-        containsB := false
-        containsR := false
-        containsG := false
-        for _, color := range deckColors {
-            switch color {
-                case "W":
-                    containsW = true
-                case "U":
-                    containsU = true
-                case "B":
-                    containsB = true
-                case "R":
-                    containsR = true
-                case "G":
-                    containsG = true
-            }
-        }
+        containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
         manaFilterW := false
         manaFilterU := false
@@ -389,26 +370,7 @@ func DeckEditorControllers(app *fiber.App){
         deckId := c.Params("deckId")
 
         db := helpers.ConnectDB()
-        deckColors := models.GetDeckColors(db, deckId)
-        containsW := false
-        containsU := false
-        containsB := false
-        containsR := false
-        containsG := false
-        for _, color := range deckColors {
-            switch color {
-                case "W":
-                    containsW = true
-                case "U":
-                    containsU = true
-                case "B":
-                    containsB = true
-                case "R":
-                    containsR = true
-                case "G":
-                    containsG = true
-            }
-        }
+        containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
         deckMetadata := models.DeckMetadata{}
         db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)

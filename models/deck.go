@@ -32,10 +32,31 @@ func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
     return deck
 }
 
-func GetDeckColors(db *gorm.DB, deckId string) []string {
+func GetDeckColors(db *gorm.DB, deckId string) (bool, bool, bool, bool, bool) {
     var colors []string
     db.Raw("SELECT C.color FROM Colors C WHERE C.id IN (SELECT DISTINCT CC.color_id FROM Deck_Cards DC JOIN Card_Colors CC ON DC.card_id = CC.card_id WHERE DC.deck_id = UNHEX(?));", deckId).Scan(&colors)
-    return colors
+
+    containsW := false
+    containsU := false
+    containsB := false
+    containsR := false
+    containsG := false
+    for _, color := range colors {
+        switch color {
+            case "W":
+                containsW = true
+            case "U":
+                containsU = true
+            case "B":
+                containsB = true
+            case "R":
+                containsR = true
+            case "G":
+                containsG = true
+        }
+    }
+
+    return containsW, containsU, containsB, containsR, containsG
 }
 
 func GetDeckMetadata(db *gorm.DB, deckId string) DeckMetadata {
