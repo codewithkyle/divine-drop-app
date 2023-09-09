@@ -3,9 +3,8 @@
         class="card"
         hx-put="/partials/deck-tray/card/{{ .Id }}"
         hx-target="deck-tray"
-        hx-swap="outerHTML"
+        hx-swap="afterbegin"
         hx-include="[name='active-deck-id']"
-        hx-indicator="#deck-tray-spinner"
         x-data="{ flip: false }"
         :class="{ 'flipped': flip }"
     >
