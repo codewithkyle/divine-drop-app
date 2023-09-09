@@ -30,9 +30,9 @@ func main() {
 
     app.Static("/css", "./public/css")
     app.Static("/js", "./public/js")
-    app.Static("/fonts", "./public/fonts")
+    app.Static("/static", "./public/static")
 
-    controllers.AllCardsControllers(app)
+    controllers.HomepageControllers(app)
     controllers.DeckEditorControllers(app)
     controllers.NavControllers(app)
 

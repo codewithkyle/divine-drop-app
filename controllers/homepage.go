@@ -9,7 +9,7 @@ import (
 	"app/models"
 )
 
-func AllCardsControllers(app *fiber.App) {
+func HomepageControllers(app *fiber.App) {
     app.Get("/", func(c *fiber.Ctx) error {
         user, _ := helpers.GetUserFromSession(c)
 
@@ -24,7 +24,7 @@ func AllCardsControllers(app *fiber.App) {
             "Page": "card-browser",
             "Cards": cards,
             "Search": "",
-            "NextPage": 1,
+            "NextPage": 0,
             "User": user,
             "Decks": decks,
             "SearchRaw": search,
@@ -41,7 +41,7 @@ func AllCardsControllers(app *fiber.App) {
         return c.Render("pages/card-browser/index", fiber.Map{
             "Cards": cards,
             "Search": url.QueryEscape(search),
-            "NextPage": 1,
+            "NextPage": 0,
             "SearchRaw": search,
         })
     })

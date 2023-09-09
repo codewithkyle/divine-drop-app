@@ -10,7 +10,6 @@
     value="{{ .SearchRaw }}"
     autocomplete="off"
 >
-{{ template "partials/card-browser/page-input" . }}
 <div class="card-browser">
     {{ template "partials/card-browser/card-grid" . }}
 </div>
@@ -18,9 +17,6 @@
     class="block w-full"
     style="height:1rem;"
     style="height:3rem;"
-    hx-get="/partials/card-browser"
-    hx-trigger="intersect throttle:1000ms"
-    hx-target=".card-browser"
-    hx-swap="beforeend"
-    hx-include="[name='search'], [name='page']"
+    x-data="{ page: {{ .NextPage }} }"
+    x-intersect="$data.page++;htmx.ajax('GET', '/partials/card-browser', {target: '.card-browser', swap: 'beforeend', values: {page: $data.page, search: '{{ .SearchRaw }}'}});"
 ></div>
