@@ -37,11 +37,11 @@
     <div>
         <deck-filters>
             <div
-                hx-get="/partials/deck-builder/card-grid-settings"
-                hx-trigger="cardGridReset from:body throttle:1000ms, cardGridUpdate from:body throttle:1000ms"
-                hx-include="[name='active-deck-id']"
+                x-data="{ page: '{{ .SearchPage }}'}"
+                x-on:card-grid-updated.document="$data.page++;"
+                x-on:card-grid-reset.document="$data.page = 1;"
             >
-                {{ template "partials/deck-builder/card-grid-settings" . }}
+                <input type="hidden" name="page" :value="page">
             </div>
             <div class="deck-filters-form">
                 <input type="hidden" name="deck-id" value="{{ .ActiveDeckId }}">
@@ -51,7 +51,7 @@
                         placeholder="Search cards..."
                         name="search"
                         value="{{ .SearchRaw }}"
-                        hx-post="/partials/deck-builder/card-grid-filters"
+                        hx-post="/partials/deck-builder/card-grid"
                         hx-target="deck-card-browser"
                         hx-swap="innerHTML"
                         hx-trigger="keyup changed delay:500ms"
@@ -90,7 +90,7 @@
                                     value="C" 
                                     id="mana-c" 
                                     {{ if .ManaFilterC }}checked{{ end }}
-                                    hx-post="/partials/deck-builder/card-grid-filters"
+                                    hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
                                     hx-swap="innerHTML"
                                     hx-trigger="change"
@@ -108,7 +108,7 @@
                                     value="W" 
                                     id="mana-w" 
                                     {{ if .ManaFilterW }}checked{{ end }}
-                                    hx-post="/partials/deck-builder/card-grid-filters"
+                                    hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
                                     hx-swap="innerHTML"
                                     hx-trigger="change"
@@ -126,7 +126,7 @@
                                     value="U" 
                                     id="mana-u" 
                                     {{ if .ManaFilterU }}checked{{ end }}
-                                    hx-post="/partials/deck-builder/card-grid-filters"
+                                    hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
                                     hx-swap="innerHTML"
                                     hx-trigger="change"
@@ -144,7 +144,7 @@
                                     value="B" 
                                     id="mana-b" 
                                     {{ if .ManaFilterB }}checked{{ end }}
-                                    hx-post="/partials/deck-builder/card-grid-filters"
+                                    hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
                                     hx-swap="innerHTML"
                                     hx-trigger="change"
@@ -162,7 +162,7 @@
                                     value="R" 
                                     id="mana-r" 
                                     {{ if .ManaFilterR }}checked{{ end }}
-                                    hx-post="/partials/deck-builder/card-grid-filters"
+                                    hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
                                     hx-swap="innerHTML"
                                     hx-trigger="change"
@@ -180,7 +180,7 @@
                                     value="G" 
                                     id="mana-g" 
                                     {{ if .ManaFilterG }}checked{{ end }}
-                                    hx-post="/partials/deck-builder/card-grid-filters"
+                                    hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
                                     hx-swap="innerHTML"
                                     hx-trigger="change"
@@ -270,7 +270,7 @@
                         <div class="select mb-1.5">
                             <select
                                 name="rarity"
-                                hx-post="/partials/deck-builder/card-grid-filters"
+                                hx-post="/partials/deck-builder/card-grid"
                                 hx-target="deck-card-browser"
                                 hx-swap="innerHTML"
                                 hx-trigger="change"
@@ -291,7 +291,7 @@
                         <div class="select">
                             <select
                                 name="legality"
-                                hx-post="/partials/deck-builder/card-grid-filters"
+                                hx-post="/partials/deck-builder/card-grid"
                                 hx-target="deck-card-browser"
                                 hx-swap="innerHTML"
                                 hx-trigger="change"
@@ -339,7 +339,7 @@
                     </svg>
                     <select 
                         name="sort"
-                        hx-post="/partials/deck-builder/card-grid-filters"
+                        hx-post="/partials/deck-builder/card-grid"
                         hx-target="deck-card-browser"
                         hx-swap="innerHTML"
                         hx-trigger="change"
