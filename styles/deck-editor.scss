@@ -505,6 +505,13 @@ deck-builder{
             cursor: copy;
             user-select: none;
 
+            &:active{
+                transform: scale(0.95);
+                box-shadow: var(--shadow-black-sm);
+                filter: brightness(0.9);
+                transition: all 50ms var(--ease-out);
+            }
+
             &.flip{
                 img:last-of-type{
                     opacity: 1 !important;
