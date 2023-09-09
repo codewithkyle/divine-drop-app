@@ -66,8 +66,8 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         db := helpers.ConnectDB()
+
         deck := models.GetDeck(db, deckId, user.Id)
-        
         if deck.Id == "" {
             return c.Redirect("/")
         }
@@ -167,12 +167,18 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         deckId := c.Params("id")
-        db := helpers.ConnectDB()
         label := c.FormValue("label")
-        db.Exec("UPDATE Decks SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, deckId, user.Id)
 
-        deck := models.Deck{}
-        db.Raw("SELECT HEX(id) AS id, label, HEX(commander_card_id) AS commander_card_id, user_id FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id).Scan(&deck)
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Add("HX-Redirect", "/")
+            return c.Send(nil)
+        }
+
+        db.Exec("UPDATE Decks SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, deckId, user.Id)
+        deck.Label = label
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + deck.Id + "\"}")
 
@@ -280,7 +286,7 @@ func DeckEditorControllers(app *fiber.App){
     })
 
     app.Put("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {
-        _, err := helpers.GetUserFromSession(c)
+        user, err := helpers.GetUserFromSession(c)
         if err != nil {
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
@@ -290,6 +296,12 @@ func DeckEditorControllers(app *fiber.App){
         cardId := c.Params("id")
 
         db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, activeDeckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Add("HX-Redirect", "/")
+            return c.Send(nil)
+        }
 
         deckCard := models.DeckCard{}
         db.Raw("SELECT HEX(deck_id) AS deck_id, HEX(card_id) AS card_id, HEX(id) AS id, qty FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId).Scan(&deckCard)
@@ -306,6 +318,7 @@ func DeckEditorControllers(app *fiber.App){
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\"}")
 
         deckCards := models.GetDeckCards(db, activeDeckId)
+
         return c.Render("partials/deck-builder/deck-tray", fiber.Map{
             "DeckCards": deckCards,
             "DeckCardsCount": len(deckCards),
@@ -313,7 +326,7 @@ func DeckEditorControllers(app *fiber.App){
     })
 
     app.Delete("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {
-        _, err := helpers.GetUserFromSession(c)
+        user, err := helpers.GetUserFromSession(c)
         if err != nil {
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
@@ -323,6 +336,12 @@ func DeckEditorControllers(app *fiber.App){
         cardId := c.Params("id")
 
         db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, activeDeckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Add("HX-Redirect", "/")
+            return c.Send(nil)
+        }
 
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
         deckCards := models.GetDeckCards(db, activeDeckId)

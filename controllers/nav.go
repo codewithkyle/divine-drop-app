@@ -46,8 +46,7 @@ func NavControllers(app *fiber.App){
         db := helpers.ConnectDB()
         deck := models.GetDeck(db, deckId, user.Id)
 
-        deckMetadata := models.DeckMetadata{}
-        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deck.Id).Scan(&deckMetadata)
+        deckMetadata := models.GetDeckMetadata(db, deckId)
 
         return c.Render("partials/nav/deck-link", fiber.Map{
             "Id": deck.Id,
