@@ -637,7 +637,7 @@ deck-builder{
                 width: 200px;
             }
 
-            i{
+            card-preview{
                 width: 24px;
                 height: 24px;
                 display: inline-flex;
@@ -647,6 +647,7 @@ deck-builder{
                 border-radius: 0.5rem;
                 background: transparent;
                 transition: all 150ms var(--ease-in-out);
+                cursor: zoom-in;
 
                 &:hover,
                 &:focus-visible{
@@ -654,35 +655,9 @@ deck-builder{
                     background-color: hsl(var(--white-hsl) / 0.05);
                 }
 
-                &:hover{
-                    img{
-                        opacity: 1;
-                        visibility: visible;
-                        pointer-events: all;
-                    }
-                }
-
                 svg{
                     width: 18px;
                     height: 18px;
-                }
-
-                img{
-                    opacity: 0;
-                    visibility: hidden;
-                    pointer-events: none;
-                    position: absolute;
-                    top: 100%;
-                    width: 300px;
-                    left: -0.75rem;
-                    z-index: 100;
-                    transition: opacity 150ms var(--ease-in);
-
-                    &:hover{
-                        opacity: 1;
-                        visibility: visible;
-                        pointer-events: all;
-                    }
                 }
             }
 
