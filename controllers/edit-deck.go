@@ -336,12 +336,11 @@ func DeckEditorControllers(app *fiber.App){
     })
 
     app.Get("/partials/deck-builder/card-count/:id", func(c *fiber.Ctx) error {
-        db := helpers.ConnectDB()
 
         deckId := c.Params("id")
 
-        deckMetadata := models.DeckMetadata{}
-        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deckId).Scan(&deckMetadata)
+        db := helpers.ConnectDB()
+        deckMetadata := models.GetDeckMetadata(db, deckId)
 
         return c.Render("partials/deck-builder/card-count", fiber.Map{
             "DeckMetadata": deckMetadata,
@@ -372,8 +371,7 @@ func DeckEditorControllers(app *fiber.App){
         db := helpers.ConnectDB()
         containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
-        deckMetadata := models.DeckMetadata{}
-        db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)
+        deckMetadata := models.GetDeckMetadata(db, deckId)
 
         return c.Render("partials/deck-builder/mana-types", fiber.Map{
             "ContainsW": containsW,

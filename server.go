@@ -34,6 +34,7 @@ func main() {
 
     controllers.AllCardsControllers(app)
     controllers.DeckEditorControllers(app)
+    controllers.NavControllers(app)
 
     app.Get("/register", func(c *fiber.Ctx) error {
         return c.Render("pages/register/index", fiber.Map{})
