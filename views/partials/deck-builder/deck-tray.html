@@ -1,4 +1,6 @@
-<deck-tray>
+<deck-tray
+    x-on:scroll.window="console.log($event)"
+>
     {{ range .DeckCards }}
         <div 
             class="card" 

@@ -580,8 +580,8 @@ deck-builder{
         background: linear-gradient(to bottom, var(--grey-800), hsl(var(--grey-900-hsl) / 0.87));
         border: 1px solid hsl(var(--white-hsl) / 0.15);
         overflow: hidden;
-        height: 100%;
-        max-height: calc(100vh - 128px - 4rem);
+        min-height: calc(100vh - 128px - 4rem);
+        height: calc(100vh - 128px - 4rem);
         top: 2rem;
         position: sticky;
         overflow-y: auto;
