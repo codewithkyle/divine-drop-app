@@ -270,30 +270,15 @@ func DeckEditorControllers(app *fiber.App){
         db.Raw("SELECT HEX(deck_id) AS deck_id, HEX(card_id) AS card_id, HEX(id) AS id, qty FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId).Scan(&deckCard)
         if deckCard.Id != "" {
             if (deckCard.Qty < 255) {
-                deckCard.Qty += 1
-                db.Exec("UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty, deckCard.Id)
+                db.Exec("UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty + 1, deckCard.Id)
             }
         } else {
             uuid := uuid.New().String()
             uuid = strings.ReplaceAll(uuid, "-", "")
             db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
-            deckCard.Id = uuid
-            deckCard.DeckId = activeDeckId
-            deckCard.CardId = cardId
-            deckCard.Qty = 1
         }
 
         deckCards := models.GetDeckCards(db, activeDeckId)
-
-        deckCard.Art = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cardId) +  "-art.png"
-        deckCard.Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cardId) +  "-front.png"
-
-        for _, dc := range deckCards {
-            if dc.Id == deckCard.CardId {
-                deckCard.Name = dc.Name
-                break
-            }
-        }
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
@@ -306,10 +291,13 @@ func DeckEditorControllers(app *fiber.App){
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
 
-        return c.Render("partials/deck-builder/deck-tray-card", fiber.Map{
-            "Card": deckCard,
+
+        return c.Render("partials/deck-builder/deck-tray", fiber.Map{
+            "DeckCards": deckCards,
+            "DeckCardsCount": len(deckCards),
         })
     })
+    
 
     app.Delete("/partials/deck-tray/card/:id", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
@@ -317,7 +305,7 @@ func DeckEditorControllers(app *fiber.App){
             c.Response().Header.Add("HX-Redirect", "/sign-in")
             return c.Send(nil)
         }
-
+        
         activeDeckId := c.FormValue("active-deck-id", "")
         cardId := c.Params("id")
 
@@ -330,6 +318,7 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
+
         deckCards := models.GetDeckCards(db, activeDeckId)
 
         bannerArt := ""
