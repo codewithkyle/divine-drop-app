@@ -22,14 +22,19 @@ class CardPreviewButton extends HTMLElement{
         if (!this.card.src) return;
         const bounds = this.getBoundingClientRect();
         this.card.style.position = "fixed";
-        this.card.style.top = `${bounds.bottom}px`;
-        this.card.style.left = `${bounds.right - 350}px`;
+        let bottom = bounds.bottom;
+        if (bottom + 488 > window.innerHeight){
+            bottom = window.innerHeight - 488;
+        }
+        this.card.style.top = `${bottom}px`;
+        this.card.style.left = `${bounds.left - 350}px`;
         this.card.style.width = "350px";
         this.card.style.boxShadow = "var(--shadow-black-lg)";
         this.card.style.borderRadius = "4%";
         this.card.style.zIndex = "1000";
         this.card.style.opacity = "0";
         this.card.style.transition = "opacity 150ms var(--ease-in-out)";
+        this.card.style.pointerEvents = "none";
         this.card.addEventListener("load", () => {
             if (this.card){
                 this.card.style.opacity = "1";

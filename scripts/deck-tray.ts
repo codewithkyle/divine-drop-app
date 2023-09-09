@@ -8,9 +8,14 @@ class DeckTray extends HTMLElement {
 
     connectedCallback() {
         this.mainEl?.addEventListener("scroll", this.handleScroll.bind(this), { passive: true });
+        this.setHeight();
     }
 
     private handleScroll = () => {
+       this.setHeight();
+    }
+
+    private setHeight() {
         // Header: 128px
         if (!this.mainEl) return;
         const height = window.innerHeight - (16 * 4) - 128 + this.mainEl.scrollTop;
