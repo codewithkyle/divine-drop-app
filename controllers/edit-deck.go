@@ -330,10 +330,7 @@ func DeckEditorControllers(app *fiber.App){
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
 
-        return c.Render("partials/deck-builder/deck-tray", fiber.Map{
-            "DeckCards": deckCards,
-            "DeckCardsCount": len(deckCards),
-        })
+        return c.Send(nil)
     })
 
     app.Get("/partials/deck-builder/card-count/:id", func(c *fiber.Ctx) error {
