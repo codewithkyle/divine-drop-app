@@ -1,0 +1,8 @@
+<div 
+    class="art-banner"
+    x-data="{ url: decodeURIComponent('{{ .BannerArtUrl }}') }"
+    x-on:banner-art-update.document="if ($event.detail.value != $data.url && $data.url == '') $data.url = event.detail.value;"
+    x-on:banner-art-delete.document="if ($event.detail.value == $data.url) htmx.ajax('GET', '/partials/deck-builder/banner-art', { target: '.art-banner', swap: 'outerHTML', values: {'active-deck-id': '{{ .ActiveDeckId }}'} });"
+>
+    <img x-show="url != ''" :src="url">
+</div>

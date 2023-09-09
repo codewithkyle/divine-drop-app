@@ -3,7 +3,7 @@
         class="card"
         hx-put="/partials/deck-tray/card/{{ .Id }}"
         hx-target="deck-tray"
-        hx-swap="afterbegin"
+        hx-swap="outerHTML"
         hx-include="[name='active-deck-id']"
         x-data="{ flip: false }"
         :class="{ 'flipped': flip }"
