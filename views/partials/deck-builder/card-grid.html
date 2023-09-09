@@ -6,6 +6,8 @@
         hx-swap="outerHTML"
         hx-include="[name='active-deck-id']"
         hx-indicator="#deck-tray-spinner"
+        x-data="{ flip: false }"
+        :class="{ 'flipped': flip }"
     >
         <img 
             src="{{ .Front }}" 
@@ -21,7 +23,7 @@
                 loading="lazy"
                 draggable="false"
             >
-            <button onclick="this.parentElement.classList.toggle('flip');event.stopImmediatePropagation();">
+            <button x-on:click="$data.flip = !$data.flip;$event.stopImmediatePropagation();">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>

@@ -1,4 +1,6 @@
-<deck-tray>
+<deck-tray
+    x-on:scroll.window="console.log($event)"
+>
     {{ range .DeckCards }}
         <div 
             class="card" 
@@ -6,14 +8,13 @@
             style="background:url('{{ .Art }}');background-size:cover;background-position:center;background-repeat:no-repeat;"
         >
             <div flex="row nowrap items-center" style="flex:1;width:calc(100% - 24px)">
-                <i class="mr-0.75" aria-hidden="true">
+                <card-preview class="mr-0.75" aria-hidden="true" data-card-url="{{ .Front }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
                         <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
                     </svg>
-                    <img src="{{ .Front }}">
-                </i>
+                </card-preview>
                 <span title="{{ .Name }}" class="inline-block">({{ .Qty }}) {{ .Name }}</span>
             </div>
             <button
