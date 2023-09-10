@@ -51,6 +51,7 @@ type DeckCard struct {
     Front string 
     Name string
     Art string
+    DateCreated string `gorm:"column:dateCreated;type:datetime"`
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
@@ -62,7 +63,7 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT C.art, C.front, HEX(DC.card_id) AS id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT DC.dateCreated, C.art, C.front, HEX(DC.card_id) AS id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
