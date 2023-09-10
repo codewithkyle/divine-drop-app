@@ -309,11 +309,14 @@ func DeckEditorControllers(app *fiber.App){
         if deckCard.Id != "" {
             if (deckCard.Qty < 255) {
                 db.Exec("UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty + 1, deckCard.Id)
+                c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Updated " + helpers.EscapeString(deckCard.Name) + "\"}")
             }
         } else {
             uuid := uuid.New().String()
             uuid = strings.ReplaceAll(uuid, "-", "")
             db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
+            deckCard = models.GetDeckCard(db, activeDeckId, cardId)
+            c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Added " + helpers.EscapeString(deckCard.Name) + "\"}")
         }
 
         deckCards := models.GetDeckCards(db, activeDeckId)
@@ -360,8 +363,10 @@ func DeckEditorControllers(app *fiber.App){
 
         if deckCard.Qty > 0 {
             db.Exec("UPDATE Deck_Cards SET qty = ? WHERE card_id = UNHEX(?)", deckCard.Qty, cardId)
+            c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Removed copy of " + helpers.EscapeString(deckCard.Name) + "\"}")
         } else {
             db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
+            c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Removed " + helpers.EscapeString(deckCard.Name) + "\"}")
         }
 
         deckCards := models.GetDeckCards(db, activeDeckId)

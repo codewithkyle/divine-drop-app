@@ -1,0 +1,51 @@
+toaster-component {
+    position: fixed;
+    z-index: 2000;
+    width: 500px;
+    bottom: 0;
+    left: 0;
+    padding: 0 0 1rem 1rem;
+    display: grid;
+    justify-content: start;
+    justify-items: start;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+toaster-component output {
+    background-color: var(--grey-900);
+    box-shadow: var(--shadow-black-md);
+    color: var(--grey-300);
+    max-inline-size: min(25ch, 100%);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    animation: fade-in 0.3s ease, slide-in 0.3s ease, fade-out 0.3s 9.4s ease;
+    animation-fill-mode: forwards;
+    font-size: var(--font-sm);
+    line-height: var(--font-snug);
+    pointer-events: all;
+    transition: all 150ms var(--ease-in-out);
+    cursor: pointer;
+    border: 1px solid var(--grey-800);
+
+    &:active {
+        transform: scale(0.95);
+        box-shadow: var(--shadow-black-sm);
+    }
+}
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(1rem);
+    }
+}
