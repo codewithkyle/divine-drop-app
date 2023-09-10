@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"app/helpers"
-    "app/models"
+	"app/models"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,6 +20,14 @@ func NavControllers(app *fiber.App){
         db := helpers.ConnectDB()
         decks := models.GetDecks(db, activeDeckId, user.Id)
 
+        c.Cookie(&fiber.Cookie{
+            Name: "nav_closed",
+            Value: "false",
+            Secure: true,
+            HTTPOnly: true,
+            SameSite: "Strict",
+        })
+
         return c.Render("partials/nav/decks-opened", fiber.Map{
             "Decks": decks,
             "ActiveDeckId": activeDeckId,
@@ -29,6 +37,14 @@ func NavControllers(app *fiber.App){
     app.Get("/partials/nav/decks-closed", func(c *fiber.Ctx) error {
 
         activeDeckId := c.Query("active-deck-id")
+
+        c.Cookie(&fiber.Cookie{
+            Name: "nav_closed",
+            Value: "true",
+            Secure: true,
+            HTTPOnly: true,
+            SameSite: "Strict",
+        })
 
         return c.Render("partials/nav/decks-closed", fiber.Map{
             "ActiveDeckId": activeDeckId,
