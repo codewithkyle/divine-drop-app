@@ -60,7 +60,7 @@ func DeckEditorControllers(app *fiber.App){
 
         db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated) VALUES " + strings.Join(values, ", "))
 
-        c.Response().Header.Set("HX-Redirect", "/decks/" + deckUUID + "/edit")
+        c.Response().Header.Set("HX-Redirect", "/decks/" + deckUUID)
         c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Cloned " + helpers.EscapeString(deck.Label) + "\"}")
         return c.Send(nil)
     })
