@@ -71,8 +71,15 @@
                         <path d="M21 21l-6 -6"></path>
                     </svg>
                 </div>
-                <div class="filters-bttn">
-                    <button type="button">
+                <div 
+                    class="filters-bttn"
+                    x-data="{ activeFilters: '{{ .FilterBttnLabel }}', open: false }"
+                    x-on:card-grid-reset.document="if ($event.detail.value != 0) $data.activeFilters = $event.detail.value + ' Active Filters'; else $data.activeFilters = 'Filters';"
+                    x-on:click.outside="$data.open = false;"
+                >
+                    <button
+                        x-on:click="$data.open = !$data.open;"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
@@ -85,9 +92,9 @@
                             <path d="M18 4v1"></path>
                             <path d="M18 9v11"></path>
                         </svg>
-                        <span>Filters</span>
+                        <span x-text="activeFilters">Filters</span>
                     </button>
-                    <advanced-filters tabindex="0">
+                    <advanced-filters tabindex="0" x-show="open">
                         <div class="w-full mb-1.5" flex="row nowrap items-center justify-center">
                             <div class="mana-checkbox">
                                 <input 
@@ -203,7 +210,7 @@
                                 type="text" 
                                 name="types" 
                                 placeholder="Types"
-                                hx-get="/partials/deck-builder/card-types"
+                                hx-get="/partials/deck-builder/typeahead?type=type"
                                 hx-trigger="keyup changed delay:500ms"
                                 hx-target="next dropdown-menu"
                                 autocomplete="off"
@@ -214,7 +221,7 @@
                                 <path d="M21 21l-6 -6"></path>
                             </svg>
                             <dropdown-menu>
-                                {{ template "partials/deck-builder/card-types" . }}
+                                <span>Begin typing to filter available card types.</span>
                             </dropdown-menu>
                             <div 
                                 id="type-chips"
@@ -228,7 +235,7 @@
                                 type="text" 
                                 name="subtypes" 
                                 placeholder="Subtypes"
-                                hx-get="/partials/deck-builder/card-subtypes"
+                                hx-get="/partials/deck-builder/typeahead?type=subtype"
                                 hx-trigger="keyup changed delay:500ms"
                                 hx-target="next dropdown-menu"
                                 autocomplete="off"
@@ -239,7 +246,7 @@
                                 <path d="M21 21l-6 -6"></path>
                             </svg>
                             <dropdown-menu>
-                                {{ template "partials/deck-builder/card-subtypes" . }}
+                                <span>Begin typing to filter available card subtypes.</span>
                             </dropdown-menu>
                             <div 
                                 id="subtype-chips"
@@ -253,7 +260,7 @@
                                 type="text" 
                                 name="keywords" 
                                 placeholder="Keywords"
-                                hx-get="/partials/deck-builder/card-keywords"
+                                hx-get="/partials/deck-builder/typeahead?type=keyword"
                                 hx-trigger="keyup changed delay:500ms"
                                 hx-target="next dropdown-menu"
                                 autocomplete="off"
@@ -264,7 +271,7 @@
                                 <path d="M21 21l-6 -6"></path>
                             </svg>
                             <dropdown-menu>
-                                {{ template "partials/deck-builder/card-keywords" . }}
+                                <span>Begin typing to filter available card keywords.</span>
                             </dropdown-menu>
                             <div 
                                 id="keyword-chips"

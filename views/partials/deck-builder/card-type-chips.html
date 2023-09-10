@@ -1,13 +1,12 @@
 {{ range .TypeChips }}
-    <button 
-        class="chip"
+    <button
         hx-delete="/partials/deck-builder/card-type-chips"
         hx-target="#type-chips"
         hx-swap="innerHTML"
         hx-include="#type-chips"
         hx-encoding="multipart/form-data"
         hx-vals='{"type":"{{ . }}"}'
-        onclick="this.closest('.combox-input').focus()"
+        class="chip"
     >
         <input type="hidden" name="types[]" value="{{ . }}">
         <span>{{ . }}</span>

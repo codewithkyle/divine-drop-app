@@ -174,14 +174,6 @@ deck-builder{
             }
 
             .filters-bttn{
-                &:focus-within{
-                    advanced-filters{
-                        visibility: visible;
-                        opacity: 1;
-                        pointer-events: all;
-                    }
-                }
-
                 & > button{
                     position: relative;
                     margin-right: 1rem;
@@ -224,9 +216,6 @@ deck-builder{
                     border: 1px solid var(--grey-600);
                     padding: 1.5rem 2rem 2rem;
                     z-index: 100;
-                    visibility: hidden;
-                    opacity: 0;
-                    pointer-events: none;
 
                     .select{
                         position: relative;
@@ -408,6 +397,21 @@ deck-builder{
                                     background-color: hsl(var(--grey-900-hsl) / 0.15);
                                     color: var(--white);
                                 }
+                            }
+
+                            & > span {
+                                display: block;
+                                width: 100%;
+                                padding: 0 0.5rem;
+                                height: 32px;
+                                line-height: 32px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                color: var(--grey-400);
+                                font-size: var(--font-sm);
+                                user-select: none;
+                                text-align: center;
                             }
                         }
 
