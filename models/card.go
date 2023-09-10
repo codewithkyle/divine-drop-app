@@ -84,7 +84,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string) []Dec
             sortColumn = "C.toughness DESC"
     }
     var cards []DeckCard
-    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, (SELECT CN.name FROM Card_Names CN WHERE CN.card_id = DC.card_id LIMIT 1) AS name FROM Deck_Cards DC INNER JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND CN.name LIKE ? GROUP BY DC.id HAVING COUNT(DISTINCT CN.name) = 1 ORDER BY " + sortColumn, deckId, name).Scan(&cards)
+    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, (SELECT CN.name FROM Card_Names CN WHERE CN.card_id = DC.card_id LIMIT 1) AS name FROM Deck_Cards DC INNER JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND CN.name LIKE ? GROUP BY DC.id ORDER BY " + sortColumn, deckId, name).Scan(&cards)
     return cards
 }
 
