@@ -9,6 +9,7 @@ type Deck struct {
     UserId string `gorm:"column:user_id"`
     Label string `gorm:"column:label"`
     CommanderCardId string `gorm:"column:commander_card_id"`
+    OathbreakerCardId string `gorm:"column:oathbreaker_card_id"`
     CardCount int
     Active string
 }
@@ -27,7 +28,7 @@ func GetDecks(db *gorm.DB, deckId string, userId string) []Deck {
 
 func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
     var deck Deck
-    db.Raw("SELECT HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, userId).Scan(&deck)
+    db.Raw("SELECT HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, userId).Scan(&deck)
     deck.Active = "active"
     return deck
 }

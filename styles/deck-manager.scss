@@ -145,10 +145,6 @@ deck-manager{
             position: relative;
             display: inline-block;
             width: 100%;
-            aspect-ratio: 19/27;
-            box-shadow: var(--shadow-black-md);
-            border-radius: 4%;
-            user-select: none;
 
             &.flipped{
                 img:last-of-type{
@@ -162,50 +158,118 @@ deck-manager{
                 }
             }
 
-            img{
-                display: block;
-                height: 100%;
-                width: 100%;
-                transition: opacity 300ms var(--ease-in);
-                opacity: 0;
-                position: absolute;
-                top: 0;
-                left: 0;
+            .actions{
+                display: flex;
+                align-items: center;
+                justify-content: end;
+                flex-flow: row nowrap;
+                margin-top: 0.5rem;
 
-                &:last-of-type:not(:only-of-type){
-                    opacity: 0;
-                    pointer-events: none;
+                input{
+                    width: 24px;
+                    height: 24px;
+                    background-color: hsl(var(--white-hsl) / 0.05);
+                    border-radius: 0.25rem;
+                    font-size: var(--font-sm);
+                    color: var(--grey-100);
+                    text-align: center;
+                    appearance: none;
+
+                    &::-webkit-outer-spin-button,
+                    &::-webkit-inner-spin-button{
+                        -webkit-appearance: none;
+                        appearance: none;
+                        margin: 0;
+                    }
+                }
+
+                button{
+                    width: 24px;
+                    height: 24px;
+                    background-color: hsl(var(--white-hsl) / 0);
+                    border-radius: 0.25rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--grey-500);
+                    margin-right: 0.25rem;
+
+                    &:hover,
+                    &:focus-visible{
+                        color: var(--grey-100);
+                        background-color: hsl(var(--white-hsl) / 0.05);
+                    }
+
+                    &.-commander{
+                        &.active{
+                            color: var(--yellow-400);
+
+                            &:hover,
+                            &:focus-visible{
+                                background-color: hsl(var(--yellow-400-hsl) / 0.05);
+                            }
+                        }
+                    }
+
+                    svg{
+                        width: 18px;
+                        height: 18px;
+                    }
                 }
             }
 
-            button{
-                width: 48px;
-                height: 48px;
-                position: absolute;
-                top: 25%;
-                right: 1rem;
-                background-color: hsl(var(--grey-900-hsl) / 0.3);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid hsl(var(--white-hsl) / 0.6);
-                color: var(--grey-300);
-                cursor: pointer;
+            .container{
+                box-shadow: var(--shadow-black-md);
+                border-radius: 4%;
                 user-select: none;
-                z-index: 3;
-                transition: all 150ms var(--ease-in-out);
+                width: 100%;
+                aspect-ratio: 19/27;
 
-                &:hover,
-                &:focus-visible{
-                    background-color: hsl(var(--grey-900-hsl) / 0.6);
-                    color: var(--white);
+                img{
+                    display: block;
+                    height: 100%;
+                    width: 100%;
+                    transition: opacity 300ms var(--ease-in);
+                    opacity: 0;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+
+                    &:last-of-type:not(:only-of-type){
+                        opacity: 0;
+                        pointer-events: none;
+                    }
                 }
 
-                svg{
-                    width: 24px;
-                    height: 24px;
-                    transition: all 300ms var(--ease-bounce);
+                button{
+                    width: 48px;
+                    height: 48px;
+                    position: absolute;
+                    top: 25%;
+                    right: 1rem;
+                    background-color: hsl(var(--grey-900-hsl) / 0.3);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid hsl(var(--white-hsl) / 0.6);
+                    color: var(--grey-300);
+                    cursor: pointer;
+                    user-select: none;
+                    z-index: 3;
+                    transition: all 150ms var(--ease-in-out);
+
+                    &:hover,
+                    &:focus-visible{
+                        background-color: hsl(var(--grey-900-hsl) / 0.6);
+                        color: var(--white);
+                    }
+
+                    svg{
+                        width: 24px;
+                        height: 24px;
+                        transition: all 300ms var(--ease-bounce);
+                    }
                 }
             }
         }

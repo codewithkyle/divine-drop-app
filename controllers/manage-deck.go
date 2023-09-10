@@ -48,6 +48,11 @@ func DeckManagerControllers(app *fiber.App){
             bannerArt = deckCards[len(deckCards) - 1].Art
         }
 
+        for i := range deckCards {
+            deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
+            deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
+        }
+
         return c.Render("pages/deck-manager/index", fiber.Map{
             "Page": "deck-editor",
             "User": user,
@@ -98,5 +103,71 @@ func DeckManagerControllers(app *fiber.App){
         return c.Render("partials/deck-manager/card-grid", fiber.Map{
             "Cards": cards,
         })
+    })
+
+    app.Post("/decks/:id/commander/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        if deck.CommanderCardId == cardId {
+            db.Exec("UPDATE Decks SET commander_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            return c.SendStatus(200)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+
+        return c.SendStatus(200)
+    })
+
+    app.Post("/decks/:id/oathbreaker/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        if deck.OathbreakerCardId == cardId {
+            db.Exec("UPDATE Decks SET oathbreaker_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            return c.SendStatus(200)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Decks SET oathbreaker_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+
+        return c.SendStatus(200)
     })
 }
