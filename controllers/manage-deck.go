@@ -50,6 +50,7 @@ func DeckManagerControllers(app *fiber.App){
             "User": user,
             "Deck": deck,
             "Decks": decks,
+            "Cards": deckCards,
             "ActiveDeckId": deckId,
             "SearchPage": 1,
             "DeckCards": deckCards,
