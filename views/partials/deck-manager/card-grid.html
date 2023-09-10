@@ -58,8 +58,11 @@
             <input 
                 type="number"
                 min="1"
-                max="4"
                 value="{{ .Qty }}"
+                hx-patch="/decks/{{ .DeckId }}/cards/{{ .CardId }}"
+                hx-swap="none"
+                hx-trigger="keyup delay:500ms"
+                name="qty"
             >
         </div>
     </div>

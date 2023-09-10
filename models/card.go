@@ -278,6 +278,6 @@ func GetDeckCard(db *gorm.DB, activeDeckId string, cardId string) DeckCard {
 
 func GetCard(db *gorm.DB, cardId string) Card {
     card := Card{}
-    db.Raw("SELECT HEX(C.id) AS id, C.front, C.back, C.type, C.toughness, C.power, C.totalManaCost, C.art, C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh, C.rarity, C.manaCost FROM Cards C WHERE C.id = UNHEX(?) LIMIT 1", cardId).Scan(&card)
+    db.Raw("SELECT (SELECT name FROM Card_Names WHERE card_id = C.id LIMIT 1) AS name, HEX(C.id) AS id, C.front, C.back, C.type, C.toughness, C.power, C.totalManaCost, C.art, C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh, C.rarity, C.manaCost FROM Cards C WHERE C.id = UNHEX(?) LIMIT 1", cardId).Scan(&card)
     return card
 }

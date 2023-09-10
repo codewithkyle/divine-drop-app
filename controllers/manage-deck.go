@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/url"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -124,6 +125,7 @@ func DeckManagerControllers(app *fiber.App){
 
         if deck.CommanderCardId == cardId {
             db.Exec("UPDATE Decks SET commander_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Commander removed\"}")
             return c.SendStatus(200)
         }
 
@@ -134,6 +136,8 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         db.Exec("UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\"}")
 
         return c.SendStatus(200)
     })
@@ -157,6 +161,7 @@ func DeckManagerControllers(app *fiber.App){
 
         if deck.OathbreakerCardId == cardId {
             db.Exec("UPDATE Decks SET oathbreaker_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Oathbreaker removed\"}")
             return c.SendStatus(200)
         }
 
@@ -167,6 +172,47 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         db.Exec("UPDATE Decks SET oathbreaker_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+        
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Oathbreaker\"}")
+
+        return c.SendStatus(200)
+    })
+
+    app.Patch("/decks/:deckId/cards/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("deckId")
+        cardId := c.Params("cardId")
+        qty := c.FormValue("qty")
+        newQty, err := strconv.Atoi(qty)
+        if err != nil {
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Invalid quantity.\"}")
+            return c.SendStatus(400)
+        }
+        if newQty < 1 {
+            newQty = 1
+        }
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Deck_Cards SET qty = ? WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", newQty, deckId, cardId)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " quantity updated\"}")
 
         return c.SendStatus(200)
     })
