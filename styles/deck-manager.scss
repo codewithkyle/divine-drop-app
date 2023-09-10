@@ -90,47 +90,6 @@ deck-manager{
                 pointer-events: none;
             }
         }
-
-        .actions{
-            .bttn{
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: 32px;
-                padding: 0 0.75rem 0 0.5rem;
-                border-radius: 0.5rem;
-                background: transparent;
-                border: 1px solid var(--grey-500);
-                color: var(--grey-500);
-                font-size: var(--font-sm);
-                font-weight: var(--font-medium);
-                transition: all 150ms var(--ease-in-out);
-
-                &.-green{
-                    &:hover,
-                    &:focus-visible{
-                        border-color: var(--green-400);
-                        color: var(--green-400);
-                        background-color: hsl(var(--green-400-hsl) / 0.05);
-                    }
-                }
-
-                &.-yellow{
-                    &:hover,
-                    &:focus-visible{
-                        border-color: var(--yellow-400);
-                        color: var(--yellow-400);
-                        background-color: hsl(var(--yellow-400-hsl) / 0.05);
-                    }
-                }
-
-                svg{
-                    width: 18px;
-                    height: 18px;
-                    margin-right: 0.5rem;
-                }
-            }
-        }
     }
 
     card-grid{

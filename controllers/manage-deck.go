@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"app/helpers"
 	"app/models"
@@ -244,6 +245,65 @@ func DeckManagerControllers(app *fiber.App){
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", deckId, cardId)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " removed from deck\", \"deckUpdated\": \"" + deckId + "\"}")
+
+        return c.SendStatus(200)
+    })
+
+    app.Get("/partials/deck-manager/:deckId/quick-grid", func(c *fiber.Ctx) error {
+
+        name := c.Query("quick-search")
+        deckId := c.Params("deckId")
+        pageStr := c.Query("page")
+        page, _ := strconv.Atoi(pageStr)
+        page += 1
+
+        db := helpers.ConnectDB()
+
+        cards := models.SearchCardsByName(db, name, page, 50)
+
+        for i := range cards {
+            cards[i].ActiveDeckId = deckId
+        }
+
+        return c.Render("partials/deck-manager/quick-card-grid", fiber.Map{
+            "Cards": cards,
+            "ActiveDeckId": deckId,
+        })
+    })
+
+    app.Put("/decks/:deckId/cards/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("deckId")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        deckCard := models.GetDeckCard(db, deckId, cardId)
+        if deckCard.Id == "" {
+            newCardId := uuid.New().String()
+            newCardId = strings.ReplaceAll(newCardId, "-", "")
+            db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), 1)", newCardId, deckId, cardId)
+        } else {
+            db.Exec("UPDATE Deck_Cards SET qty = qty + 1 WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", deckId, deckCard.Id)
+        }
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\"}")
 
         return c.SendStatus(200)
     })

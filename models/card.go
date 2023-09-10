@@ -41,6 +41,7 @@ type Card struct {
     Rarity        uint8  `gorm:"column:rarity"`
     ManaCost      string `gorm:"column:manaCost"`
     Name          string
+    ActiveDeckId string
 }
 
 type DeckCard struct {

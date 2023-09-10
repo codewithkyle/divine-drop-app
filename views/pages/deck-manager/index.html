@@ -53,7 +53,7 @@
                 </svg>
                 <span>Edit Deck</span>
             </a>
-            <button class="bttn -green">
+            <button class="bttn -green" x-on:click="$dispatch('quick-add-modal');" x-data>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"></path>
@@ -62,7 +62,45 @@
             </button>
         </div>
     </div>
-    <card-grid>
+    <card-grid
+        class="mt-1.5"
+        hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
+        hx-trigger="addedCard from:body"
+        hx-include=".filters"
+    >
         {{ template "partials/deck-manager/card-grid" . }}
     </card-grid>
 </deck-manager>
+<div 
+    class="modal"
+    x-data="{ open: false, searched: false }"
+    x-show="open"
+    x-on:quick-add-modal.window="$data.open = true"
+    x-on:close-quick-add-modal.window="$data.open = false"
+>
+    <div class="modal-backdrop" x-on:click="$data.open = false"></div>
+    <div class="content quick-add">
+        <div class="input mr-1.5">
+            <input 
+                name="quick-search"
+                type="text" 
+                placeholder="Search cards..." 
+                autocomplete="off" 
+                hx-get="/partials/deck-manager/{{ .ActiveDeckId }}/quick-grid"
+                hx-trigger="keyup changed delay:500ms"
+                hx-target="#quick-card-search"
+                hx-swap="outerHTML"
+                x-on:keyup.debounce.500ms="$data.searched = true"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                <path d="M21 21l-6 -6"></path>
+            </svg>
+        </div>
+        <div id="quick-card-search" class="cards-placeholder">
+            <span class="font-grey-500 text-center font-sm">Begin searching to find cards.</span>
+        </div>
+        <p x-show="searched" class="mt-0.5 font-grey-500 font-sm text-center">Not finding what you're looking for? Try using the <a class="font-blue-400" href="/decks/{{ .ActiveDeckId }}/edit">deck editor</a>.</p>
+    </div>
+</div>
