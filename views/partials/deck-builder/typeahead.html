@@ -1,0 +1,16 @@
+{{ if .IsEmpty }}
+    <span>No results found.</span>
+{{ else }}
+    {{ range .Data }}
+        <button
+            hx-post="/partials/deck-builder/card-{{ .Type }}-chips"
+            hx-target="#{{ .Type }}-chips"
+            hx-swap="innerHTML"
+            hx-include="#{{ .Type }}-chips"
+            hx-encoding="multipart/form-data"
+            hx-vals='{"{{ .Type }}":"{{ .Value }}"}'
+        >
+            <span>{{ .Value }}</span>
+        </button>
+    {{ end }}
+{{ end }}

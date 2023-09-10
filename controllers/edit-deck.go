@@ -77,9 +77,6 @@ func DeckEditorControllers(app *fiber.App){
         cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
-        cardTypes := models.GetCardTypes(db)
-        cardSubtypes := models.GetCardSubtypes(db)
-        cardKeywords := models.GetCardKeywords(db)
 
         mythicsCount := models.GetMythicsCount(db, deckId)
         uncommonsCount := models.GetUncommonsCount(db, deckId)
@@ -145,12 +142,9 @@ func DeckEditorControllers(app *fiber.App){
             "ManaFilterR": manaFilterR,
             "ManaFilterG": manaFilterG,
             "ManaFilterC": manaFilterC,
-            "CardTypes": cardTypes,
             "TypeChips": types,
-            "CardSubtypes": cardSubtypes,
             "SubtypeChips": subtypes,
             "KeywordChips": keywords,
-            "CardKeywords": cardKeywords,
             "Rarity": rarity,
             "Legality": legality,
             "MythicsCount": mythicsCount,
@@ -393,14 +387,34 @@ func DeckEditorControllers(app *fiber.App){
         })
     })
 
-    app.Get("/partials/deck-builder/card-types", func(c *fiber.Ctx) error {
-        typeStr := c.Query("types")
+    app.Get("/partials/deck-builder/typeahead", func(c *fiber.Ctx) error {
+        typeStr := c.Query("type")
+        typesQuery := c.Query("types")
+        subtypesQuery := c.Query("subtypes")
+        keywordsQuery := c.Query("keywords")
 
         db := helpers.ConnectDB()
-        cardTypes := models.SearchCardTypes(db, typeStr)
 
-        return c.Render("partials/deck-builder/card-types", fiber.Map{
-            "CardTypes": cardTypes,
+        data := []interface{}{}
+        values := []string{}
+        switch typeStr {
+            case "type":
+                values = models.SearchCardTypes(db, typesQuery)
+            case "subtype":
+                values = models.SearchCardSubtypes(db, subtypesQuery)
+            case "keyword":
+                values = models.SearchCardKeywords(db, keywordsQuery)
+        }
+        for _, v := range values {
+            data = append(data, fiber.Map{
+                "Value": v,
+                "Type": typeStr,
+            })
+        }
+
+        return c.Render("partials/deck-builder/typeahead", fiber.Map{
+            "Data": data,
+            "IsEmpty": len(data) == 0,
         })
     })
 
@@ -446,17 +460,6 @@ func DeckEditorControllers(app *fiber.App){
         }
     })
 
-    app.Get("/partials/deck-builder/card-subtypes", func(c *fiber.Ctx) error {
-        subtypeStr := c.Query("subtypes")
-
-        db := helpers.ConnectDB()
-        subtypes := models.SearchCardSubtypes(db, subtypeStr)
-
-        return c.Render("partials/deck-builder/card-subtypes", fiber.Map{
-            "CardSubtypes": subtypes,
-        })
-    })
-
     app.Post("/partials/deck-builder/card-subtype-chips", func(c *fiber.Ctx) error {
         form, err := c.MultipartForm()
         if err == nil {
@@ -497,17 +500,6 @@ func DeckEditorControllers(app *fiber.App){
         } else {
             return c.Send(nil)
         }
-    })
-
-    app.Get("/partials/deck-builder/card-keywords", func(c *fiber.Ctx) error {
-        keywordStr := c.Query("keywords")
-
-        db := helpers.ConnectDB()
-        keywords := models.SearchCardKeywords(db, keywordStr)
-
-        return c.Render("partials/deck-builder/card-keywords", fiber.Map{
-            "CardKeywords": keywords,
-        })
     })
 
     app.Post("/partials/deck-builder/card-keyword-chips", func(c *fiber.Ctx) error {

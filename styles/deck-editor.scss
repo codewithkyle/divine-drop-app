@@ -409,6 +409,21 @@ deck-builder{
                                     color: var(--white);
                                 }
                             }
+
+                            & > span {
+                                display: block;
+                                width: 100%;
+                                padding: 0 0.5rem;
+                                height: 32px;
+                                line-height: 32px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                color: var(--grey-400);
+                                font-size: var(--font-sm);
+                                user-select: none;
+                                text-align: center;
+                            }
                         }
 
                         .chips{
