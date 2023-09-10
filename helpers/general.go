@@ -1,5 +1,7 @@
 package helpers
 
+import "strings"
+
 func RemoveDuplicateStrings(inputSlice []string) []string {
     uniqueElements := make(map[string]bool)
     resultSlice := []string{}
@@ -12,4 +14,9 @@ func RemoveDuplicateStrings(inputSlice []string) []string {
     }
 
     return resultSlice
+}
+
+func EscapeString(str string) string {
+    quoteEscaper := strings.NewReplacer(`'`, `\'`, `"`, `\"`)
+    return quoteEscaper.Replace(str)
 }

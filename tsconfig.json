@@ -6,15 +6,15 @@
         "checkJs": false,
         "module": "ES2022",
         "moduleResolution": "Node",
-        "baseUrl": "src",
+        "baseUrl": "scripts",
         "allowSyntheticDefaultImports": true,
         "declaration": true,
         "emitDeclarationOnly": true,
         "outDir": "_types"
     },
-    "include": ["src"],
+    "include": ["scripts"],
     "exclude": [
-        "src/lib",
+        "scripts/lib",
         "node_modules"
     ]
 }
