@@ -29,6 +29,67 @@ func DeckEditorControllers(app *fiber.App){
         return c.Redirect("/decks/" + uuid + "/edit")
     })
 
+    app.Post("/decks/:id/clone", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
+        }
+
+        deckId := c.Params("id")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Add("HX-Redirect", "/")
+            return c.Send(nil)
+        }
+
+        deckUUID := uuid.New().String()
+        deckUUID = strings.ReplaceAll(deckUUID, "-", "")
+
+        db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, ?)", deckUUID, user.Id, "Copy of " + deck.Label)
+
+        values := []string{}
+        for _, card := range models.GetDeckCards(db, deckId) {
+            deckCardUUID := uuid.New().String()
+            deckCardUUID = strings.ReplaceAll(deckCardUUID, "-", "")
+            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.Id + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "')")
+        }
+
+        db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated) VALUES " + strings.Join(values, ", "))
+
+        c.Response().Header.Set("HX-Redirect", "/decks/" + deckUUID + "/edit")
+        c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Cloned " + helpers.EscapeString(deck.Label) + "\"}")
+        return c.Send(nil)
+    })
+
+    app.Delete("/decks/:id", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            c.Response().Header.Add("HX-Redirect", "/sign-in")
+            return c.Send(nil)
+        }
+
+        deckId := c.Params("id")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Add("HX-Redirect", "/")
+            return c.Send(nil)
+        }
+
+        db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?)", deckId)
+        db.Exec("DELETE FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id)
+
+        c.Response().Header.Add("HX-Redirect", "/")
+        c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Deleted " + helpers.EscapeString(deck.Label) + "\"}")
+        return c.Send(nil)
+    })
+
     app.Get("/decks/:id/edit", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
         if err != nil {
