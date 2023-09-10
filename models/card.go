@@ -53,6 +53,8 @@ type DeckCard struct {
     Name string
     Art string
     DateCreated string `gorm:"column:dateCreated;type:datetime"`
+    IsCommander bool
+    IsOathbreaker bool
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
@@ -82,7 +84,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string) []Dec
             sortColumn = "C.toughness DESC"
     }
     var cards []DeckCard
-    db.Raw("SELECT DC.dateCreated, C.art, C.front, C.back, HEX(DC.card_id) AS id, DC.qty, (SELECT CN.name FROM Card_Names CN WHERE CN.card_id = DC.card_id LIMIT 1) AS name FROM Deck_Cards DC INNER JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND CN.name LIKE ? GROUP BY DC.id HAVING COUNT(DISTINCT CN.name) = 1 ORDER BY " + sortColumn, deckId, name).Scan(&cards)
+    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, (SELECT CN.name FROM Card_Names CN WHERE CN.card_id = DC.card_id LIMIT 1) AS name FROM Deck_Cards DC INNER JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND CN.name LIKE ? GROUP BY DC.id HAVING COUNT(DISTINCT CN.name) = 1 ORDER BY " + sortColumn, deckId, name).Scan(&cards)
     return cards
 }
 
@@ -272,4 +274,10 @@ func GetDeckCard(db *gorm.DB, activeDeckId string, cardId string) DeckCard {
     deckCard := DeckCard{}
     db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, CN.name, C.front, C.art FROM Deck_Cards DC JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.card_id = UNHEX(?) LIMIT 1", activeDeckId, cardId).Scan(&deckCard)
     return deckCard
+}
+
+func GetCard(db *gorm.DB, cardId string) Card {
+    card := Card{}
+    db.Raw("SELECT (SELECT name FROM Card_Names WHERE card_id = C.id LIMIT 1) AS name, HEX(C.id) AS id, C.front, C.back, C.type, C.toughness, C.power, C.totalManaCost, C.art, C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh, C.rarity, C.manaCost FROM Cards C WHERE C.id = UNHEX(?) LIMIT 1", cardId).Scan(&card)
+    return card
 }
