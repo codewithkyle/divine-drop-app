@@ -126,7 +126,7 @@ func DeckManagerControllers(app *fiber.App){
 
         if deck.CommanderCardId == cardId {
             db.Exec("UPDATE Decks SET commander_card_id = NULL WHERE id = UNHEX(?)", deckId)
-            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Commander removed\"}")
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Commander removed\", \"deckUpdated\": \"" + deckId + "\"}")
             return c.SendStatus(200)
         }
 
@@ -138,7 +138,7 @@ func DeckManagerControllers(app *fiber.App){
 
         db.Exec("UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
 
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\", \"bannerArtUpdate\": \"" + card.Art + "\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
@@ -162,7 +162,7 @@ func DeckManagerControllers(app *fiber.App){
 
         if deck.OathbreakerCardId == cardId {
             db.Exec("UPDATE Decks SET oathbreaker_card_id = NULL WHERE id = UNHEX(?)", deckId)
-            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Oathbreaker removed\"}")
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Oathbreaker removed\", \"deckUpdated\": \"" + deckId + "\"}")
             return c.SendStatus(200)
         }
 
@@ -174,7 +174,7 @@ func DeckManagerControllers(app *fiber.App){
 
         db.Exec("UPDATE Decks SET oathbreaker_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
         
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Oathbreaker\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Oathbreaker\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
@@ -213,7 +213,7 @@ func DeckManagerControllers(app *fiber.App){
 
         db.Exec("UPDATE Deck_Cards SET qty = ? WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", newQty, deckId, cardId)
 
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " quantity updated\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " quantity updated\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
@@ -243,7 +243,7 @@ func DeckManagerControllers(app *fiber.App){
 
         db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", deckId, cardId)
 
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " removed from deck\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " removed from deck\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
