@@ -34,6 +34,7 @@ func main() {
 
     controllers.HomepageControllers(app)
     controllers.DeckEditorControllers(app)
+    controllers.DeckManagerControllers(app)
     controllers.NavControllers(app)
 
     app.Get("/register", func(c *fiber.Ctx) error {

@@ -1,5 +1,5 @@
 <a 
-    href="/decks/{{ .Id }}/edit" 
+    href="/decks/{{ .Id }}" 
     title="{{ .Label }}"
     hx-trigger="deckUpdated[detail.value == '{{ .Id }}'] from:body"
     hx-get="/partials/nav/decks/{{ .Id }}"
