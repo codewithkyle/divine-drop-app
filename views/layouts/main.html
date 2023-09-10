@@ -38,7 +38,7 @@
                         <span>All Cards</span>
                     </a>
                     <div id="decks" class="block w-full">
-                        {{ if eq .User.Id "" }}
+                        {{ if .NavClosed }}
                             {{ template "partials/nav/decks-closed" . }}
                         {{ else }}
                             {{ template "partials/nav/decks-opened" . }}

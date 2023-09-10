@@ -18,7 +18,10 @@ func HomepageControllers(app *fiber.App) {
         db := helpers.ConnectDB()
         cards := models.SearchCardsByName(db, search, 0, 20)
 
-        decks := models.GetDecks(db, "", user.Id)
+        var decks []models.Deck
+        if (c.Cookies("nav_closed", "") != "true") {
+            decks = models.GetDecks(db, "", user.Id)
+        }
 
         return c.Render("pages/card-browser/index", fiber.Map{
             "Page": "card-browser",
@@ -28,6 +31,7 @@ func HomepageControllers(app *fiber.App) {
             "User": user,
             "Decks": decks,
             "SearchRaw": search,
+            "NavClosed": c.Cookies("nav_closed", "") == "true" || len(decks) == 0 || user.Id == "",
         }, "layouts/main")
     })
     app.Post("/partials/card-browser", func(c *fiber.Ctx) error {

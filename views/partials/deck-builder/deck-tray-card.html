@@ -1,36 +1,38 @@
-<div 
-    class="card" 
-    flex="row nowrap justify-between items-center"
-    style="background:url('{{ .Card.Art }}');background-size:cover;background-position:center;background-repeat:no-repeat;"
->
-    <div flex="row nowrap items-center" style="flex:1;width:calc(100% - 24px)">
-        <card-preview class="mr-0.75" aria-hidden="true" data-card-url="{{ .Card.Front }}">
+{{ if gt .Card.Qty 0 }}
+    <div 
+        class="card" 
+        flex="row nowrap justify-between items-center"
+        style="background:url('{{ .Card.Art }}');background-size:cover;background-position:center;background-repeat:no-repeat;"
+    >
+        <div flex="row nowrap items-center" style="flex:1;width:calc(100% - 24px)">
+            <card-preview class="mr-0.75" aria-hidden="true" data-card-url="{{ .Card.Front }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                </svg>
+            </card-preview>
+            <span title="{{ .Card.Name }}" class="inline-block">({{ .Card.Qty }}) {{ .Card.Name }}</span>
+        </div>
+        <button
+            hx-delete="/partials/deck-tray/card/{{ .Card.CardId }}"
+            hx-include="[name='active-deck-id']"
+            hx-swap="outerHTML"
+            class="ml-0.75"
+            title="Remove {{ .Card.Name }}"
+            hx-indicator="next .deck-tray-spinner"
+            hx-target="closest .card"
+        >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                <path d="M4 7h16"></path>
+                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                <path d="M10 12l4 4m0 -4l-4 4"></path>
             </svg>
-        </card-preview>
-        <span title="{{ .Card.Name }}" class="inline-block">({{ .Card.Qty }}) {{ .Card.Name }}</span>
+        </button>
+        <div class="deck-tray-spinner">
+            <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><defs><style>.fa-secondary{opacity:.4}</style></defs><path class="fa-primary" d="M256 32C256 14.33 270.3 0 288 0C429.4 0 544 114.6 544 256C544 302.6 531.5 346.4 509.7 384C500.9 399.3 481.3 404.6 465.1 395.7C450.7 386.9 445.5 367.3 454.3 351.1C470.6 323.8 480 291 480 255.1C480 149.1 394 63.1 288 63.1C270.3 63.1 256 49.67 256 31.1V32z"/><path class="fa-secondary" d="M287.1 64C181.1 64 95.1 149.1 95.1 256C95.1 362 181.1 448 287.1 448C358.1 448 419.3 410.5 452.9 354.4L453 354.5C446.1 369.4 451.5 387.3 465.1 395.7C481.3 404.6 500.9 399.3 509.7 384C509.9 383.7 510.1 383.4 510.2 383.1C466.1 460.1 383.1 512 288 512C146.6 512 32 397.4 32 256C32 114.6 146.6 0 288 0C270.3 0 256 14.33 256 32C256 49.67 270.3 64 288 64H287.1z"/></svg>
+        </div>
     </div>
-    <button
-        hx-delete="/partials/deck-tray/card/{{ .Card.Id }}"
-        hx-swap="delete"
-        hx-include="[name='active-deck-id']"
-        class="ml-0.75"
-        title="Remove {{ .Card.Name }}"
-        hx-indicator="next .deck-tray-spinner"
-        hx-target="closest .card"
-    >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M4 7h16"></path>
-            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-            <path d="M10 12l4 4m0 -4l-4 4"></path>
-        </svg>
-    </button>
-    <div class="deck-tray-spinner">
-        <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><defs><style>.fa-secondary{opacity:.4}</style></defs><path class="fa-primary" d="M256 32C256 14.33 270.3 0 288 0C429.4 0 544 114.6 544 256C544 302.6 531.5 346.4 509.7 384C500.9 399.3 481.3 404.6 465.1 395.7C450.7 386.9 445.5 367.3 454.3 351.1C470.6 323.8 480 291 480 255.1C480 149.1 394 63.1 288 63.1C270.3 63.1 256 49.67 256 31.1V32z"/><path class="fa-secondary" d="M287.1 64C181.1 64 95.1 149.1 95.1 256C95.1 362 181.1 448 287.1 448C358.1 448 419.3 410.5 452.9 354.4L453 354.5C446.1 369.4 451.5 387.3 465.1 395.7C481.3 404.6 500.9 399.3 509.7 384C509.9 383.7 510.1 383.4 510.2 383.1C466.1 460.1 383.1 512 288 512C146.6 512 32 397.4 32 256C32 114.6 146.6 0 288 0C270.3 0 256 14.33 256 32C256 49.67 270.3 64 288 64H287.1z"/></svg>
-    </div>
-</div>
+{{ end }}

@@ -247,3 +247,9 @@ func SearchCardKeywords(db *gorm.DB, name string) []string {
     db.Raw("SELECT DISTINCT keyword FROM Card_Keywords WHERE keyword LIKE ? ORDER BY keyword", name).Scan(&keywords)
     return keywords
 }
+
+func GetDeckCard(db *gorm.DB, activeDeckId string, cardId string) DeckCard {
+    deckCard := DeckCard{}
+    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, CN.name, C.front, C.art FROM Deck_Cards DC JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.card_id = UNHEX(?) LIMIT 1", activeDeckId, cardId).Scan(&deckCard)
+    return deckCard
+}

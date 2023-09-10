@@ -266,8 +266,8 @@ func DeckEditorControllers(app *fiber.App){
             return c.Send(nil)
         }
 
-        deckCard := models.DeckCard{}
-        db.Raw("SELECT HEX(deck_id) AS deck_id, HEX(card_id) AS card_id, HEX(id) AS id, qty FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId).Scan(&deckCard)
+        deckCard := models.GetDeckCard(db, activeDeckId, cardId)
+
         if deckCard.Id != "" {
             if (deckCard.Qty < 255) {
                 db.Exec("UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty + 1, deckCard.Id)
@@ -317,7 +317,14 @@ func DeckEditorControllers(app *fiber.App){
             return c.Send(nil)
         }
 
-        db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
+        deckCard := models.GetDeckCard(db, activeDeckId, cardId)
+        deckCard.Qty = deckCard.Qty - 1
+
+        if deckCard.Qty > 0 {
+            db.Exec("UPDATE Deck_Cards SET qty = ? WHERE card_id = UNHEX(?)", deckCard.Qty, cardId)
+        } else {
+            db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", activeDeckId, cardId)
+        }
 
         deckCards := models.GetDeckCards(db, activeDeckId)
 
@@ -332,7 +339,10 @@ func DeckEditorControllers(app *fiber.App){
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
 
-        return c.Send(nil)
+        return c.Render("partials/deck-builder/deck-tray-card", fiber.Map{
+            "DeckCards": deckCards,
+            "Card": deckCard,
+        })
     })
 
     app.Get("/partials/deck-builder/card-count/:id", func(c *fiber.Ctx) error {
