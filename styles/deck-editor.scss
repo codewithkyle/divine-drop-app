@@ -174,14 +174,6 @@ deck-builder{
             }
 
             .filters-bttn{
-                &:focus-within{
-                    advanced-filters{
-                        visibility: visible;
-                        opacity: 1;
-                        pointer-events: all;
-                    }
-                }
-
                 & > button{
                     position: relative;
                     margin-right: 1rem;
@@ -224,9 +216,6 @@ deck-builder{
                     border: 1px solid var(--grey-600);
                     padding: 1.5rem 2rem 2rem;
                     z-index: 100;
-                    visibility: hidden;
-                    opacity: 0;
-                    pointer-events: none;
 
                     .select{
                         position: relative;

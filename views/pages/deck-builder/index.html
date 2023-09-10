@@ -71,11 +71,14 @@
                         <path d="M21 21l-6 -6"></path>
                     </svg>
                 </div>
-                <div class="filters-bttn">
-                    <button 
-                        type="button"
-                        x-data="{ activeFilters: '{{ .FilterBttnLabel }}' }"
-                        x-on:card-grid-reset.document="if ($event.detail.value != 0) $data.activeFilters = $event.detail.value + ' Active Filters'; else $data.activeFilters = 'Filters';"
+                <div 
+                    class="filters-bttn"
+                    x-data="{ activeFilters: '{{ .FilterBttnLabel }}', open: false }"
+                    x-on:card-grid-reset.document="if ($event.detail.value != 0) $data.activeFilters = $event.detail.value + ' Active Filters'; else $data.activeFilters = 'Filters';"
+                    x-on:click.outside="$data.open = false;"
+                >
+                    <button
+                        x-on:click="$data.open = !$data.open;"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -91,7 +94,7 @@
                         </svg>
                         <span x-text="activeFilters">Filters</span>
                     </button>
-                    <advanced-filters tabindex="0">
+                    <advanced-filters tabindex="0" x-show="open">
                         <div class="w-full mb-1.5" flex="row nowrap items-center justify-center">
                             <div class="mana-checkbox">
                                 <input 
