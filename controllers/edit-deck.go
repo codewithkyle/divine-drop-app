@@ -117,6 +117,30 @@ func DeckEditorControllers(app *fiber.App){
             bannerArt = deckCards[len(deckCards) - 1].Art
         }
 
+        activeFiltersCount := 0
+        if len(mana) > 0 {
+            activeFiltersCount += len(mana)
+        }
+        if len(types) > 0 {
+            activeFiltersCount += len(types)
+        }
+        if len(subtypes) > 0 {
+            activeFiltersCount += len(subtypes)
+        }
+        if len(keywords) > 0 {
+            activeFiltersCount += len(keywords)
+        }
+        if rarity != "" {
+            activeFiltersCount++
+        }
+        if legality != "" {
+            activeFiltersCount++
+        }
+        filterBttnLabel := "Filters"
+        if activeFiltersCount > 0 {
+            filterBttnLabel = strconv.Itoa(activeFiltersCount) + " Active Filters"
+        }
+
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-editor",
             "User": user,
@@ -152,6 +176,7 @@ func DeckEditorControllers(app *fiber.App){
             "CommonsCount": commonsCount,
             "RaresCount": raresCount,
             "LandCount": landCount,
+            "FilterBttnLabel": filterBttnLabel,
         }, "layouts/main")
     })
 
@@ -231,7 +256,26 @@ func DeckEditorControllers(app *fiber.App){
                     c.Response().Header.Set("HX-Trigger-After-Swap", "cardGridUpdated")
                 }
             } else {
-                c.Response().Header.Set("HX-Trigger", "cardGridReset")
+                activeFiltersCount := 0
+                if len(mana) > 0 {
+                    activeFiltersCount += len(mana)
+                }
+                if len(types) > 0 {
+                    activeFiltersCount += len(types)
+                }
+                if len(subtypes) > 0 {
+                    activeFiltersCount += len(subtypes)
+                }
+                if len(keywords) > 0 {
+                    activeFiltersCount += len(keywords)
+                }
+                if rarity != "" {
+                    activeFiltersCount++
+                }
+                if legality != "" {
+                    activeFiltersCount++
+                }
+                c.Response().Header.Set("HX-Trigger", "{\"cardGridReset\": " + strconv.Itoa(activeFiltersCount) + "}")
             }
 
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
