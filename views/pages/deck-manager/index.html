@@ -1,9 +1,19 @@
 {{ template "partials/deck-header" . }}
 <deck-manager>
     <div class="subnav">
-        <div flex="row nowrap items-center">
+        <div class="filters" flex="row nowrap items-center">
             <div class="input mr-1.5">
-                <input type="text" placeholder="Search cards..." autocomplete="off" />
+                <input 
+                    name="search"
+                    type="text" 
+                    placeholder="Search cards..." 
+                    autocomplete="off" 
+                    hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
+                    hx-trigger="keyup changed delay:500ms"
+                    hx-target="card-grid"
+                    hx-include=".filters"
+                    value="{{ .Search }}"
+                >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
@@ -21,6 +31,10 @@
                 </svg>
                 <select 
                     name="sort"
+                    hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
+                    hx-trigger="change"
+                    hx-target="card-grid"
+                    hx-include=".filters"
                 >
                     <option {{ if eq .Sort "name" }}selected{{ end }} value="name">Name</option>
                     <option {{ if eq .Sort "tmc" }}selected{{ end }} value="tmc">Total Mana Cost</option>
@@ -49,35 +63,6 @@
         </div>
     </div>
     <card-grid>
-        {{ range .Cards }}
-            <div 
-                class="card"
-                x-data="{ flip: false }"
-                :class="{ 'flipped': flip }"
-            >
-                <img 
-                    src="{{ .Front }}" 
-                    onload="this.style.opacity = '1'"
-                    width="200"
-                    loading="lazy"
-                    draggable="false"
-                >
-                {{ if ne .Back "" }}
-                    <img 
-                        src="{{ .Back }}" 
-                        width="200"
-                        loading="lazy"
-                        draggable="false"
-                    >
-                    <button x-on:click="$data.flip = !$data.flip;$event.stopImmediatePropagation();">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                        </svg>
-                    </button>
-                {{ end }}
-            </div>
-        {{ end }}
+        {{ template "partials/deck-manager/card-grid" . }}
     </card-grid>
 </deck-manager>

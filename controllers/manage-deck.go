@@ -25,8 +25,11 @@ func DeckManagerControllers(app *fiber.App){
             return c.Redirect("/")
         }
 
+        search := c.Query("search")
+        sort := c.Query("sort")
+
         decks := models.GetDecks(db, deckId, user.Id)
-        deckCards := models.GetDeckCards(db, deckId)
+        deckCards := models.SearchDeckCards(db, deckId, search, sort)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
         mythicsCount := models.GetMythicsCount(db, deckId)
@@ -52,8 +55,6 @@ func DeckManagerControllers(app *fiber.App){
             "Decks": decks,
             "Cards": deckCards,
             "ActiveDeckId": deckId,
-            "SearchPage": 1,
-            "DeckCards": deckCards,
             "DeckCardsCount": len(deckCards),
             "DeckMetadata": deckMetadata,
             "ContainsW": containsW,
@@ -67,7 +68,35 @@ func DeckManagerControllers(app *fiber.App){
             "CommonsCount": commonsCount,
             "RaresCount": raresCount,
             "LandCount": landCount,
-            "Sort": "name",
+            "Sort": sort,
+            "Search": search,
         }, "layouts/main")
     }) 
+
+    app.Get("/partials/deck-manager/card-grid/:id", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        search := c.Query("search")
+        sort := c.Query("sort")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            return c.Redirect("/")
+        }
+
+        cards := models.SearchDeckCards(db, deckId, search, sort)
+
+        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort)
+        c.Response().Header.Set("Hx-Replace-Url", url)
+
+        return c.Render("partials/deck-manager/card-grid", fiber.Map{
+            "Cards": cards,
+        })
+    })
 }
