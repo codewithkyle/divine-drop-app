@@ -59,7 +59,7 @@
                         value="{{ .SearchRaw }}"
                         hx-post="/partials/deck-builder/card-grid"
                         hx-target="deck-card-browser"
-                        hx-swap="innerHTML"
+                        hx-swap="innerHTML transition:true"
                         hx-trigger="keyup changed delay:500ms"
                         hx-encoding="multipart/form-data"
                         hx-include=".deck-filters-form"
@@ -105,7 +105,7 @@
                                     {{ if .ManaFilterC }}checked{{ end }}
                                     hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
-                                    hx-swap="innerHTML"
+                                    hx-swap="innerHTML transition:true"
                                     hx-trigger="change"
                                     hx-encoding="multipart/form-data"
                                     hx-include=".deck-filters-form"
@@ -123,7 +123,7 @@
                                     {{ if .ManaFilterW }}checked{{ end }}
                                     hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
-                                    hx-swap="innerHTML"
+                                    hx-swap="innerHTML transition:true"
                                     hx-trigger="change"
                                     hx-encoding="multipart/form-data"
                                     hx-include=".deck-filters-form"
@@ -141,7 +141,7 @@
                                     {{ if .ManaFilterU }}checked{{ end }}
                                     hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
-                                    hx-swap="innerHTML"
+                                    hx-swap="innerHTML transition:true"
                                     hx-trigger="change"
                                     hx-encoding="multipart/form-data"
                                     hx-include=".deck-filters-form"
@@ -159,7 +159,7 @@
                                     {{ if .ManaFilterB }}checked{{ end }}
                                     hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
-                                    hx-swap="innerHTML"
+                                    hx-swap="innerHTML transition:true"
                                     hx-trigger="change"
                                     hx-encoding="multipart/form-data"
                                     hx-include=".deck-filters-form"
@@ -177,7 +177,7 @@
                                     {{ if .ManaFilterR }}checked{{ end }}
                                     hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
-                                    hx-swap="innerHTML"
+                                    hx-swap="innerHTML transition:true"
                                     hx-trigger="change"
                                     hx-encoding="multipart/form-data"
                                     hx-include=".deck-filters-form"
@@ -195,7 +195,7 @@
                                     {{ if .ManaFilterG }}checked{{ end }}
                                     hx-post="/partials/deck-builder/card-grid"
                                     hx-target="deck-card-browser"
-                                    hx-swap="innerHTML"
+                                    hx-swap="innerHTML transition:true"
                                     hx-trigger="change"
                                     hx-encoding="multipart/form-data"
                                     hx-include=".deck-filters-form"
@@ -285,7 +285,7 @@
                                 name="rarity"
                                 hx-post="/partials/deck-builder/card-grid"
                                 hx-target="deck-card-browser"
-                                hx-swap="innerHTML"
+                                hx-swap="innerHTML transition:true"
                                 hx-trigger="change"
                                 hx-encoding="multipart/form-data"
                                 hx-include=".deck-filters-form"
@@ -306,7 +306,7 @@
                                 name="legality"
                                 hx-post="/partials/deck-builder/card-grid"
                                 hx-target="deck-card-browser"
-                                hx-swap="innerHTML"
+                                hx-swap="innerHTML transition:true"
                                 hx-trigger="change"
                                 hx-encoding="multipart/form-data"
                                 hx-include=".deck-filters-form"
@@ -354,7 +354,7 @@
                         name="sort"
                         hx-post="/partials/deck-builder/card-grid"
                         hx-target="deck-card-browser"
-                        hx-swap="innerHTML"
+                        hx-swap="innerHTML transition:true"
                         hx-trigger="change"
                         hx-encoding="multipart/form-data"
                         hx-include=".deck-filters-form"
@@ -373,6 +373,7 @@
             hx-include=".deck-filters-form"
             hx-encoding="multipart/form-data"
             hx-vals='{"page": 0}'
+            hx-swap="innerHTML transition:true"
         >
             {{ template "partials/deck-builder/card-grid" . }}
         </deck-card-browser>
