@@ -66,6 +66,7 @@ func DeckManagerControllers(app *fiber.App){
             "CommonsCount": commonsCount,
             "RaresCount": raresCount,
             "LandCount": landCount,
+            "Sort": "name",
         }, "layouts/main")
     }) 
 }

@@ -1,1 +1,51 @@
 {{ template "partials/deck-header" . }}
+<deck-manager>
+    <div class="subnav">
+        <div flex="row nowrap items-center">
+            <div class="input mr-1.5">
+                <input type="text" placeholder="Search cards..." autocomplete="off" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                    <path d="M21 21l-6 -6"></path>
+                </svg>
+            </div>
+            <div class="select">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 6l9 0"></path>
+                    <path d="M4 12l7 0"></path>
+                    <path d="M4 18l7 0"></path>
+                    <path d="M15 15l3 3l3 -3"></path>
+                    <path d="M18 6l0 12"></path>
+                </svg>
+                <select 
+                    name="sort"
+                >
+                    <option {{ if eq .Sort "name" }}selected{{ end }} value="name">Name</option>
+                    <option {{ if eq .Sort "tmc" }}selected{{ end }} value="tmc">Total Mana Cost</option>
+                    <option {{ if eq .Sort "power" }}selected{{ end }} value="power">Power</option>
+                    <option {{ if eq .Sort "toughness" }}selected{{ end }} value="toughness">Toughness</option>
+                </select>
+            </div>
+        </div>
+        <div class="actions">
+            <a href="/decks/{{ .ActiveDeckId }}/edit" class="mr-0.5 bttn -yellow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                    <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                    <path d="M16 5l3 3"></path>
+                </svg>
+                <span>Edit Deck</span>
+            </a>
+            <button class="bttn -green">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"></path>
+                </svg>
+                <span>Quick Add</span>
+            </button>
+        </div>
+    </div>
+</deck-manager>
