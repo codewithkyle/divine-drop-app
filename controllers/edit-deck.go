@@ -26,7 +26,7 @@ func DeckEditorControllers(app *fiber.App){
         db := helpers.ConnectDB()
         db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, 'Untitled')", uuid, user.Id)
 
-        return c.Redirect("/decks/" + uuid + "/edit")
+        return c.Redirect("/decks/" + strings.ToUpper(uuid) + "/edit")
     })
 
     app.Post("/decks/:id/clone", func(c *fiber.Ctx) error {
