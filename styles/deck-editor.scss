@@ -635,14 +635,23 @@ deck-builder{
             }
 
             span{
-                white-space: nowrap;
+                display: inline-flex;
+                flex-flow: row nowrap;
                 overflow: hidden;
-                text-overflow: ellipsis;
+                align-items: center;
+
+                span {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    flex: 1;
+                    display: inline-block;
+                }
 
                 svg{
                     width: 18px;
                     height: 18px;
-                    margin-right: 0.25rem;
+                    margin-right: 0.5rem;
                     color: var(--yellow-400);
                 }
             }
