@@ -10,6 +10,18 @@ import (
 )
 
 func GetUserFromSession(c *fiber.Ctx) (models.User, error) {
+    redirectUrl := c.GetReqHeaders()["Hx-Current-Url"]
+    if redirectUrl == "" {
+        redirectUrl = c.Request().URI().String()
+    }
+    c.Cookie(&fiber.Cookie{
+        Name: "post_login_redirect",
+        Value: redirectUrl,
+        Expires: time.Now().Add(time.Minute),
+        Secure: true,
+        HTTPOnly: true,
+        SameSite: "Strict",
+    })
     sessionId := c.Cookies("session_id", "")
     if sessionId == "" {
         return models.User{}, errors.New("Session not found");
@@ -18,18 +30,6 @@ func GetUserFromSession(c *fiber.Ctx) (models.User, error) {
     var session models.Session
     db.Raw("SELECT * FROM Sessions WHERE session_id = UNHEX(?) AND expires > ?", sessionId, time.Now()).Scan(&session)
     if session.Id == "" {
-            redirectUrl := c.GetReqHeaders()["Hx-Current-Url"]
-            if redirectUrl == "" {
-                redirectUrl = c.Request().URI().String()
-            }
-            c.Cookie(&fiber.Cookie{
-                Name: "post_login_redirect",
-                Value: redirectUrl,
-                Expires: time.Now().Add(time.Minute),
-                Secure: true,
-                HTTPOnly: true,
-                SameSite: "Strict",
-            })
         return models.User{}, errors.New("Session not found");
     }
     return models.BlobToUser(session.Data)
