@@ -55,7 +55,7 @@ func DeckEditorControllers(app *fiber.App){
         for _, card := range models.GetDeckCards(db, deckId) {
             deckCardUUID := uuid.New().String()
             deckCardUUID = strings.ReplaceAll(deckCardUUID, "-", "")
-            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.Id + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "')")
+            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "')")
         }
 
         db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated) VALUES " + strings.Join(values, ", "))
