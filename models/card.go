@@ -148,7 +148,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
             params["subtype" + fmt.Sprint(i)] = subtypes[i]
         }
     }
-    subtypeLogic := "C.id IN (SELECT cs.card_id FROM Card_Subtypes cs WHERE cs.subtype = " + strings.Join(subtypeCheck, " OR s.subtype = ") + ") "
+    subtypeLogic := "C.id IN (SELECT cs.card_id FROM Card_Subtypes cs WHERE cs.subtype = " + strings.Join(subtypeCheck, " OR cs.subtype = ") + ") "
 
     keywordCheck := []string{}
     if len(keywords) > 0 {
