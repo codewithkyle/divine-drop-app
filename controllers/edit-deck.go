@@ -26,7 +26,7 @@ func DeckEditorControllers(app *fiber.App){
         db := helpers.ConnectDB()
         db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, 'Untitled')", uuid, user.Id)
 
-        return c.Redirect("/decks/" + uuid + "/edit")
+        return c.Redirect("/decks/" + strings.ToUpper(uuid) + "/edit")
     })
 
     app.Post("/decks/:id/clone", func(c *fiber.Ctx) error {
@@ -514,17 +514,25 @@ func DeckEditorControllers(app *fiber.App){
         values := []string{}
         switch typeStr {
             case "type":
-                values = models.SearchCardTypes(db, typesQuery)
+                if typesQuery != "" {
+                    values = models.SearchCardTypes(db, typesQuery)
+                }
             case "subtype":
-                values = models.SearchCardSubtypes(db, subtypesQuery)
+                if subtypesQuery != "" {
+                    values = models.SearchCardSubtypes(db, subtypesQuery)
+                }
             case "keyword":
-                values = models.SearchCardKeywords(db, keywordsQuery)
+                if keywordsQuery != "" {
+                    values = models.SearchCardKeywords(db, keywordsQuery)
+                }
         }
-        for _, v := range values {
-            data = append(data, fiber.Map{
-                "Value": v,
-                "Type": typeStr,
-            })
+        if len(values) > 0 {
+            for _, v := range values {
+                data = append(data, fiber.Map{
+                    "Value": v,
+                    "Type": typeStr,
+                })
+            }
         }
 
         return c.Render("partials/deck-builder/typeahead", fiber.Map{
