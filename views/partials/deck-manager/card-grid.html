@@ -63,10 +63,11 @@
                 hx-swap="none"
                 hx-trigger="keyup delay:500ms"
                 name="qty"
+                class="mr-0.5"
             >
             <button
                 class="-delete"
-                aria-label="Remove card"
+                aria-label="Delete card"
                 tooltip
                 hx-delete="/decks/{{ .DeckId }}/cards/{{ .CardId }}"
                 hx-swap="delete"
