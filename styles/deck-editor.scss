@@ -648,7 +648,7 @@ deck-builder{
                 align-items: center;
                 justify-content: center;
                 color: var(--grey-400);
-                border-radius: 0.5rem;
+                border-radius: 0.25rem;
                 background: transparent;
                 transition: all 150ms var(--ease-in-out);
                 cursor: zoom-in;
@@ -656,7 +656,7 @@ deck-builder{
                 &:hover,
                 &:focus-visible{
                     color: var(--white);
-                    background-color: hsl(var(--white-hsl) / 0.05);
+                    background-color: hsl(var(--white-hsl) / 0.1);
                 }
 
                 svg{
@@ -671,20 +671,34 @@ deck-builder{
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                color: var(--red-400);
-                border-radius: 0.5rem;
-                background: transparent;
+                border-radius: 0.25rem;
+                background-color: hsl(var(--white-hsl) / 0.1);
                 transition: all 150ms var(--ease-in-out);
+                color: var(--grey-200);
+                font-weight: var(--font-medium);
+                font-size: var(--font-sm);
 
                 &:hover,
                 &:focus-visible{
-                    color: var(--red-300);
-                    background-color: hsl(var(--red-400-hsl) / 0.05);
-                }
+                    color: var(--red-400);
+                    background-color: hsl(var(--red-400-hsl) / 0.1);
 
+                    svg{
+                        display: block;
+                    }
+
+                    span{
+                        display: none;
+                    }
+                } 
+
+                span{
+                    display: inline-block;
+                }
                 svg{
                     width: 18px;
                     height: 18px;
+                    display: none;
                 }
             }
         }

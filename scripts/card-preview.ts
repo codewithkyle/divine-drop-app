@@ -22,7 +22,7 @@ class CardPreviewButton extends HTMLElement{
         if (!this.card.src) return;
         const bounds = this.getBoundingClientRect();
         this.card.style.position = "fixed";
-        let bottom = bounds.bottom;
+        let bottom = bounds.top;
         if (bottom + 488 > window.innerHeight){
             bottom = window.innerHeight - 488;
         }
