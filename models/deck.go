@@ -68,25 +68,25 @@ func GetDeckMetadata(db *gorm.DB, deckId string) DeckMetadata {
 
 func GetMythicsCount(db *gorm.DB, deckId string) int {
     var count int
-    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'mythic'", deckId).Scan(&count)
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'mythic'", deckId).Scan(&count)
     return count
 }
 
 func GetUncommonsCount(db *gorm.DB, deckId string) int {
     var count int
-    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'uncommon'", deckId).Scan(&count)
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'uncommon'", deckId).Scan(&count)
     return count
 }
 
 func GetCommonsCount(db *gorm.DB, deckId string) int {
     var count int
-    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'common'", deckId).Scan(&count)
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'common'", deckId).Scan(&count)
     return count
 }
 
 func GetRaresCount(db *gorm.DB, deckId string) int {
     var count int
-    db.Raw("SELECT COUNT(*) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'rare'", deckId).Scan(&count)
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.deck_id = UNHEX(?) AND R.rarity = 'rare'", deckId).Scan(&count)
     return count
 }
 

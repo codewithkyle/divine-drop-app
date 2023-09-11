@@ -280,8 +280,7 @@ func DeckEditorControllers(app *fiber.App){
         mythicsCount := models.GetMythicsCount(db, deckId)
         uncommonsCount := models.GetUncommonsCount(db, deckId)
         commonsCount := models.GetCommonsCount(db, deckId)
-        deckMetadata := models.GetDeckMetadata(db, deckId)
-        raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
+        raresCount := models.GetRaresCount(db, deckId)
 
         return c.Render("partials/deck-builder/rarity-counts", fiber.Map{
             "MythicsCount": mythicsCount,
