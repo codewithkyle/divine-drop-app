@@ -202,6 +202,11 @@ func DeckEditorControllers(app *fiber.App){
             filterBttnLabel = strconv.Itoa(activeFiltersCount) + " Active Filters"
         }
 
+        for i := range deckCards {
+            deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
+            deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
+        }
+
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-editor",
             "User": user,

@@ -639,6 +639,13 @@ deck-builder{
                 overflow: hidden;
                 text-overflow: ellipsis;
                 width: 200px;
+
+                svg{
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 0.25rem;
+                    color: var(--yellow-400);
+                }
             }
 
             card-preview{
