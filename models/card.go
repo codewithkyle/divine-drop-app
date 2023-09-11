@@ -106,7 +106,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
 
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
+    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id JOIN Card_Text CT ON C.id = CT.card_id "
 
     manaCheck := []string{}
     params := map[string]interface{}{
@@ -169,7 +169,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     name = "%" + strings.Trim(name, " ") + "%"
     if name != "%%" {
         params["name"] = name
-        query += "AND CN.name LIKE @name "
+        query += "AND (CN.name LIKE @name OR CT.text LIKE @name) "
     }
     if len(mana) > 0 {
         query += "AND " + colorLogic
