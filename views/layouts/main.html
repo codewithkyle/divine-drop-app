@@ -33,6 +33,18 @@
         <script type="module" src="/js/deck-tray.js"></script>
         <script type="module" src="/js/card-preview.js"></script>
         <script type="module" src="/js/toast.js"></script>
+
+        <script>
+            if ("serviceWorker" in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register("/static/service.worker.js", {
+                        scope: "/",
+                    });
+                } catch (error) {
+                    console.error(`Registration failed with ${error}`);
+                }
+            }
+        </script>
     </head>
     <body>
         <side-bar>
