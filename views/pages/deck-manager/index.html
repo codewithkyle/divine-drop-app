@@ -20,7 +20,7 @@
                     <path d="M21 21l-6 -6"></path>
                 </svg>
             </div>
-            <div class="select">
+            <div class="select mr-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M4 6l9 0"></path>
@@ -40,6 +40,31 @@
                     <option {{ if eq .Sort "tmc" }}selected{{ end }} value="tmc">Total Mana Cost</option>
                     <option {{ if eq .Sort "power" }}selected{{ end }} value="power">Power</option>
                     <option {{ if eq .Sort "toughness" }}selected{{ end }} value="toughness">Toughness</option>
+                </select>
+            </div>
+            <div class="select">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 6l9 0"></path>
+                    <path d="M4 12l7 0"></path>
+                    <path d="M4 18l7 0"></path>
+                    <path d="M15 15l3 3l3 -3"></path>
+                    <path d="M18 6l0 12"></path>
+                </svg>
+                <select 
+                    name="filter"
+                    hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
+                    hx-trigger="change"
+                    hx-target="card-grid"
+                    hx-include=".filters"
+                >
+                    <option {{ if eq .Filter "none" }}selected{{ end }} value="none">No Filters</option>
+                    <option {{ if eq .Filter "creatures" }}selected{{ end }} value="creatures">Creatures</option>
+                    <option {{ if eq .Filter "enchantments" }}selected{{ end }} value="enchantments">Enchantments</option>
+                    <option {{ if eq .Filter "instants" }}selected{{ end }} value="instants">Instants</option>
+                    <option {{ if eq .Filter "sorceries" }}selected{{ end }} value="sorceries">Sorceries</option>
+                    <option {{ if eq .Filter "artifacts" }}selected{{ end }} value="artifacts">Artifacts</option>
+                    <option {{ if eq .Filter "lands" }}selected{{ end }} value="lands">Lands</option>
                 </select>
             </div>
         </div>

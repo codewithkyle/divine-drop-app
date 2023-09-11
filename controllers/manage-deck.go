@@ -30,9 +30,10 @@ func DeckManagerControllers(app *fiber.App){
 
         search := c.Query("search")
         sort := c.Query("sort")
+        filter := c.Query("filter")
 
         decks := models.GetDecks(db, deckId, user.Id)
-        deckCards := models.SearchDeckCards(db, deckId, search, sort)
+        deckCards := models.SearchDeckCards(db, deckId, search, sort, filter)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
         mythicsCount := models.GetMythicsCount(db, deckId)
@@ -78,6 +79,7 @@ func DeckManagerControllers(app *fiber.App){
             "LandCount": landCount,
             "Sort": sort,
             "Search": search,
+            "Filter": filter,
         }, "layouts/main")
     }) 
 
@@ -90,6 +92,7 @@ func DeckManagerControllers(app *fiber.App){
         deckId := c.Params("id")
         search := c.Query("search")
         sort := c.Query("sort")
+        filter := c.Query("filter")
 
         db := helpers.ConnectDB()
 
@@ -98,9 +101,9 @@ func DeckManagerControllers(app *fiber.App){
             return c.Redirect("/")
         }
 
-        cards := models.SearchDeckCards(db, deckId, search, sort)
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter)
 
-        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort)
+        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter)
         c.Response().Header.Set("Hx-Replace-Url", url)
 
         return c.Render("partials/deck-manager/card-grid", fiber.Map{

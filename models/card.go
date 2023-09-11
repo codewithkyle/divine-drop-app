@@ -71,7 +71,7 @@ func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     return cards
 }
 
-func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string) []DeckCard {
+func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string) []DeckCard {
     name = "%" + strings.Trim(name, " ") + "%"
     sortColumn := "name"
     switch sort {
@@ -84,8 +84,23 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string) []Dec
         case "toughness":
             sortColumn = "C.toughness DESC"
     }
+    filterLogic := "AND 1=1"
+    switch filter {
+        case "creatures":
+            filterLogic = "AND C.type = 'Creature'"
+        case "enchantments":
+            filterLogic = "AND C.type = 'Enchantment'"
+        case "artifacts":
+            filterLogic = "AND C.type = 'Artifact'"
+        case "lands":
+            filterLogic = "AND C.type LIKE '%Land%'"
+        case "instants":
+            filterLogic = "AND C.type = 'Instant'"
+        case "sorceries":
+            filterLogic = "AND C.type = 'Sorcery'"
+    }
     var cards []DeckCard
-    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, (SELECT CN.name FROM Card_Names CN WHERE CN.card_id = DC.card_id LIMIT 1) AS name FROM Deck_Cards DC INNER JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND CN.name LIKE ? GROUP BY DC.id ORDER BY " + sortColumn, deckId, name).Scan(&cards)
+    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, (SELECT CN.name FROM Card_Names CN WHERE CN.card_id = DC.card_id LIMIT 1) AS name FROM Deck_Cards DC INNER JOIN Card_Names CN ON DC.card_id = CN.card_id JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND CN.name LIKE ? " + filterLogic + " GROUP BY DC.id ORDER BY " + sortColumn, deckId, name).Scan(&cards)
     return cards
 }
 
