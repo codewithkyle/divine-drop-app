@@ -106,7 +106,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
 
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT C.front, C.back, HEX(C.id) AS id, CN.name FROM Cards AS C JOIN Card_Names AS CN ON C.id = CN.card_id "
+    query := "SELECT C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C "
 
     manaCheck := []string{}
     params := map[string]interface{}{
@@ -167,11 +167,11 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     name = "%" + strings.Trim(name, " ") + "%"
     if name != "%%" {
         query += "JOIN Card_Text CT ON C.id = CT.card_id ";
-        query += "AND (CN.name LIKE @name OR CT.text LIKE @name) "
+        query += "WHERE (C.name LIKE @name OR CT.text LIKE @name) "
         params["name"] = name
+    } else {
+        query += "WHERE 1=1 "
     }
-
-    query += "WHERE 1=1 "
     
     if len(mana) > 0 {
         query += "AND " + colorLogic
@@ -233,10 +233,10 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         }
     }
 
-    sortColumn := "CN.name"
+    sortColumn := "C.name"
     switch sort {
         case "name":
-            sortColumn = "CN.name"
+            sortColumn = "C.name"
         case "tmc":
             sortColumn = "C.totalManaCost DESC"
         case "power":
@@ -244,7 +244,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         case "toughness":
             sortColumn = "C.toughness DESC"
     }
-    query += "GROUP BY C.id, C.front, C.back, CN.name ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
+    query += "GROUP BY C.id, C.name ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
     return cards
 }
