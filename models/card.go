@@ -164,11 +164,11 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         query += "JOIN Rarities R ON C.rarity = R.id AND R.rarity = @rarity "
     }
 
-    name = "%" + strings.Trim(name, " ") + "%"
     if name != "%%" {
-        query += "JOIN Card_Text CT ON C.id = CT.card_id ";
-        query += "WHERE (C.name LIKE @name OR CT.text LIKE @name) "
-        params["name"] = name
+        query += "JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN BOOLEAN MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
+        query += "WHERE C.name LIKE @name "
+        params["name"] = "%" + strings.Trim(name, " ") + "%"
+        params["fts"] = strings.Trim(name, " ")
     } else {
         query += "WHERE 1=1 "
     }
