@@ -107,6 +107,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, offset int, limit int) []Card {
     var cards []Card
     query := "SELECT C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C "
+    name = strings.Trim(name, " ")
 
     manaCheck := []string{}
     params := map[string]interface{}{
@@ -164,11 +165,11 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         query += "JOIN Rarities R ON C.rarity = R.id AND R.rarity = @rarity "
     }
 
-    if name != "%%" {
+    if name != "" {
         query += "JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN BOOLEAN MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
         query += "WHERE C.name LIKE @name "
         params["name"] = "%" + strings.Trim(name, " ") + "%"
-        params["fts"] = strings.Trim(name, " ")
+        params["fts"] = name
     } else {
         query += "WHERE 1=1 "
     }
