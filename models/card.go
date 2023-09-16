@@ -166,7 +166,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
 
     if name != "" {
-        query += "JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN BOOLEAN MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
+        query += "LEFT JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN NATURAL LANGUAGE MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
         query += "WHERE C.name LIKE @name "
         params["name"] = "%" + strings.Trim(name, " ") + "%"
         params["fts"] = name
