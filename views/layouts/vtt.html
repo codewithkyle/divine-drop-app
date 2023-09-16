@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Divine Drop</title>
+        <meta name="description" content="MTG deck builder, card browser, and play testing.">
+
+        <link rel="icon" href="/static/favicon.ico" sizes="any">        
+        <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="/css/normalize.css">
+        <link rel="stylesheet" href="/css/brixi.css">
+        <link rel="stylesheet" href="/css/base.css">
+
+        <link rel="stylesheet" href="/css/tooltip.css">
+        <link rel="stylesheet" href="/css/toast.css">
+
+        <script defer src="/static/alpine.js"></script>
+
+        <script type="module" src="/js/tooltipper.js"></script>
+
+        <script>
+            if ("serviceWorker" in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register("/static/service.worker.js", {
+                        scope: "/",
+                    });
+                } catch (error) {
+                    console.error(`Registration failed with ${error}`);
+                }
+            }
+        </script>
+    </head>
+    <body>
+        {{ embed }}
+    </body>
+</html>

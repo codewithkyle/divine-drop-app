@@ -19,6 +19,7 @@
         <link rel="stylesheet" href="/css/card-browser.css">
         <link rel="stylesheet" href="/css/deck-editor.css">
         <link rel="stylesheet" href="/css/deck-manager.css">
+        <link rel="stylesheet" href="/css/play.css">
 
         <link rel="stylesheet" href="/css/tooltip.css">
         <link rel="stylesheet" href="/css/toast.css">
@@ -98,6 +99,17 @@
                             <svg width="22" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M232 344V280H168C154.7 280 144 269.3 144 256C144 242.7 154.7 232 168 232H232V168C232 154.7 242.7 144 256 144C269.3 144 280 154.7 280 168V232H344C357.3 232 368 242.7 368 256C368 269.3 357.3 280 344 280H280V344C280 357.3 269.3 368 256 368C242.7 368 232 357.3 232 344zM512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM256 48C141.1 48 48 141.1 48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48z"/></svg>
                         </i>
                         <span>New Deck</span>
+                    </a>
+                    <a {{ if eq .Page "play" }}class="is-active"{{ end }} href="/play">
+                        <i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M3.604 7.197l7.138 -3.109a.96 .96 0 0 1 1.27 .527l4.924 11.902a1 1 0 0 1 -.514 1.304l-7.137 3.109a.96 .96 0 0 1 -1.271 -.527l-4.924 -11.903a1 1 0 0 1 .514 -1.304z"></path>
+                                <path d="M15 4h1a1 1 0 0 1 1 1v3.5"></path>
+                                <path d="M20 6c.264 .112 .52 .217 .768 .315a1 1 0 0 1 .53 1.311l-2.298 5.374"></path>
+                            </svg>
+                        </i>
+                        <span>Play</span>
                     </a>
                     <a {{ if eq .Page "profile" }}class="is-active"{{ end }} href="/profile">
                         <i>
