@@ -104,7 +104,18 @@ func main() {
     })
 
     app.Get("/privacy-policy", func(c *fiber.Ctx) error {
-        return c.Render("pages/privacy-policy/index", fiber.Map{}, "layouts/main")
+        user, _ := helpers.GetUserFromSession(c)
+        db := helpers.ConnectDB()
+
+        var decks []models.Deck
+        if (c.Cookies("nav_closed", "") != "true") {
+            decks = models.GetDecks(db, "", user.Id)
+        }
+
+        return c.Render("pages/privacy-policy/index", fiber.Map{
+            "Page": "privacy-policy",
+            "Decks": decks,
+        }, "layouts/main")
     })
 
     app.Listen(":3000")
