@@ -2,6 +2,7 @@ scripts/lib
 
 public/js
 public/css
+public/static/config.js
 
 node_modules
 _types
