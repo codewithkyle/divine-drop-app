@@ -25,8 +25,11 @@ jobs:
       - name: Install NPM Packages
         run: npm ci
 
-      - name: Compile
-        run: npm run build
+      - name: Compile Server
+        run: go build -ldflags="-s -w"
+
+      - name: Compile UI
+        run:  npm run build:css && npm run build:brixi && npm run build:bundle && npm run build:js
 
       - name: Load SSH Key
         uses: webfactory/ssh-agent@v0.8.0
