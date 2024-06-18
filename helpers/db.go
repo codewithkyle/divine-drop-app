@@ -12,7 +12,7 @@ func ConnectDB() *gorm.DB {
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		log.Fatalf("failed to connect to PlanetScale: %v", err)
+		log.Fatalf("failed to connect to database: %v", err)
 	}
     return db;
 }

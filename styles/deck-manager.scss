@@ -134,6 +134,8 @@ deck-manager{
                     text-align: center;
                     appearance: none;
                     margin-right: 0.25rem;
+                    -moz-appearance: textfield;
+                    appearance: textfield;
 
                     &:last-child{
                         margin-right: 0;
