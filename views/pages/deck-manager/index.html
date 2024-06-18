@@ -141,8 +141,8 @@
 >
     <div class="modal-backdrop" x-on:click="$data.open = false"></div>
     <div 
-        class="simulate-draw"
-        hx-get="/partials/desk-manager/simulate-draw"
+        class="simulate-draw w-full"
+        hx-get="/partials/deck-manager/simulate-draw?id={{ .ActiveDeckId }}"
         hx-trigger="draw-modal from:window"
     >
     </div>
