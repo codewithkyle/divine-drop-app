@@ -1,0 +1,12 @@
+<div style="display:grid;grid-template-columns:repeat(7, 1fr);width:100%;gap:1rem;place-items:center;margin:0 auto;">
+    {{ range .Cards }}
+        <img 
+            src="{{ .Front }}" 
+            onload="this.style.opacity = '1'"
+            width="200"
+            loading="lazy"
+            draggable="false"
+            style="opacity:0;transition:opacity 300ms var(--ease-in);"
+        >
+    {{ end }}
+</div>

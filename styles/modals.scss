@@ -44,6 +44,7 @@
 .modal .content.quick-add{
     max-width: 1200px;
     width: 100%;
+    max-height: calc(100vh - 2rem);
 
     .cards-placeholder{
         aspect-ratio: 4/3;
@@ -178,4 +179,41 @@
             color: var(--grey-500);
         }
     }
+}
+
+.modal .simulate-draw{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+
+    &.htmx-request{
+        #simulate-draw-container{
+            display: none;
+        }
+
+        #simulate-draw-spinner{
+            display: flex;
+        }
+    }
+
+    #simulate-draw-container{
+        pointer-events: all;
+    }
+
+    #simulate-draw-spinner{
+        display: none;
+        width: 48px;
+        height: 48px;
+        color: var(--white);
+        animation: spin 1s linear infinite;
+        position: absolute;
+        align-items: center;
+        justify-content: center;
+        transition: all 150ms var(--ease-in-out);
+        background-color: hsl(var(--grey-900-hsl) / 0);
+        display: none;
+    }
+
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
@@ -309,5 +310,41 @@ func DeckManagerControllers(app *fiber.App){
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\"}")
 
         return c.SendStatus(200)
+    })
+
+    app.Get("/partials/deck-manager/simulate-draw", func(c *fiber.Ctx) error {
+        _, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Query("id")
+        db := helpers.ConnectDB()
+        cards := models.GetDeckCards(db, deckId)
+
+        deckCards := []models.DeckCard{}
+        for i := range cards {
+            for j := uint8(0); j < cards[i].Qty; j++ {
+                deckCards = append(deckCards, cards[i])
+            }
+        }
+
+        if len(deckCards) >= 7 {
+            // Bogo sort ftw
+            for i := range deckCards {
+                j := rand.Intn(i + 1)
+                deckCards[i], deckCards[j] = deckCards[j], deckCards[i]
+            }
+            
+            hand := []models.DeckCard{}
+            for i := 0; i < 7; i++ {
+                hand = append(hand, deckCards[i])
+            }
+            deckCards = hand
+        }
+
+        return c.Render("partials/deck-manager/simulate-draw", fiber.Map{
+            "Cards": deckCards,
+        })
     })
 }
