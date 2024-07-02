@@ -347,4 +347,25 @@ func DeckManagerControllers(app *fiber.App){
             "Cards": deckCards,
         })
     })
+
+   app.Get("/api/v1/decks/:id", func(c *fiber.Ctx) error {
+        deckId := c.Params("id")
+        if deckId == "" {
+            return c.SendStatus(400)
+        }
+        db := helpers.ConnectDB()
+        cards := models.GetDeckCards(db, deckId)
+
+        deckCards := []models.DeckCard{}
+        for i := range cards {
+            for j := uint8(0); j < cards[i].Qty; j++ {
+                if cards[i].Back == "" {
+                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
+                }
+                deckCards = append(deckCards, cards[i])
+            }
+        }
+
+        return c.JSON(deckCards)
+    })
 }
