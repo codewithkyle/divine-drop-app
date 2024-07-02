@@ -348,6 +348,7 @@ func DeckManagerControllers(app *fiber.App){
         })
     })
 
+
    app.Get("/api/v1/decks/:id", func(c *fiber.Ctx) error {
         deckId := c.Params("id")
         if deckId == "" {
