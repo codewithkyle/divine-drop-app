@@ -33,6 +33,13 @@ func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
     return deck
 }
 
+func GetDeckByID(db *gorm.DB, deckId string) Deck {
+    var deck Deck
+    db.Raw("SELECT HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
+    deck.Active = "active"
+    return deck
+}
+
 func GetDeckColors(db *gorm.DB, deckId string) (bool, bool, bool, bool, bool) {
     var colors []string
     db.Raw("SELECT C.color FROM Colors C WHERE C.id IN (SELECT DISTINCT CC.color_id FROM Deck_Cards DC JOIN Card_Colors CC ON DC.card_id = CC.card_id WHERE DC.deck_id = UNHEX(?));", deckId).Scan(&colors)

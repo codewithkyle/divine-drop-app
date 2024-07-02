@@ -104,6 +104,15 @@ func DeckManagerControllers(app *fiber.App){
 
         cards := models.SearchDeckCards(db, deckId, search, sort, filter)
 
+        for i := range(cards) {
+            if cards[i].CardId == deck.CommanderCardId {
+                cards[i].IsCommander = true
+            }
+            if cards[i].CardId == deck.OathbreakerCardId {
+                cards[i].IsOathbreaker = true
+            }
+        }
+
         url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter)
         c.Response().Header.Set("Hx-Replace-Url", url)
 
@@ -355,16 +364,21 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(400)
         }
         db := helpers.ConnectDB()
-        cards := models.GetDeckCards(db, deckId)
+        cards := models.GetDeckCardsMetadata(db, deckId)
+        deck := models.GetDeckByID(db, deckId)
 
-        deckCards := []models.DeckCard{}
+        deckCards := []models.DeckCardMetadata{}
         for i := range cards {
-            for j := uint8(0); j < cards[i].Qty; j++ {
-                if cards[i].Back == "" {
-                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
-                }
-                deckCards = append(deckCards, cards[i])
+            if cards[i].Back == "" {
+                cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
             }
+            if cards[i].CardId == deck.CommanderCardId {
+                cards[i].IsCommander = true
+            }
+            if cards[i].CardId == deck.OathbreakerCardId {
+                cards[i].IsOathbreaker = true
+            }
+            deckCards = append(deckCards, cards[i])
         }
 
         return c.JSON(deckCards)

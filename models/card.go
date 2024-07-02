@@ -58,6 +58,16 @@ type DeckCard struct {
     IsOathbreaker bool
 }
 
+type DeckCardMetadata struct {
+    CardId string `gorm:"column:card_id"`
+    Qty    uint8    `gorm:"column:qty"`
+    Front string 
+    Back string
+    Name string
+    IsCommander bool
+    IsOathbreaker bool
+}
+
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
     name = "%" + strings.Trim(name, " ") + "%"
     var cards []Card
@@ -68,6 +78,12 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
     db.Raw("SELECT DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    return cards
+}
+
+func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
+    var cards []DeckCardMetadata
+    db.Raw("SELECT HEX(DC.card_id) AS card_id, C.front, C.back, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
