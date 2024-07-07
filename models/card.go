@@ -56,6 +56,7 @@ type DeckCard struct {
     DateCreated string `gorm:"column:dateCreated;type:datetime"`
     IsCommander bool
     IsOathbreaker bool
+    InSideboard bool `gorm:"column:sideboard;type:tinyint"`
 }
 
 type DeckCardMetadata struct {
@@ -66,6 +67,7 @@ type DeckCardMetadata struct {
     Name string
     IsCommander bool
     IsOathbreaker bool
+    InSideboard bool `gorm:"column:sideboard;type:tinyint"`
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
@@ -77,13 +79,13 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT DC.sideboard, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
 func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
     var cards []DeckCardMetadata
-    db.Raw("SELECT HEX(DC.card_id) AS card_id, C.front, C.back, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT DC.sideboard, HEX(DC.card_id) AS card_id, C.front, C.back, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
@@ -116,7 +118,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
             filterLogic = "AND C.type = 'Sorcery'"
     }
     var cards []DeckCard
-    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND C.name LIKE ? " + filterLogic + " GROUP BY DC.id ORDER BY " + sortColumn, deckId, name).Scan(&cards)
+    db.Raw("SELECT DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND C.name LIKE ? " + filterLogic + " GROUP BY DC.id ORDER BY " + sortColumn, deckId, name).Scan(&cards)
     return cards
 }
 
@@ -307,12 +309,12 @@ func SearchCardKeywords(db *gorm.DB, name string) []string {
 
 func GetDeckCard(db *gorm.DB, activeDeckId string, cardId string) DeckCard {
     deckCard := DeckCard{}
-    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, C.front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.card_id = UNHEX(?) LIMIT 1", activeDeckId, cardId).Scan(&deckCard)
+    db.Raw("SELECT DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, C.front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.card_id = UNHEX(?) LIMIT 1", activeDeckId, cardId).Scan(&deckCard)
     return deckCard
 }
 func GetDeckCardById(db *gorm.DB, activeDeckId string, deckCardId string) DeckCard {
     deckCard := DeckCard{}
-    db.Raw("SELECT HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, C.front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.id = UNHEX(?) LIMIT 1", activeDeckId, deckCardId).Scan(&deckCard)
+    db.Raw("SELECT DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, C.front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.id = UNHEX(?) LIMIT 1", activeDeckId, deckCardId).Scan(&deckCard)
     return deckCard
 }
 
