@@ -43,6 +43,7 @@ func DeckManagerControllers(app *fiber.App){
         raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
 
         landCount := models.GetLandCount(db, deckId)
+        sideboardCount := models.GetSideboardCount(db, deckId)
 
         containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
@@ -78,6 +79,7 @@ func DeckManagerControllers(app *fiber.App){
             "CommonsCount": commonsCount,
             "RaresCount": raresCount,
             "LandCount": landCount,
+            "SideboardCount": sideboardCount,
             "Sort": sort,
             "Search": search,
             "Filter": filter,
@@ -333,8 +335,10 @@ func DeckManagerControllers(app *fiber.App){
 
         deckCards := []models.DeckCard{}
         for i := range cards {
-            for j := uint8(0); j < cards[i].Qty; j++ {
-                deckCards = append(deckCards, cards[i])
+            if !cards[i].InSideboard {
+                for j := uint8(0); j < cards[i].Qty; j++ {
+                    deckCards = append(deckCards, cards[i])
+                }
             }
         }
 
@@ -382,5 +386,79 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         return c.JSON(deckCards)
+    })
+
+    app.Put("/decks/:id/sideboard/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Deck_Cards SET sideboard = 1 WHERE card_id = UNHEX(?)", cardId)
+
+        if deck.CommanderCardId == cardId {
+            db.Exec("UPDATE Decks SET commander_card_id = null WHERE id = UNHEX(?)", deckId)
+        }
+        if deck.OathbreakerCardId == cardId {
+            db.Exec("UPDATE Decks SET oathbreaker_card_id = null WHERE id = UNHEX(?)", deckId)
+        }
+        
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now in the sideboard\", \"deckUpdated\": \"" + deckId + "\", \"sideboardUpdated\": \"" + deckId + "\"}")
+
+        return c.SendStatus(200)
+    })
+
+    app.Get("/partials/deck-manager/sideboard-card-grid/:id", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        search := c.Query("search")
+        sort := c.Query("sort")
+        filter := c.Query("filter")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            return c.Redirect("/")
+        }
+
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter)
+
+        for i := range(cards) {
+            if cards[i].CardId == deck.CommanderCardId {
+                cards[i].IsCommander = true
+            }
+            if cards[i].CardId == deck.OathbreakerCardId {
+                cards[i].IsOathbreaker = true
+            }
+        }
+
+        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter)
+        c.Response().Header.Set("Hx-Replace-Url", url)
+
+        return c.Render("partials/deck-manager/sideboard-card-grid", fiber.Map{
+            "Cards": cards,
+        })
     })
 }

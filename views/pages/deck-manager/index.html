@@ -98,8 +98,11 @@
     >
         {{ template "partials/deck-manager/card-grid" . }}
     </card-grid>
-    <h3 class="mx-3 mt-2 mb-1 pb-1 border-b-solid border-b-1 border-b-grey-700 font-md">Sideboard</h3>
+    <h3 class="mx-3 mt-2 pb-1 border-b-solid border-b-1 border-b-grey-700 font-md">Sideboard</h3>
     <card-grid
+        hx-get="/partials/deck-manager/sideboard-card-grid/{{ .ActiveDeckId }}"
+        hx-trigger="sideboardUpdated from:body"
+        hx-include=".filters"
     >
         {{ template "partials/deck-manager/sideboard-card-grid" . }}
     </card-grid>
