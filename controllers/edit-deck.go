@@ -145,6 +145,7 @@ func DeckEditorControllers(app *fiber.App){
         raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
 
         landCount := models.GetLandCount(db, deckId)
+        sideboardCount := models.GetSideboardCount(db, deckId)
 
         containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
@@ -242,6 +243,7 @@ func DeckEditorControllers(app *fiber.App){
             "CommonsCount": commonsCount,
             "RaresCount": raresCount,
             "LandCount": landCount,
+            "SideboardCount": sideboardCount,
             "FilterBttnLabel": filterBttnLabel,
         }, "layouts/main")
     })
@@ -473,6 +475,18 @@ func DeckEditorControllers(app *fiber.App){
 
         return c.Render("partials/deck-builder/land-count", fiber.Map{
             "LandCount": landCount,
+            "ActiveDeckId": deckId,
+        })
+    })
+
+    app.Get("/partials/deck-builder/sideboard-count/:id", func(c *fiber.Ctx) error {
+        db := helpers.ConnectDB()
+
+        deckId := c.Params("id")
+        count := models.GetSideboardCount(db, deckId)
+
+        return c.Render("partials/deck-builder/sideboard-count", fiber.Map{
+            "SideboardCount": count,
             "ActiveDeckId": deckId,
         })
     })
