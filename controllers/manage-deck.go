@@ -425,6 +425,36 @@ func DeckManagerControllers(app *fiber.App){
         return c.SendStatus(200)
     })
 
+    app.Delete("/decks/:id/sideboard/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Deck_Cards SET sideboard = 0 WHERE card_id = UNHEX(?)", cardId)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\"}")
+
+        return c.SendStatus(200)
+    })
+
     app.Get("/partials/deck-manager/sideboard-card-grid/:id", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
         if err != nil {
