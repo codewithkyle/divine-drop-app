@@ -1,0 +1,12 @@
+<button
+    hx-delete="/decks/{{ .DeckId }}/prints/{{ .CardId }}"
+    hx-target="#card-{{ .CardId }}"
+    hx-swap="innerHTML"
+>Default</button>
+{{ range .Prints }}
+    <button
+        hx-patch="/decks/{{ .DeckId }}/prints/{{ .CardId }}/{{ .Print }}"
+        hx-target="#card-{{ .CardId }}"
+        hx-swap="innerHTML"
+    >Print #{{ .Print }}</button>
+{{ end }}

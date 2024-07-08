@@ -440,7 +440,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET sideboard = 1 WHERE card_id = UNHEX(?)", cardId)
+        db.Exec("UPDATE Deck_Cards SET sideboard = 1 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
 
         if deck.CommanderCardId == cardId {
             db.Exec("UPDATE Decks SET commander_card_id = null WHERE id = UNHEX(?)", deckId)
@@ -477,7 +477,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET sideboard = 0 WHERE card_id = UNHEX(?)", cardId)
+        db.Exec("UPDATE Deck_Cards SET sideboard = 0 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\"}")
 
@@ -525,6 +525,107 @@ func DeckManagerControllers(app *fiber.App){
 
         return c.Render("partials/deck-manager/sideboard-card-grid", fiber.Map{
             "Cards": cards,
+        })
+    })
+
+    app.Get("/decks/:id/prints/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        prints := models.GetPrints(db, cardId)
+
+        return c.Render("partials/deck-manager/card-prints", fiber.Map{
+            "Prints": prints,
+            "DeckId": deck.Id,
+            "CardId": card.Id,
+        })
+    })
+
+    app.Delete("/decks/:id/prints/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Deck_Cards SET print = null WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
+
+        return c.Render("partials/deck-manager/card-image", fiber.Map{
+            "Front": card.Front,
+            "Back": card.Back,
+        })
+    })
+
+    app.Patch("/decks/:id/prints/:cardId/:print", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+        printId := c.Params("print")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Deck_Cards SET print = ? WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", printId, card.Id, deck.Id)
+
+        front := "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(card.Id) + "-" + printId +  "-front.webp"
+        back := ""
+        if card.Back != "" {
+            back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(card.Id) + "-" + printId +  "-back.webp"
+        }
+
+        return c.Render("partials/deck-manager/card-image", fiber.Map{
+            "Front": front,
+            "Back": back,
         })
     })
 }

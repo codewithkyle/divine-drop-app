@@ -5,38 +5,33 @@
             x-data="{ flip: false }"
             :class="{ 'flipped': flip }"
         >
-            <div class="container">
-                <img 
-                    src="{{ .Front }}" 
-                    onload="this.style.opacity = '1'"
-                    width="200"
-                    loading="lazy"
-                    draggable="false"
-                >
-                {{ if ne .Back "" }}
-                    <img 
-                        src="{{ .Back }}" 
-                        width="200"
-                        loading="lazy"
-                        draggable="false"
-                    >
-                    <button x-on:click="$data.flip = !$data.flip;$event.stopImmediatePropagation();">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                        </svg>
-                    </button>
-                {{ end }}
+        <div class="container" id="card-{{ .CardId }}">
+                {{ template "partials/deck-manager/card-image" . }}
             </div>
             <div class="actions">
+                <overflow-button 
+                    role="button" 
+                    x-data="{ open: false }"
+                    x-on:click.outside="$data.open = false;"
+                >
+                    <button
+                        x-on:click="$data.open = !$data.open;"
+                        tooltip="Change print"
+                        hx-get="/decks/{{ .DeckId }}/prints/{{ .CardId }}"
+                        hx-target="next overflow-menu"
+                        hx-swap="innerHTML"
+                    >
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M12 21h-6a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v6" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l3 3" /><path d="M14 14l1 -1c.48 -.461 1.016 -.684 1.551 -.67" /><path d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19.001 15.5v1.5" /><path d="M19.001 21v1.5" /><path d="M22.032 17.25l-1.299 .75" /><path d="M17.27 20l-1.3 .75" /><path d="M15.97 17.25l1.3 .75" /><path d="M20.733 20l1.3 .75" /></svg>
+                    </button>
+                    <overflow-menu style="min-width: 220px;" x-show="open"></overflow-menu>
+                </overflow-button>
                 <button
                     tooltip="Send to sideboard"
                     hx-put="/decks/{{ .DeckId }}/sideboard/{{ .CardId }}"
                     hx-target="closest .card"
                     hx-swap="delete"
                 >
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 13l-6 6" /><path d="M6 13l6 6" /></svg>
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 13l-6 6" /><path d="M6 13l6 6" /></svg> 
                 </button>
                 <button 
                     class="-commander"
@@ -44,8 +39,7 @@
                     :aria-label="active ? 'Unset oathbreaker spell' : 'Set othbreaker spell'" 
                     tooltip
                     x-data="{ active: {{ .IsOathbreaker }} }"
-                    x-on:click="$data.active = !$data.active;$dispatch('oathbreaker', { id: '{{ .CardId }}' });"
-                    x-on:oathbreaker.window="if ($event.detail.id != '{{ .CardId }}') $data.active = false;"
+                    x-on:click="$data.active = !$data.active;$dispatch('oathbreaker', { id: '{{ .CardId }}' });" x-on:oathbreaker.window="if ($event.detail.id != '{{ .CardId }}') $data.active = false;"
                     hx-post="/decks/{{ .DeckId }}/oathbreaker/{{ .CardId }}"
                     hx-swap="none"
                 >

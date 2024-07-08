@@ -124,7 +124,7 @@ deck-manager{
                 flex-flow: row nowrap;
                 margin-top: 0.5rem;
 
-                input{
+                & > input{
                     width: 24px;
                     height: 24px;
                     background-color: hsl(var(--white-hsl) / 0.05);
@@ -149,7 +149,7 @@ deck-manager{
                     }
                 }
 
-                button{
+                & > button{
                     width: 24px;
                     height: 24px;
                     background-color: hsl(var(--white-hsl) / 0);
