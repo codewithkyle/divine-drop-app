@@ -58,7 +58,7 @@ func DeckManagerControllers(app *fiber.App){
             deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
             if deckCards[i].Print != 0 {
-                printDate := strconv.Itoa(int(deckCards[i].Print))
+                printDate := strconv.Itoa(deckCards[i].Print)
                 deckCards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(deckCards[i].CardId) + "-" + printDate +  "-front.webp"
                 if deckCards[i].Back != "" {
                     deckCards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(deckCards[i].CardId) + "-" + printDate +  "-back.webp"
@@ -122,7 +122,7 @@ func DeckManagerControllers(app *fiber.App){
             }
 
             if cards[i].Print != 0 {
-                printDate := strconv.Itoa(int(cards[i].Print))
+                printDate := strconv.Itoa(cards[i].Print)
                 cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
                 if cards[i].Back != "" {
                     cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
@@ -352,7 +352,7 @@ func DeckManagerControllers(app *fiber.App){
         for i := range cards {
             if !cards[i].InSideboard {
                 if cards[i].Print != 0 {
-                    printDate := strconv.Itoa(int(cards[i].Print))
+                    printDate := strconv.Itoa(cards[i].Print)
                     cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
                     if cards[i].Back != "" {
                         cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
@@ -396,7 +396,7 @@ func DeckManagerControllers(app *fiber.App){
         deckCards := []models.DeckCardMetadata{}
         for i := range cards {
             if cards[i].Print != 0 {
-                printDate := strconv.Itoa(int(cards[i].Print))
+                printDate := strconv.Itoa(cards[i].Print)
                 cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
                 if cards[i].Back != "" {
                     cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
@@ -512,7 +512,7 @@ func DeckManagerControllers(app *fiber.App){
                 cards[i].IsOathbreaker = true
             }
             if cards[i].Print != 0 {
-                printDate := strconv.Itoa(int(cards[i].Print))
+                printDate := strconv.Itoa(cards[i].Print)
                 cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
                 if cards[i].Back != "" {
                     cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"

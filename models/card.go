@@ -57,7 +57,7 @@ type DeckCard struct {
     IsCommander bool
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
-    Print int32 `gorm:"column:print;type:mediumint"`
+    Print int `gorm:"column:print"`
 }
 
 type DeckCardMetadata struct {
@@ -69,12 +69,12 @@ type DeckCardMetadata struct {
     IsCommander bool
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
-    Print int32 `gorm:"column:print;type:mediumint"`
+    Print int `gorm:"column:print"`
 }
 
 type CardPrint struct {
     CardId string `gorm:"column:card_id"`
-    Print int32 `gorm:"column:released;type:mediumint"`
+    Print int `gorm:"column:released"`
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
