@@ -49,7 +49,7 @@ func DeckManagerControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(deck.CommanderCardId) +  "-art.png"
+            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(deck.CommanderCardId) +  "-art.webp"
         } else if len(deckCards) > 0 {
             bannerArt = deckCards[len(deckCards) - 1].Art
         }
@@ -57,6 +57,13 @@ func DeckManagerControllers(app *fiber.App){
         for i := range deckCards {
             deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
+            if deckCards[i].Print != 0 {
+                printDate := strconv.Itoa(int(deckCards[i].Print))
+                deckCards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(deckCards[i].CardId) + "-" + printDate +  "-front.webp"
+                if deckCards[i].Back != "" {
+                    deckCards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(deckCards[i].CardId) + "-" + printDate +  "-back.webp"
+                }
+            }
         }
 
         return c.Render("pages/deck-manager/index", fiber.Map{
@@ -112,6 +119,14 @@ func DeckManagerControllers(app *fiber.App){
             }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
+            }
+
+            if cards[i].Print != 0 {
+                printDate := strconv.Itoa(int(cards[i].Print))
+                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
+                if cards[i].Back != "" {
+                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
+                }
             }
         }
 
@@ -336,6 +351,13 @@ func DeckManagerControllers(app *fiber.App){
         deckCards := []models.DeckCard{}
         for i := range cards {
             if !cards[i].InSideboard {
+                if cards[i].Print != 0 {
+                    printDate := strconv.Itoa(int(cards[i].Print))
+                    cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
+                    if cards[i].Back != "" {
+                        cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
+                    }
+                }
                 for j := uint8(0); j < cards[i].Qty; j++ {
                     deckCards = append(deckCards, cards[i])
                 }
@@ -373,6 +395,13 @@ func DeckManagerControllers(app *fiber.App){
 
         deckCards := []models.DeckCardMetadata{}
         for i := range cards {
+            if cards[i].Print != 0 {
+                printDate := strconv.Itoa(int(cards[i].Print))
+                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
+                if cards[i].Back != "" {
+                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
+                }
+            }
             if cards[i].Back == "" {
                 cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
             }
@@ -481,6 +510,13 @@ func DeckManagerControllers(app *fiber.App){
             }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
+            }
+            if cards[i].Print != 0 {
+                printDate := strconv.Itoa(int(cards[i].Print))
+                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-front.webp"
+                if cards[i].Back != "" {
+                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToLower(cards[i].CardId) + "-" + printDate +  "-back.webp"
+                }
             }
         }
 
