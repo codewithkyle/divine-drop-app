@@ -528,14 +528,14 @@ func DeckManagerControllers(app *fiber.App){
         })
     })
 
-    app.Get("/decks/:id/prints/:cardId", func(c *fiber.Ctx) error {
+    app.Get("/partials/deck-manager/:deckId/prints", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
         if err != nil {
             return c.Redirect("/sign-in")
         }
 
-        deckId := c.Params("id")
-        cardId := c.Params("cardId")
+        deckId := c.Params("deckId")
+        cardId := c.Query("cardId")
 
         db := helpers.ConnectDB()
 
@@ -555,6 +555,10 @@ func DeckManagerControllers(app *fiber.App){
 
         for i := range prints {
             prints[i].DeckId = deck.Id
+            prints[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(prints[i].CardId) + "-" + strconv.Itoa(prints[i].Print) +  "-front.png"
+            if prints[i].Back != "" {
+                prints[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(prints[i].CardId) + "-" + strconv.Itoa(prints[i].Print) +  "-back.png"
+            }
         }
 
         return c.Render("partials/deck-manager/card-prints", fiber.Map{
