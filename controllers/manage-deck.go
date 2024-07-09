@@ -450,8 +450,10 @@ func DeckManagerControllers(app *fiber.App){
         if deck.OathbreakerCardId == cardId {
             db.Exec("UPDATE Decks SET oathbreaker_card_id = null WHERE id = UNHEX(?)", deckId)
         }
+
+        sideboardCount := models.GetSideboardCount(db, deckId)
         
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now in the sideboard\", \"deckUpdated\": \"" + deckId + "\", \"sideboardUpdated\": \"" + deckId + "\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now in the sideboard\", \"deckUpdated\": \"" + deckId + "\", \"sideboardUpdated\": " + strconv.Itoa(sideboardCount) + "}")
 
         return c.SendStatus(200)
     })
@@ -481,7 +483,9 @@ func DeckManagerControllers(app *fiber.App){
 
         db.Exec("UPDATE Deck_Cards SET sideboard = 0 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
 
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\"}")
+        sideboardCount := models.GetSideboardCount(db, deckId)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\", \"sideboardUpdated\": " + strconv.Itoa(sideboardCount) + "}")
 
         return c.SendStatus(200)
     })
