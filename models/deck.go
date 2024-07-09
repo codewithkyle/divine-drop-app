@@ -26,6 +26,7 @@ type Sleeve struct {
     Id string `gorm:"column:id;primary_key"`
     UserId string `gorm:"column:user_id"`
     Image string `gorm:"column:image_url"`
+    IsVideo bool `gorm:"column:is_video;type:tinyint"`
     DeckId string
     Selected bool
 }
@@ -34,6 +35,7 @@ type DeckSleeve struct {
     Id string `gorm:"column:id;primary_key"`
     DeckId string `gorm:"column:deck_id"`
     SleeveId string `gorm:"column:sleeve_id"`
+    IsVideo bool `gorm:"column:is_video;type:tinyint"`
     Image string
 }
 
@@ -128,7 +130,7 @@ func GetSideboardCount(db *gorm.DB, deckId string) int {
 
 func GetSleeves(db *gorm.DB, userId string) []Sleeve {
     var sleeves []Sleeve
-    db.Raw("SELECT user_id, HEX(id) as Id, image_url FROM Sleeves WHERE user_id = ?", userId).Scan(&sleeves)
+    db.Raw("SELECT user_id, HEX(id) as Id, image_url, is_video FROM Sleeves WHERE user_id = ?", userId).Scan(&sleeves)
     return sleeves
 }
 

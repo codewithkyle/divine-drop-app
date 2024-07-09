@@ -38,13 +38,19 @@
             hx-swap="none"
             x-on:click="$dispatch('close-sleeves-modal');"
         >
-            <img 
-                src="{{ .Image }}" 
-                onload="this.style.opacity = '1'"
-                width="200"
-                loading="lazy"
-                draggable="false"
-            >
+            {{ if .IsVideo }}
+                <video width="200" autoplay muted loop playsinline onload="this.style.opacity = '1'">
+                    <source src="{{ .Image }}">
+                </video>
+            {{ else }}
+                <img 
+                    src="{{ .Image }}" 
+                    onload="this.style.opacity = '1'"
+                    width="200"
+                    loading="lazy"
+                    draggable="false"
+                >
+            {{ end }}
         </div>
     {{ end }}
 </div>

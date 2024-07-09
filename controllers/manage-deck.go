@@ -714,6 +714,7 @@ func DeckManagerControllers(app *fiber.App){
         id := uuid.New().String()
         id = strings.ReplaceAll(id, "-", "")
         mimeType := file.Header.Get("Content-Type")
+        isVideo := false
         switch mimeType {
         case "image/jpeg":
             break
@@ -722,8 +723,13 @@ func DeckManagerControllers(app *fiber.App){
         case "image/jpg":
             break
         case "video/webm":
+            isVideo = true
             break
-        case "image/gif":
+        case "video/mp4":
+            isVideo = true
+            break
+        case "video/mov":
+            isVideo = true
             break
         default:
             c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to upload file."}`)
@@ -749,7 +755,7 @@ func DeckManagerControllers(app *fiber.App){
 
         db := helpers.ConnectDB()
 
-        db.Exec("INSERT INTO Sleeves (id, user_id, image_url) VALUES (UNHEX(?), ?, ?)", id, user.Id, fileUrl)
+        db.Exec("INSERT INTO Sleeves (id, user_id, image_url, is_video) VALUES (UNHEX(?), ?, ?, ?)", id, user.Id, fileUrl, isVideo)
 
         deck := models.GetDeck(db, deckId, user.Id)
         if deck.Id == "" {
