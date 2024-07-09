@@ -99,8 +99,13 @@ func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
     return cards
 }
 
-func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string) []DeckCard {
-    name = "%" + strings.Trim(name, " ") + "%"
+func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string, rarity string) []DeckCard {
+    query := "SELECT DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
+    params := map[string]interface{}{
+        "deck": deckId,
+        "name": "%" + strings.Trim(name, " ") + "%",
+    }
+    
     sortColumn := "name"
     switch sort {
         case "name":
@@ -127,8 +132,14 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
         case "sorceries":
             filterLogic = "AND C.type = 'Sorcery'"
     }
+
+    if rarity != "any" && rarity != "" {
+        params["rarity"] = rarity
+        query += "JOIN Rarities R ON C.rarity = R.id AND R.rarity = @rarity "
+    }
+
     var cards []DeckCard
-    db.Raw("SELECT DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND C.name LIKE ? " + filterLogic + " GROUP BY DC.id ORDER BY " + sortColumn, deckId, name).Scan(&cards)
+    db.Raw(query + "WHERE DC.deck_id = UNHEX(@deck) AND C.name LIKE @name " + filterLogic + " GROUP BY DC.id ORDER BY " + sortColumn, params).Scan(&cards)
     return cards
 }
 

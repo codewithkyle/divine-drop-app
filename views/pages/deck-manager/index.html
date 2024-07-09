@@ -42,7 +42,7 @@
                     <option {{ if eq .Sort "toughness" }}selected{{ end }} value="toughness">Toughness</option>
                 </select>
             </div>
-            <div class="select">
+            <div class="select mr-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M4 6l9 0"></path>
@@ -66,6 +66,25 @@
                     <option {{ if eq .Filter "artifacts" }}selected{{ end }} value="artifacts">Artifacts</option>
                     <option {{ if eq .Filter "lands" }}selected{{ end }} value="lands">Lands</option>
                 </select>
+            </div>
+            <div class="select">
+                <select
+                    name="rarity"
+                    hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
+                    hx-target="card-grid"
+                    hx-trigger="change"
+                    hx-include=".filters"
+                >
+                    <option {{ if eq .Rarity "" }}selected{{ end }} value="">Any Rarity</option>
+                    <option {{ if eq .Rarity "common" }}selected{{ end }} value="common">Common</option>
+                    <option {{ if eq .Rarity "uncommon" }}selected{{ end }} value="uncommon">Uncommon</option>
+                    <option {{ if eq .Rarity "rare" }}selected{{ end }} value="rare">Rare</option>
+                    <option {{ if eq .Rarity "mythic" }}selected{{ end }} value="mythic">Mythic</option>
+                </select>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M6 9l6 6l6 -6"></path>
+                </svg>
             </div>
         </div>
         <div class="actions">

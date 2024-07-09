@@ -32,9 +32,10 @@ func DeckManagerControllers(app *fiber.App){
         search := c.Query("search")
         sort := c.Query("sort")
         filter := c.Query("filter")
+        rarity := c.Query("rarity")
 
         decks := models.GetDecks(db, deckId, user.Id)
-        deckCards := models.SearchDeckCards(db, deckId, search, sort, filter)
+        deckCards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
         mythicsCount := models.GetMythicsCount(db, deckId)
@@ -103,6 +104,7 @@ func DeckManagerControllers(app *fiber.App){
         search := c.Query("search")
         sort := c.Query("sort")
         filter := c.Query("filter")
+        rarity := c.Query("rarity")
 
         db := helpers.ConnectDB()
 
@@ -111,7 +113,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.Redirect("/")
         }
 
-        cards := models.SearchDeckCards(db, deckId, search, sort, filter)
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity)
 
         for i := range(cards) {
             if cards[i].CardId == deck.CommanderCardId {
@@ -494,6 +496,7 @@ func DeckManagerControllers(app *fiber.App){
         search := c.Query("search")
         sort := c.Query("sort")
         filter := c.Query("filter")
+        rarity := c.Query("rarity")
 
         db := helpers.ConnectDB()
 
@@ -502,7 +505,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.Redirect("/")
         }
 
-        cards := models.SearchDeckCards(db, deckId, search, sort, filter)
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity)
 
         for i := range(cards) {
             if cards[i].CardId == deck.CommanderCardId {
