@@ -682,6 +682,7 @@ func DeckManagerControllers(app *fiber.App){
 
         return c.Render("partials/deck-manager/sleeves", fiber.Map{
             "Sleeves": sleeves,
+            "DeckId": deck.Id,
         })
     })
 
@@ -698,6 +699,10 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         deckId := c.FormValue("deckId")
+        if deckId == "" {
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to upload file."}`)
+            return c.SendStatus(400)
+        }
 
         src, err := file.Open()
         if err != nil {
@@ -716,7 +721,7 @@ func DeckManagerControllers(app *fiber.App){
             break
         case "image/jpg":
             break
-        case "image/webm":
+        case "video/webm":
             break
         case "image/gif":
             break

@@ -26,6 +26,8 @@ func main() {
     engine := html.New("./views", ".html")
     app := fiber.New(fiber.Config{
         Views: engine,
+        BodyLimit: 1024 * 1024 * 100,
+        StreamRequestBody: true,
     })
 
     app.Static("/css", "./public/css")
