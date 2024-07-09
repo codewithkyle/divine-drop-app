@@ -13,6 +13,7 @@ type Deck struct {
     SleeveId string `gorm:"column:sleeve_id"`
     CardCount int
     Active string
+    SleeveImage string
 }
 
 type DeckMetadata struct {
@@ -51,7 +52,7 @@ func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
 
 func GetDeckByID(db *gorm.DB, deckId string) Deck {
     var deck Deck
-    db.Raw("SELECT HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
+    db.Raw("SELECT S.image_url AS SleeveImage, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D JOIN Sleeves S ON S.id = D.sleeve_id WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
     deck.Active = "active"
     return deck
 }

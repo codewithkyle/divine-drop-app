@@ -408,10 +408,15 @@ func DeckManagerControllers(app *fiber.App){
                 cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
                 if cards[i].Back != "" {
                     cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                    
                 }
             }
             if cards[i].Back == "" {
-                cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
+                if deck.SleeveImage != "" {
+                    cards[i].Back = deck.SleeveImage
+                } else {
+                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
+                }
             }
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
