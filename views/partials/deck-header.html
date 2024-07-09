@@ -51,6 +51,20 @@
             </button>
             <overflow-menu x-show="open">
                 <button
+                    x-data=""
+                    x-on:click="navigator.clipboard.writeText('{{ .ActiveDeckId }}');$dispatch('flash:toast', {value: 'Deck ID copied to clipboard'})"
+                >
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8h18" /><path d="M3 16h18" /><path d="M8 3v18" /><path d="M16 3v18" /></svg>
+                    <span>Copy Deck ID</span>
+                </button>
+                <button 
+                    x-data 
+                    x-on:click="$dispatch('draw-modal');"
+                >
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.604 7.197l7.138 -3.109a.96 .96 0 0 1 1.27 .527l4.924 11.902a1 1 0 0 1 -.514 1.304l-7.137 3.109a.96 .96 0 0 1 -1.271 -.527l-4.924 -11.903a1 1 0 0 1 .514 -1.304z" /><path d="M15 4h1a1 1 0 0 1 1 1v3.5" /><path d="M20 6c.264 .112 .52 .217 .768 .315a1 1 0 0 1 .53 1.311l-2.298 5.374" /></svg>
+                    <span>Simulate draw</span>
+                </button>
+                <button
                     hx-post="/decks/{{ .ActiveDeckId }}/clone"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
