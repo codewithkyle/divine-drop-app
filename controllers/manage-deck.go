@@ -5,9 +5,15 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+        "os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+
+        "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+        "github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 
 	"app/helpers"
 	"app/models"
@@ -643,4 +649,182 @@ func DeckManagerControllers(app *fiber.App){
             "Back": back,
         })
     })
+
+    app.Get("/partials/deck-manager/sleeves", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Query("id")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        sleeves := models.GetSleeves(db, user.Id)
+
+        for i := range sleeves {
+            sleeves[i].DeckId = deckId
+            if deck.SleeveId == sleeves[i].Id {
+                sleeves[i].Selected = true
+            }
+        }
+
+        return c.Render("partials/deck-manager/sleeves", fiber.Map{
+            "Sleeves": sleeves,
+        })
+    })
+
+    app.Post("/sleeves/image", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        file, err := c.FormFile("file")
+        if err != nil {
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to upload file."}`)
+            return c.SendStatus(400)
+        }
+
+        deckId := c.FormValue("deckId")
+
+        src, err := file.Open()
+        if err != nil {
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to upload file."}`)
+            return c.SendStatus(400)
+        }
+        defer src.Close()
+
+        id := uuid.New().String()
+        id = strings.ReplaceAll(id, "-", "")
+        mimeType := file.Header.Get("Content-Type")
+        switch mimeType {
+        case "image/jpeg":
+            break
+        case "image/png":
+            break
+        case "image/jpg":
+            break
+        case "image/webm":
+            break
+        case "image/gif":
+            break
+        default:
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to upload file."}`)
+            return c.SendStatus(400)
+        }
+
+        s3Client := CreateSpacesClient()
+
+        object := s3.PutObjectInput{
+            Bucket:      aws.String("divinedrop"),
+            Key:         aws.String("users/" + user.Id + "/" + id),
+            Body:        src,
+            ACL:         aws.String("public-read"),
+            ContentType: aws.String(mimeType),
+        }
+        _, err = s3Client.PutObject(&object)
+        if err != nil {
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to upload file."}`)
+            return c.SendStatus(500)
+        }
+
+        fileUrl := "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/users/" + user.Id + "/" + id
+
+        db := helpers.ConnectDB()
+
+        db.Exec("INSERT INTO Sleeves (id, user_id, image_url) VALUES (UNHEX(?), ?, ?)", id, user.Id, fileUrl)
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        sleeves := models.GetSleeves(db, user.Id)
+
+        for i := range sleeves {
+            sleeves[i].DeckId = deckId
+            if deck.SleeveId == sleeves[i].Id {
+                sleeves[i].Selected = true
+            }
+        }
+
+        return c.Render("partials/deck-manager/sleeves", fiber.Map{
+            "Sleeves": sleeves,
+        })
+    })
+
+    app.Put("/decks/:deckId/sleeves/:sleeveId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("deckId")
+        sleeveId := c.Params("sleeveId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        sleeve := models.GetSleeve(db, user.Id, sleeveId)
+        if sleeve.Id == "" {
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Failed to add sleeves to " + deck.Label + "\"}")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Decks SET sleeve_id = UNHEX(?) WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, deck.Id, user.Id)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Added sleeves to " + deck.Label + "\"}")
+        return c.SendStatus(200)
+    })
+
+    app.Delete("/decks/:deckId/sleeves", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("deckId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Decks SET sleeve_id = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Removed sleeves from " + deck.Label + "\"}")
+        return c.SendStatus(200)
+    })
+}
+
+func CreateSpacesClient() *s3.S3 {
+    key := os.Getenv("SPACES_KEY")
+    secret := os.Getenv("SPACES_SECRET")
+
+    s3Config := &aws.Config{
+        Credentials: credentials.NewStaticCredentials(key, secret, ""),
+        Endpoint:    aws.String("https://nyc3.digitaloceanspaces.com"),
+        Region:      aws.String("us-east-1"),
+        S3ForcePathStyle: aws.Bool(false),
+    }
+
+    newSession := session.New(s3Config)
+    s3Client := s3.New(newSession)
+    return s3Client
 }

@@ -57,6 +57,13 @@
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8h18" /><path d="M3 16h18" /><path d="M8 3v18" /><path d="M16 3v18" /></svg>
                     <span>Copy Deck ID</span>
                 </button>
+                <button
+                    x-data=""
+                    x-on:click="$dispatch('sleeves-modal');"
+                >
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M12 21h-6a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v7" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l3 3" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0" /><path d="M16 22l5 -5" /><path d="M21 21.5v-4.5h-4.5" /></svg>
+                    <span>Card sleeves</span>
+                </button>
                 <button 
                     x-data 
                     x-on:click="$dispatch('draw-modal');"
@@ -74,6 +81,7 @@
                     </svg>
                     <span>Clone</span>
                 </button>
+                <hr>
                 <button 
                     class="-danger"
                     hx-confirm="Are you sure you want to delete this deck? This action cannot be undone."

@@ -10,6 +10,7 @@ type Deck struct {
     Label string `gorm:"column:label"`
     CommanderCardId string `gorm:"column:commander_card_id"`
     OathbreakerCardId string `gorm:"column:oathbreaker_card_id"`
+    SleeveId string `gorm:"column:sleeve_id"`
     CardCount int
     Active string
 }
@@ -20,6 +21,21 @@ type DeckMetadata struct {
     CardCount int
 }
 
+type Sleeve struct {
+    Id string `gorm:"column:id;primary_key"`
+    UserId string `gorm:"column:user_id"`
+    Image string `gorm:"column:image_url"`
+    DeckId string
+    Selected bool
+}
+
+type DeckSleeve struct {
+    Id string `gorm:"column:id;primary_key"`
+    DeckId string `gorm:"column:deck_id"`
+    SleeveId string `gorm:"column:sleeve_id"`
+    Image string
+}
+
 func GetDecks(db *gorm.DB, deckId string, userId string) []Deck {
     var decks []Deck
     db.Raw("SELECT CASE WHEN D.id = UNHEX(?) THEN 'active' ELSE '' END AS Active, HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id AND DC.sideboard = 0) AS CardCount FROM Decks D WHERE user_id = ?", deckId, userId).Scan(&decks)
@@ -28,7 +44,7 @@ func GetDecks(db *gorm.DB, deckId string, userId string) []Deck {
 
 func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
     var deck Deck
-    db.Raw("SELECT HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, userId).Scan(&deck)
+    db.Raw("SELECT HEX(D.sleeve_id) as sleeve_id, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, userId).Scan(&deck)
     deck.Active = "active"
     return deck
 }
@@ -107,4 +123,16 @@ func GetSideboardCount(db *gorm.DB, deckId string) int {
     var count int
     db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 1", deckId).Scan(&count)
     return count
+}
+
+func GetSleeves(db *gorm.DB, userId string) []Sleeve {
+    var sleeves []Sleeve
+    db.Raw("SELECT user_id, HEX(id) as Id, image_url FROM Sleeves WHERE user_id = ?", userId).Scan(&sleeves)
+    return sleeves
+}
+
+func GetSleeve(db *gorm.DB, userId string, sleeveId string) Sleeve {
+    var sleeve Sleeve
+    db.Raw("SELECT user_id, HEX(id) as id, image_url FROM Sleeves WHERE user_id = ? AND id = UNHEX(?) LIMIT 1", userId, sleeveId).Scan(&sleeve)
+    return sleeve
 }

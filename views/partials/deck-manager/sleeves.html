@@ -1,0 +1,50 @@
+<div class="sleeves-grid">
+    <form 
+        class="upload-image-button" 
+        action="/sleeves/image"
+        method="POST"
+        enctype="multipart/form-data"
+    >
+        <input type="hidden" name="deckId" value="{{ .DeckId }}">
+        <label for="upload">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                <polyline points="7 9 12 4 17 9"></polyline>
+                <line x1="12" y1="4" x2="12" y2="16"></line>
+            </svg>
+            <span class="text-center">Upload an image or GIF.<br>Recommended size 400x568</span>
+        </label>
+        <input 
+            type="file" 
+            accept="image/png, image/jpg, image/jpeg, image/gif, .webm" 
+            id="upload" 
+            name="file"
+            hx-post="/sleeves/image"
+            hx-trigger="change once"
+            hx-target="#sleeves-container"
+            hx-encoding="multipart/form-data"
+            hx-include="[name='deckId']"
+        >
+    </form> 
+    {{ range .Sleeves }}
+        <div 
+            class="card {{ if .Selected }}selected{{ end }}"
+            {{ if .Selected }}
+                hx-delete="/decks/{{ .DeckId }}/sleeves"
+            {{ else }}
+                hx-put="/decks/{{ .DeckId }}/sleeves/{{ .Id }}"
+            {{ end }}
+            hx-swap="none"
+            x-on:click="$dispatch('close-sleeves-modal');"
+        >
+            <img 
+                src="{{ .Image }}" 
+                onload="this.style.opacity = '1'"
+                width="200"
+                loading="lazy"
+                draggable="false"
+            >
+        </div>
+    {{ end }}
+</div>
