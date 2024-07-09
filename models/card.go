@@ -75,6 +75,7 @@ type DeckCardMetadata struct {
 type CardPrint struct {
     CardId string `gorm:"column:card_id"`
     Print int `gorm:"column:released"`
+    DeckId string
 }
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
@@ -333,6 +334,6 @@ func GetCard(db *gorm.DB, cardId string) Card {
 
 func GetPrints(db *gorm.DB, cardId string) []CardPrint {
     prints := []CardPrint{}
-    db.Raw("SELECT released from Card_Prints WHERE card_id = UNHEX(?) ORDER BY released", cardId).Scan(&prints)
+    db.Raw("SELECT released, HEX(card_id) as CardId from Card_Prints WHERE card_id = UNHEX(?) ORDER BY released", cardId).Scan(&prints)
     return prints
 }
