@@ -9,8 +9,7 @@
                 {{ template "partials/deck-manager/card-image" . }}
             </div>
             <div class="actions">
-                <button
-                    x-data=""
+                <button x-data=""
                     x-on:click="$dispatch('card-print-modal', { cardId: '{{ .CardId }}' });"
                     tooltip="Change print"
                 >

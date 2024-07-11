@@ -777,6 +777,52 @@ func DeckManagerControllers(app *fiber.App){
         })
     })
 
+    app.Delete("/sleeves/image/:id", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        sleeveId := c.Params("id")
+        deckId := c.Query("deckId")
+
+        db := helpers.ConnectDB()
+
+        sleeve := models.GetSleeve(db, user.Id, sleeveId)
+        if sleeve.Id == "" {
+            sleeves := models.GetSleeves(db, user.Id)
+            return c.Render("partials/deck-manager/sleeves", fiber.Map{
+                "Sleeves": sleeves,
+            })
+        }
+
+        s3Client := CreateSpacesClient()
+
+        object := s3.DeleteObjectInput{
+            Bucket:      aws.String("divinedrop"),
+            Key:         aws.String("users/" + user.Id + "/" + strings.ToLower(sleeve.Id)),
+        }
+        _, err = s3Client.DeleteObject(&object)
+        if err != nil {
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "Failed to delete file."}`)
+            return c.SendStatus(500)
+        }
+
+        db.Exec("UPDATE Decks SET sleeve_id = null WHERE sleeve_id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
+
+        db.Exec("DELETE FROM Sleeves WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
+
+        sleeves := models.GetSleeves(db, user.Id)
+
+        for i := range sleeves {
+            sleeves[i].DeckId = deckId
+        }
+
+        return c.Render("partials/deck-manager/sleeves", fiber.Map{
+            "Sleeves": sleeves,
+        })
+    })
+
     app.Put("/decks/:deckId/sleeves/:sleeveId", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
         if err != nil {

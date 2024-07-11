@@ -28,29 +28,49 @@
         >
     </form> 
     {{ range .Sleeves }}
-        <div 
-            class="card {{ if .Selected }}selected{{ end }}"
-            {{ if .Selected }}
-                hx-delete="/decks/{{ .DeckId }}/sleeves"
-            {{ else }}
-                hx-put="/decks/{{ .DeckId }}/sleeves/{{ .Id }}"
-            {{ end }}
-            hx-swap="none"
-            x-on:click="$dispatch('close-sleeves-modal');"
-        >
-            {{ if .IsVideo }}
-                <video width="200" autoplay muted loop playsinline onload="this.style.opacity = '1'">
-                    <source src="{{ .Image }}">
-                </video>
-            {{ else }}
-                <img 
-                    src="{{ .Image }}" 
-                    onload="this.style.opacity = '1'"
-                    width="200"
-                    loading="lazy"
-                    draggable="false"
-                >
-            {{ end }}
+        <div class="card-wrapper">
+            <div 
+                class="card {{ if .Selected }}selected{{ end }}"
+                {{ if .Selected }}
+                    hx-delete="/decks/{{ .DeckId }}/sleeves"
+                {{ else }}
+                    hx-put="/decks/{{ .DeckId }}/sleeves/{{ .Id }}"
+                {{ end }}
+                hx-swap="none"
+                hx-trigger="click target:.card"
+                x-on:click="$dispatch('close-sleeves-modal');"
+            >
+                {{ if .IsVideo }}
+                    <video width="200" autoplay muted loop playsinline onload="this.style.opacity = '1'">
+                        <source src="{{ .Image }}">
+                    </video>
+                {{ else }}
+                    <img 
+                        src="{{ .Image }}" 
+                        onload="this.style.opacity = '1'"
+                        width="200"
+                        loading="lazy"
+                        draggable="false"
+                    >
+                {{ end }}
+            </div>
+            <button
+                class="-delete"
+                aria-label="Delete sleeve"
+                tooltip
+                hx-delete="/sleeves/image/{{ .Id }}?deckId={{ .DeckId }}"
+                hx-swap="delete"
+                hx-target="closest .card-wrapper"
+                hx-confirm="Are you sure you want to delete this sleeve?"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 7h16"></path>
+                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                    <path d="M10 12l4 4m0 -4l-4 4"></path>
+                </svg>
+            </button>
         </div>
     {{ end }}
 </div>

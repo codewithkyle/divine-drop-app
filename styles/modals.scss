@@ -489,6 +489,45 @@
                     }
                 }
             }
+
+            button{
+                width: 24px;
+                height: 24px;
+                background-color: hsl(var(--white-hsl) / 0);
+                border-radius: 0.25rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--grey-500);
+                margin-right: 0.25rem;
+                transition: all 150ms var(--ease-in-out);
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+
+                &:last-child{
+                    margin-right: 0;
+                }
+
+                &:hover,
+                &:focus-visible{
+                    color: var(--grey-100);
+                    background-color: hsl(var(--white-hsl) / 0.05);
+                }
+
+                &.-delete{
+                    &:hover,
+                    &:focus-visible{
+                        color: var(--red-400);
+                        background-color: hsl(var(--red-400-hsl) / 0.05);
+                    }
+                }
+
+                svg{
+                    width: 18px;
+                    height: 18px;
+                }
+            }
         }
     }
 
