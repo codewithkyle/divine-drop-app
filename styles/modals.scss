@@ -44,7 +44,7 @@
 .modal .content.quick-add{
     max-width: 1200px;
     width: 100%;
-    max-height: calc(100vh - 2rem);
+    height: calc(100vh - 2rem);
 
     .cards-placeholder{
         aspect-ratio: 4/3;
@@ -54,6 +54,7 @@
 
     .quick-card-grid{
         width: 100%;
+        height: calc(100% - 32px - 2.5rem);
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         grid-gap: 1rem;
