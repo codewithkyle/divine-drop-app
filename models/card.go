@@ -154,22 +154,28 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         "offset": offset,
     }
     includeColorless := false
+    includeColor := false
     if len(mana) > 0 {
         for i := 0; i < len(mana); i++ {
             if mana[i] == "C" {
                 includeColorless = true
             } else {
+                includeColor = true
                 manaCheck = append(manaCheck, "@mana" + fmt.Sprint(i))
                 params["mana" + fmt.Sprint(i)] = mana[i]
             }
         }
     }
-    colorLogic := "C.id NOT IN (SELECT cc.card_id FROM Card_Colors cc JOIN Colors c ON cc.color_id = c.id WHERE c.color <> " + strings.Join(manaCheck, " AND c.color <> ") + ") "
-    if includeColorless == false {
-        colorLogic += "AND EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id) "
-    }
-    if len(mana) == 1 && includeColorless {
-        colorLogic = "NOT EXISTS (SELECT 1 FROM Card_Colors cc WHERE cc.card_id = C.id) "
+    colorLogic := ""
+    if includeColor && !includeColorless {
+        colorLogic += "ExcludeColors.card_id IS NULL "
+        query += "LEFT JOIN ( SELECT cc.card_id FROM Card_Colors cc JOIN Colors c ON cc.color_id = c.id WHERE c.color <> " + strings.Join(manaCheck, " AND c.color <> ") + ") AS ExcludeColors ON C.id = ExcludeColors.card_id INNER JOIN Card_Colors cc ON C.id = cc.card_id "
+    } else if includeColorless && !includeColor {
+        query += "LEFT JOIN Card_Colors cc ON C.id = cc.card_id "
+        colorLogic += "cc.card_id IS NULL "
+    } else if includeColorless && includeColor {
+        colorLogic += "ExcludeColors.card_id IS NULL "
+        query += "LEFT JOIN ( SELECT cc.card_id FROM Card_Colors cc JOIN Colors c ON cc.color_id = c.id WHERE c.color <> " + strings.Join(manaCheck, " AND c.color <> ") + ") AS ExcludeColors ON C.id = ExcludeColors.card_id LEFT JOIN Card_Colors cc ON C.id = cc.card_id "
     }
 
     typeCheck := []string{}
@@ -213,7 +219,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         query += "WHERE 1=1 "
     }
     
-    if len(mana) > 0 {
+    if colorLogic != "" {
         query += "AND " + colorLogic
     }
     if len(types) > 0 {
@@ -284,7 +290,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         case "toughness":
             sortColumn = "C.toughness DESC"
     }
-    query += "GROUP BY C.id, C.name ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
+    query += "ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
     return cards
 }
