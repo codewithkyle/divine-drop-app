@@ -134,6 +134,7 @@
     x-show="open"
     x-on:quick-add-modal.window="$data.open = true"
     x-on:close-quick-add-modal.window="$data.open = false"
+    x-cloak
 >
     <div class="modal-backdrop" x-on:click="$data.open = false"></div>
     <div class="content quick-add">
@@ -168,6 +169,7 @@
     x-on:draw-modal.window="$data.open = true"
     x-on:close-draw-modal.window="$data.open = false"
     x-on:keydown.escape.window="$data.open = false"
+    x-cloak
 >
     <div class="modal-backdrop" x-on:click="$data.open = false"></div>
     <div 
@@ -187,6 +189,7 @@
     x-on:card-print-modal.window="$data.open = true"
     x-on:close-card-print-modal.window="$data.open = false"
     x-on:keydown.escape.window="$data.open = false"
+    x-cloak
 >
     <div class="modal-backdrop" x-on:click="$data.open = false"></div>
     <div 
@@ -207,6 +210,7 @@
     x-on:sleeves-modal.window="$data.open = true"
     x-on:close-sleeves-modal.window="$data.open = false"
     x-on:keydown.escape.window="$data.open = false"
+    x-cloak
 >
     <div class="modal-backdrop" x-on:click="$data.open = false"></div>
     <div 
