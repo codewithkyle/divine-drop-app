@@ -37,7 +37,7 @@
                     hx-put="/decks/{{ .DeckId }}/sleeves/{{ .Id }}"
                 {{ end }}
                 hx-swap="none"
-                hx-trigger="click target:.card"
+                hx-trigger="click"
                 x-on:click="$dispatch('close-sleeves-modal');"
             >
                 {{ if .IsVideo }}
