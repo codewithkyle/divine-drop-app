@@ -41,6 +41,7 @@ class GroupedDeck extends HTMLElement {
 
     onDrop:EventListener = (e:DragEvent) => {
         e.preventDefault();
+        e.stopImmediatePropagation();
         if (this.dragging) {
             this.dragging = false;
             return;
@@ -104,6 +105,7 @@ class UngroupedDeck extends HTMLElement {
 
     onDrop:EventListener = (e:DragEvent) => {
         e.preventDefault();
+        e.stopImmediatePropagation();
         if (this.dragging) {
             this.dragging = false;
             return;

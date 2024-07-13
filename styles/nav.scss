@@ -140,6 +140,8 @@ side-bar{
                 justify-content: space-between;
                 align-items: center;
                 flex: 1;
+                white-space: nowrap;
+                margin-bottom: 0.5rem;
 
                 &:hover,
                 &:focus-visible {
@@ -147,6 +149,16 @@ side-bar{
                         visibility: visible;
                         opacity: 1;
                     }
+                }
+
+                & span {
+                    display: inline-block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                & button {
+                    margin: 0;
                 }
 
                 & .delete-folder-bttn {
