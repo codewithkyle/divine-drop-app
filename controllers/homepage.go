@@ -18,9 +18,24 @@ func HomepageControllers(app *fiber.App) {
         db := helpers.ConnectDB()
         cards := models.SearchCardsByName(db, search, 0, 20)
 
-        var decks []models.Deck
-        if (c.Cookies("nav_closed", "") != "true") {
-            decks = models.GetDecks(db, "", user.Id)
+        deckGroups := models.GetDeckGroups(db, user.Id)
+        decks := models.GetDecks(db, "", user.Id)
+
+        groupedDecks := make(map[string]*GroupedDecks)
+        ungroupedDecks := []models.Deck{}
+
+        for i := range deckGroups {
+            groupedDecks[deckGroups[i].Id] = &GroupedDecks{ Id: deckGroups[i].Id, Label: deckGroups[i].Label, Decks: []models.Deck{} }
+        }
+
+        for i := range decks {
+            if decks[i].GroupId != "" {
+                if value, ok := groupedDecks[decks[i].GroupId]; ok {
+                    value.Decks = append(value.Decks, decks[i])
+                } 
+            } else {
+                ungroupedDecks = append(ungroupedDecks, decks[i])
+            }
         }
 
         return c.Render("pages/card-browser/index", fiber.Map{
@@ -29,7 +44,8 @@ func HomepageControllers(app *fiber.App) {
             "Search": "",
             "NextPage": 0,
             "User": user,
-            "Decks": decks,
+            "GroupedDecks": groupedDecks,
+            "UngroupedDecks": ungroupedDecks,
             "SearchRaw": search,
             "NavClosed": c.Cookies("nav_closed", "") == "true" || len(decks) == 0 || user.Id == "",
         }, "layouts/main")

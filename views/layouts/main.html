@@ -37,6 +37,7 @@
         <script type="module" src="/js/deck-tray.js"></script>
         <script type="module" src="/js/card-preview.js"></script>
         <script type="module" src="/js/toast.js"></script>
+        <script type="module" src="/js/deck-groups.js"></script>
 
         <script>
             if ("serviceWorker" in navigator) {
@@ -88,11 +89,7 @@
                         <span>All Cards</span>
                     </a>
                     <div id="decks" class="block w-full">
-                        {{ if .NavClosed }}
-                            {{ template "partials/nav/decks-closed" . }}
-                        {{ else }}
-                            {{ template "partials/nav/decks-opened" . }}
-                        {{ end }}
+                        {{ template "partials/nav/decks-opened" . }}
                     </div>
                     <a {{ if eq .Page "deck-builder" }}class="is-active"{{ end }} href="/decks/new">
                         <i>

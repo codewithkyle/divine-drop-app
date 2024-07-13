@@ -11,6 +11,7 @@ type Deck struct {
     CommanderCardId string `gorm:"column:commander_card_id"`
     OathbreakerCardId string `gorm:"column:oathbreaker_card_id"`
     SleeveId string `gorm:"column:sleeve_id"`
+    GroupId string `gorm:"column:group_id"`
     CardCount int
     Active string
     SleeveImage string
@@ -39,9 +40,27 @@ type DeckSleeve struct {
     Image string
 }
 
+type DeckGroup struct {
+    Id string `gorm:"column:id;primary_key"`
+    UserId string `gorm:"column:user_id"`
+    Label string
+}
+
+func GetDeckGroups(db *gorm.DB, userId string) []DeckGroup {
+    var groups []DeckGroup
+    db.Raw("SELECT HEX(id) as id, user_id, label FROM Deck_Groups WHERE user_id = ?", userId).Scan(&groups)
+    return groups
+}
+
+func GetDeckGroupByID(db *gorm.DB, groupId string, userId string) DeckGroup {
+    var groups DeckGroup
+    db.Raw("SELECT HEX(id) as id, user_id, label FROM Deck_Groups WHERE user_id = ? AND id = UNHEX(?) LIMIT 1", userId, groupId).Scan(&groups)
+    return groups
+}
+
 func GetDecks(db *gorm.DB, deckId string, userId string) []Deck {
     var decks []Deck
-    db.Raw("SELECT CASE WHEN D.id = UNHEX(?) THEN 'active' ELSE '' END AS Active, HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id AND DC.sideboard = 0) AS CardCount FROM Decks D WHERE user_id = ?", deckId, userId).Scan(&decks)
+    db.Raw("SELECT CASE WHEN D.id = UNHEX(?) THEN 'active' ELSE '' END AS Active, HEX(D.deck_group_id) as group_id, HEX(D.id) AS id, HEX(D.commander_card_id) AS commander_card_id, D.label, D.user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id AND DC.sideboard = 0) AS CardCount FROM Decks D WHERE user_id = ?", deckId, userId).Scan(&decks)
     return decks
 }
 
@@ -54,7 +73,7 @@ func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
 
 func GetDeckByID(db *gorm.DB, deckId string) Deck {
     var deck Deck
-    db.Raw("SELECT S.image_url AS SleeveImage, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D JOIN Sleeves S ON S.id = D.sleeve_id WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
+    db.Raw("SELECT S.image_url AS SleeveImage, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D LEFT JOIN Sleeves S ON S.id = D.sleeve_id WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
     deck.Active = "active"
     return deck
 }

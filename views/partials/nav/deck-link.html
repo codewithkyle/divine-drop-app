@@ -5,6 +5,8 @@
     hx-get="/partials/nav/decks/{{ .Id }}"
     hx-swap="outerHTML"
     class="deck-link {{ if eq .Active "active" }}is-open{{ end }}"
+    draggable
+    data-id="{{ .Id }}"
 >
     <span class="badge">{{ .CardCount }}</span>
     <span class="title">{{ .Label }}</span>

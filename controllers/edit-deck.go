@@ -208,11 +208,31 @@ func DeckEditorControllers(app *fiber.App){
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
         }
 
+        deckGroups := models.GetDeckGroups(db, user.Id)
+
+        groupedDecks := make(map[string]*GroupedDecks)
+        ungroupedDecks := []models.Deck{}
+
+        for i := range deckGroups {
+            groupedDecks[deckGroups[i].Id] = &GroupedDecks{ Id: deckGroups[i].Id, Label: deckGroups[i].Label, Decks: []models.Deck{} }
+        }
+
+        for i := range decks {
+            if decks[i].GroupId != "" {
+                if value, ok := groupedDecks[decks[i].GroupId]; ok {
+                    value.Decks = append(value.Decks, decks[i])
+                } 
+            } else {
+                ungroupedDecks = append(ungroupedDecks, decks[i])
+            }
+        }
+
         return c.Render("pages/deck-builder/index", fiber.Map{
             "Page": "deck-editor",
             "User": user,
             "Deck": deck,
-            "Decks": decks,
+            "GroupedDecks": groupedDecks,
+            "UngroupedDecks": ungroupedDecks,
             "ActiveDeckId": deckId,
             "Cards": cards,
             "SearchPage": 1,

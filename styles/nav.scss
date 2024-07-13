@@ -112,10 +112,80 @@ side-bar{
                     line-height: 18px;
                 }
             }
+
+            deck-group {
+                border-radius: 0.5rem;
+                display: block;
+
+                &.dropzone {
+                    box-shadow: 0 0 0 3px hsl(var(--green-400-hsl) / 0.6);
+                    background-color: hsl(var(--grey-900-hsl) / 0.6);
+                    transition: background-color 150ms var(--ease-in), box-shadow 300ms var(--ease-in);
+                }
+            }
+
+            ungrouped-decks {
+                border-radius: 0.5rem;
+                display: block;
+
+                &.dropzone {
+                    box-shadow: 0 0 0 3px hsl(var(--green-400-hsl) / 0.6);
+                    background-color: hsl(var(--grey-900-hsl) / 0.6);
+                    transition: background-color 150ms var(--ease-in), box-shadow 300ms var(--ease-in);
+                }
+            }
+
+            .folder-label {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex: 1;
+
+                &:hover,
+                &:focus-visible {
+                    & .delete-folder-bttn {
+                        visibility: visible;
+                        opacity: 1;
+                    }
+                }
+
+                & .delete-folder-bttn {
+                    visibility: hidden;
+                    opacity: 0;
+                    width: 24px;
+                    height: 24px;
+                    background-color: hsl(var(--white-hsl) / 0);
+                    border-radius: 0.25rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--grey-500);
+                    margin-right: 0.25rem;
+                    transition: all 150ms var(--ease-in-out);
+                    margin: 0;
+                    padding: 0;
+
+                    &:last-child{
+                        margin-right: 0;
+                    }
+
+                    &:hover,
+                    &:focus-visible{
+                        color: var(--red-400);
+                        background-color: hsl(var(--red-400-hsl) / 0.05);
+                    }
+
+                    svg{
+                        width: 18px;
+                        height: 18px;
+                    }
+                }
+            }
         }
 
         button,
-        a{
+        a,
+        .decks-label{
             display: flex;
             width: 100%;
             height: 32px;
@@ -126,10 +196,9 @@ side-bar{
             transition: color 150ms var(--ease-in-out);
             position: relative;
 
-            &.is-open{
-                .arrow{
-                    transform: translateY(-50%) rotate(90deg);
-                }
+            &.disabled {
+                pointer-events: none;
+                cursor: default;
             }
 
             &.is-active{
@@ -162,13 +231,15 @@ side-bar{
                 align-items: center;
             }
 
-            .arrow{
+            .folder{
                 position: absolute;
                 top: 50%;
                 right: 1rem;
                 transform: translateY(-50%);
-                width: 18px;
-                height: 18px;
+                width: 24px;
+                height: 24px;
+                margin: 0;
+                padding: 0;
             }
         }
     }

@@ -68,7 +68,7 @@ module.exports = {
     },
     borders: {
         units: "px",
-        styles: ["solid"],
+        styles: ["solid", "dashed"],
         widths: [1],
         radius: [0.25, 0.5, 1],
     },
