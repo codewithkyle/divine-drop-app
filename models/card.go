@@ -61,6 +61,8 @@ type DeckCard struct {
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
     Print int `gorm:"column:print"`
+    Price int `gorm:"column:price"`
+    FmtPrice string
 }
 
 type DeckCardMetadata struct {
@@ -92,7 +94,7 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT DC.print, DC.sideboard, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT C.price, DC.print, DC.sideboard, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
@@ -103,7 +105,7 @@ func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
 }
 
 func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string, rarity string) []DeckCard {
-    query := "SELECT DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
+    query := "SELECT C.price, DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
     params := map[string]interface{}{
         "deck": deckId,
         "name": "%" + strings.Trim(name, " ") + "%",

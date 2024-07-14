@@ -105,6 +105,10 @@ func DeckManagerControllers(app *fiber.App){
             overBudget = true
         }
 
+        for i := range deckCards {
+            deckCards[i].FmtPrice = fmt.Sprintf("%.2f", float32(deckCards[i].Price * int(deckCards[i].Qty)) / 100)
+        }
+
         return c.Render("pages/deck-manager/index", fiber.Map{
             "IsOverBudget": overBudget,
             "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget) / 100),
