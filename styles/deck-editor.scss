@@ -488,6 +488,57 @@ deck-builder{
                     pointer-events: none;
                 }
             }
+
+            & > .group-bttns {
+                position: relative;
+                margin-right: 1rem;
+                padding: 0;
+                background-color: hsl(var(--grey-900-hsl) / 0.6);
+                height: 42px;
+                border-radius: 0.5rem;
+                display: inline-flex;
+                flex-flow: row nowrap;
+                align-items: center;
+
+                .group-bttn{
+                    position: relavtive;
+                    display: inline-block;
+                    width: 42px;
+                    height: 42px;
+                    cursor: pointer;
+
+                    input {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        opacity: 0;
+                        width: 0;
+                        height: 0;
+
+                        &:checked {
+                            & + label {
+                                svg {
+                                    color: var(--white);
+                                }
+                            }
+                        }
+                    }
+
+                    label {
+                        width: 100%;
+                        height: 100%;
+                        display: inline-flex;
+                        justify-content: center;
+                        align-items: center;
+
+                        svg {
+                            width: 20px;
+                            height: 20px;
+                            color: var(--grey-400);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -498,6 +549,11 @@ deck-builder{
         row-gap: 0.25rem;
         width: 100%;
         min-height: 100%;
+
+        &.is-row {
+            grid-template-columns: minmax(250px, 1fr);
+            row-gap: 1rem;
+        }
 
         .card{
             position: relative;

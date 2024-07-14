@@ -102,7 +102,7 @@ func DeckManagerControllers(app *fiber.App){
 
         return c.Render("pages/deck-manager/index", fiber.Map{
             "IsOverBudget": overBudget,
-            "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget / 100)),
+            "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget) / 100),
             "DeckPrice": fmt.Sprintf("%.2f", cost),
             "Page": "deck-editor",
             "User": user,

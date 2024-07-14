@@ -109,6 +109,7 @@ func DeckEditorControllers(app *fiber.App){
         rarity := c.Query("rarity")
         legality := c.Query("legality")
         set := c.Query("set")
+        layout := c.Query("layout", "grid")
 
         manaStr := c.Query("mana")
         mana := []string{}
@@ -250,9 +251,14 @@ func DeckEditorControllers(app *fiber.App){
             })
         }
 
+        for i := range cards {
+            cards[i].FmtPrice = fmt.Sprintf("%.2f", float32(cards[i].Price) / 100)
+        }
+
         return c.Render("pages/deck-builder/index", fiber.Map{
+            "Layout": layout,
             "IsOverBudget": overBudget,
-            "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget / 100)),
+            "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget) / 100),
             "SelectedSet": set,
             "Sets": setOptions,
             "DeckPrice": fmt.Sprintf("%.2f", cost),
@@ -355,6 +361,7 @@ func DeckEditorControllers(app *fiber.App){
             legality := form.Value["legality"][0]
             page := form.Value["page"]
             set := form.Value["set"][0]
+            layout := form.Value["layout"][0]
 
             var offset = 0
             if len(page) > 0 {
@@ -365,7 +372,7 @@ func DeckEditorControllers(app *fiber.App){
             db := helpers.ConnectDB()
             cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, set, offset, 20)
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality) + "&layout=" + url.QueryEscape(layout) + "&set=" + url.QueryEscape(set))
 
             if offset > 0 {
                 if len(cards) > 0 {
@@ -394,7 +401,12 @@ func DeckEditorControllers(app *fiber.App){
                 c.Response().Header.Set("HX-Trigger", "{\"cardGridReset\": " + strconv.Itoa(activeFiltersCount) + "}")
             }
 
+            for i := range cards {
+                cards[i].FmtPrice = fmt.Sprintf("%.2f", float32(cards[i].Price) / 100)
+            }
+
             return c.Render("partials/deck-builder/card-grid", fiber.Map{
+                "Layout": layout,
                 "Cards": cards,
             })
         } else {

@@ -42,6 +42,9 @@ type Card struct {
     ManaCost      string `gorm:"column:manaCost"`
     Name          string
     ActiveDeckId string
+    Price int `gorm:"column:price"`
+    FmtPrice string
+    Text string
 }
 
 type DeckCard struct {
@@ -145,7 +148,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
 
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C "
+    query := "SELECT GROUP_CONCAT(CT.text SEPARATOR '\n') as text, C.name, C.price, C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C LEFT JOIN Card_Texts CT ON C.id = CT.card_id "
     name = strings.Trim(name, " ")
 
     manaCheck := []string{}
@@ -295,7 +298,7 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         case "toughness":
             sortColumn = "C.toughness DESC"
     }
-    query += "ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
+    query += "GROUP BY C.name, C.front, C.back, C.id ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
     return cards
 }

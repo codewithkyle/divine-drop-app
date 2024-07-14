@@ -347,6 +347,48 @@
                         <option {{ if eq .Sort "toughness" }}selected{{ end }} value="toughness">Toughness</option>
                     </select>
                 </div>
+                <div class="group-bttns">
+                    <div class="group-bttn">
+                        <input 
+                            type="radio" 
+                            name="layout" 
+                            {{ if eq .Layout "grid" }}checked{{ end }} 
+                            value="grid" 
+                            id="grid-layout"
+                            hx-post="/partials/deck-builder/card-grid"
+                            hx-target="deck-card-browser"
+                            hx-swap="innerHTML transition:true"
+                            hx-trigger="change"
+                            hx-encoding="multipart/form-data"
+                            hx-include=".deck-filters-form"
+                            x-data=""
+                            x-on:click="$dispatch('layout-change', 'grid')"
+                        >
+                        <label for="grid-layout">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
+                        </label>
+                    </div>
+                    <div class="group-bttn">
+                        <input 
+                            type="radio" 
+                            name="layout" 
+                            {{ if eq .Layout "row" }}checked{{ end }} 
+                            value="row" 
+                            id="row-layout"
+                            hx-post="/partials/deck-builder/card-grid"
+                            hx-target="deck-card-browser"
+                            hx-swap="innerHTML transition:true"
+                            hx-trigger="change"
+                            hx-encoding="multipart/form-data"
+                            hx-include=".deck-filters-form"
+                            x-data=""
+                            x-on:click="$dispatch('layout-change', 'row')"
+                        >
+                        <label for="row-layout">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M4 14m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /></svg>
+                        </label>
+                    </div>
+                </div>
             </div>
         </deck-filters>
         <deck-card-browser
@@ -356,6 +398,10 @@
             hx-encoding="multipart/form-data"
             hx-vals='{"page": 0}'
             hx-swap="innerHTML transition:true"
+            class="{{ if ne .Layout "grid" }}is-row{{ end }}"
+            x-data="{ layout: '{{ .Layout }}' }"
+            x-on:layout-change.window="layout = $event.detail"
+            :class="{ 'is-row': layout == 'row' }"
         >
             {{ template "partials/deck-builder/card-grid" . }}
         </deck-card-browser>

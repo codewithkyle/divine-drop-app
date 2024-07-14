@@ -1,34 +1,81 @@
-{{ range .Cards }}
-    <div 
-        class="card"
-        hx-put="/partials/deck-tray/card/{{ .Id }}"
-        hx-target="deck-tray"
-        hx-swap="outerHTML"
-        hx-include="[name='active-deck-id']"
-        x-data="{ flip: false }"
-        :class="{ 'flipped': flip }"
-    >
-        <img 
-            src="{{ .Front }}" 
-            onload="this.style.opacity = '1'"
-            width="200"
-            loading="lazy"
-            draggable="false"
+{{ if eq .Layout "grid" }}
+    {{ range .Cards }}
+        <div 
+            class="card"
+            hx-put="/partials/deck-tray/card/{{ .Id }}"
+            hx-target="deck-tray"
+            hx-swap="outerHTML"
+            hx-include="[name='active-deck-id']"
+            x-data="{ flip: false }"
+            :class="{ 'flipped': flip }"
         >
-        {{ if ne .Back "" }}
             <img 
-                src="{{ .Back }}" 
+                src="{{ .Front }}" 
+                onload="this.style.opacity = '1'"
                 width="200"
                 loading="lazy"
                 draggable="false"
             >
-            <button x-on:click="$data.flip = !$data.flip;$event.stopImmediatePropagation();">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                </svg>
-            </button>
-        {{ end }}
-    </div>
+            {{ if ne .Back "" }}
+                <img 
+                    src="{{ .Back }}" 
+                    width="200"
+                    loading="lazy"
+                    draggable="false"
+                >
+                <button x-on:click="$data.flip = !$data.flip;$event.stopImmediatePropagation();">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                        <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                    </svg>
+                </button>
+            {{ end }}
+        </div>
+    {{ end }}
+{{ else }}
+    {{ range .Cards }}
+        <div class="mb-auto" flex="row nowrap">
+            <div 
+                class="card mr-1"
+                hx-put="/partials/deck-tray/card/{{ .Id }}"
+                hx-target="deck-tray"
+                hx-swap="outerHTML"
+                hx-include="[name='active-deck-id']"
+                x-data="{ flip: false }"
+                :class="{ 'flipped': flip }"
+                style="max-width:350px;"
+            >
+                <img 
+                    src="{{ .Front }}" 
+                    onload="this.style.opacity = '1'"
+                    width="200"
+                    loading="lazy"
+                    draggable="false"
+                >
+                {{ if ne .Back "" }}
+                    <img 
+                        src="{{ .Back }}" 
+                        width="200"
+                        loading="lazy"
+                        draggable="false"
+                    >
+                    <button x-on:click="$data.flip = !$data.flip;$event.stopImmediatePropagation();">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                        </svg>
+                    </button>
+                {{ end }}
+            </div>
+            <div class="w-full py-2 px-2.5 radius-1 bg-grey-900">
+                <div class="w-full mb-1" flex="row nowrap justify-between items-center">
+                    <span class="mb-0.25 font-md">{{ .Name }}</span>
+                    <span class="px-0.75 font-green-400 font-xs" style="background-color:hsl(var(--green-400-hsl)/0.15);height:24px;line-height:24px;border-radius:12px;">${{ .FmtPrice }}</span>
+                </div>
+                <p class="font-grey-400 line-normal mb-0.5">{{ .Text }}</p>
+            </div>
+        </div>
+    {{ end }}
 {{ end }}
