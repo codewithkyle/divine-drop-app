@@ -158,3 +158,9 @@ func GetSleeve(db *gorm.DB, userId string, sleeveId string) Sleeve {
     db.Raw("SELECT user_id, HEX(id) as id, image_url FROM Sleeves WHERE user_id = ? AND id = UNHEX(?) LIMIT 1", userId, sleeveId).Scan(&sleeve)
     return sleeve
 }
+
+func GetDeckCost(db *gorm.DB, deckId string) float32 {
+    cost := 0
+    db.Raw("SELECT IFNULL(SUM(C.price * DC.qty), 0) AS total_price FROM Deck_Cards DC LEFT JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND C.name NOT IN ('forest', 'plains', 'mountain', 'island')", deckId).Scan(&cost)
+    return float32(cost) / 100
+}

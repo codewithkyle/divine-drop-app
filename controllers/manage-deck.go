@@ -1,19 +1,20 @@
 package controllers
 
 import (
+	"fmt"
 	"math/rand"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
-        "os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-        "github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
-        "github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 
 	"app/helpers"
 	"app/models"
@@ -92,7 +93,10 @@ func DeckManagerControllers(app *fiber.App){
             }
         }
 
+        cost := models.GetDeckCost(db, deck.Id);
+
         return c.Render("pages/deck-manager/index", fiber.Map{
+            "DeckPrice": fmt.Sprintf("%.2f", cost),
             "Page": "deck-editor",
             "User": user,
             "Deck": deck,

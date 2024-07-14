@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -227,7 +228,10 @@ func DeckEditorControllers(app *fiber.App){
             }
         }
 
+        cost := models.GetDeckCost(db, deck.Id)
+
         return c.Render("pages/deck-builder/index", fiber.Map{
+            "DeckPrice": fmt.Sprintf("%.2f", cost),
             "Page": "deck-editor",
             "User": user,
             "Deck": deck,
@@ -495,6 +499,18 @@ func DeckEditorControllers(app *fiber.App){
 
         return c.Render("partials/deck-builder/land-count", fiber.Map{
             "LandCount": landCount,
+            "ActiveDeckId": deckId,
+        })
+    })
+
+    app.Get("/partials/deck-builder/price/:id", func(c *fiber.Ctx) error {
+        db := helpers.ConnectDB()
+
+        deckId := c.Params("id")
+        cost := models.GetDeckCost(db, deckId)
+
+        return c.Render("partials/deck-builder/price", fiber.Map{
+            "DeckPrice": fmt.Sprintf("%.2f", cost),
             "ActiveDeckId": deckId,
         })
     })
