@@ -14,6 +14,11 @@ import (
 	"app/models"
 )
 
+type SetOption struct {
+    Set string
+    SelectedSet string
+}
+
 func DeckEditorControllers(app *fiber.App){
     app.Get("/decks/new", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
@@ -103,6 +108,7 @@ func DeckEditorControllers(app *fiber.App){
         sort := c.Query("sort")
         rarity := c.Query("rarity")
         legality := c.Query("legality")
+        set := c.Query("set")
 
         manaStr := c.Query("mana")
         mana := []string{}
@@ -136,7 +142,7 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, 0, 20)
+        cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, set, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -230,7 +236,18 @@ func DeckEditorControllers(app *fiber.App){
 
         cost := models.GetDeckCost(db, deck.Id)
 
+        sets := models.GetSets(db)
+        setOptions := []SetOption{}
+        for i := range sets {
+            setOptions = append(setOptions, SetOption{
+                Set: sets[i],
+                SelectedSet: set,
+            })
+        }
+
         return c.Render("pages/deck-builder/index", fiber.Map{
+            "SelectedSet": set,
+            "Sets": setOptions,
             "DeckPrice": fmt.Sprintf("%.2f", cost),
             "Page": "deck-editor",
             "User": user,
@@ -330,6 +347,7 @@ func DeckEditorControllers(app *fiber.App){
             rarity := form.Value["rarity"][0]
             legality := form.Value["legality"][0]
             page := form.Value["page"]
+            set := form.Value["set"][0]
 
             var offset = 0
             if len(page) > 0 {
@@ -338,7 +356,7 @@ func DeckEditorControllers(app *fiber.App){
             }
 
             db := helpers.ConnectDB()
-            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, offset, 20)
+            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, set, offset, 20)
 
             c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality))
 

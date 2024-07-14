@@ -263,7 +263,7 @@
                                 <path d="M6 9l6 6l6 -6"></path>
                             </svg>
                         </div>
-                        <div class="select">
+                        <div class="select mb-1.5">
                             <select
                                 name="legality"
                                 hx-post="/partials/deck-builder/card-grid"
@@ -295,6 +295,26 @@
                                 <option {{ if eq .Legality "oldschool" }}selected{{ end }} value="oldschool">Oldschool</option>
                                 <option {{ if eq .Legality "premodern" }}selected{{ end }} value="premodern">Premodern</option>
                                 <option {{ if eq .Legality "predh" }}selected{{ end }} value="predh">preDH</option>
+                            </select>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 9l6 6l6 -6"></path>
+                            </svg>
+                        </div>
+                        <div class="select">
+                            <select
+                                name="set"
+                                hx-post="/partials/deck-builder/card-grid"
+                                hx-target="deck-card-browser"
+                                hx-swap="innerHTML transition:true"
+                                hx-trigger="change"
+                                hx-encoding="multipart/form-data"
+                                hx-include=".deck-filters-form"
+                            >
+                                <option {{ if eq .SelectedSet "" }}selected{{ end }} value="">Any Set</option>
+                                {{ range .Sets }}
+                                    <option {{ if eq .SelectedSet .Set }}selected{{ end }} value="{{ .Set }}">{{ .Set }}</option>
+                                {{ end }}
                             </select>
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>

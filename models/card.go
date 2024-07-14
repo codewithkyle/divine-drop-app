@@ -143,7 +143,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, offset int, limit int) []Card {
     var cards []Card
     query := "SELECT C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C "
     name = strings.Trim(name, " ")
@@ -279,6 +279,11 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
         }
     }
 
+    if set != "" {
+        query += "AND set_name = @set "
+        params["set"] = set
+    }
+
     sortColumn := "C.name"
     switch sort {
         case "name":
@@ -355,4 +360,10 @@ func GetPrints(db *gorm.DB, cardId string) []CardPrint {
     prints := []CardPrint{}
     db.Raw("SELECT C.front, C.back, CP.released, HEX(CP.card_id) as CardId from Card_Prints CP JOIN Cards C ON C.id = CP.card_id WHERE card_id = UNHEX(?) ORDER BY released", cardId).Scan(&prints)
     return prints
+}
+
+func GetSets(db *gorm.DB) []string {
+    sets := []string{}
+    db.Raw("SELECT DISTINCT set_name FROM Cards ORDER BY set_name").Scan(&sets)
+    return sets
 }
