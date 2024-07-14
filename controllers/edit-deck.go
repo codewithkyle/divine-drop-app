@@ -236,6 +236,11 @@ func DeckEditorControllers(app *fiber.App){
 
         cost := models.GetDeckCost(db, deck.Id)
 
+        overBudget := false
+        if deckMetadata.Budget > 0 && int(cost * 100) > deckMetadata.Budget {
+            overBudget = true
+        }
+
         sets := models.GetSets(db)
         setOptions := []SetOption{}
         for i := range sets {
@@ -246,6 +251,8 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         return c.Render("pages/deck-builder/index", fiber.Map{
+            "IsOverBudget": overBudget,
+            "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget / 100)),
             "SelectedSet": set,
             "Sets": setOptions,
             "DeckPrice": fmt.Sprintf("%.2f", cost),
@@ -527,7 +534,15 @@ func DeckEditorControllers(app *fiber.App){
         deckId := c.Params("id")
         cost := models.GetDeckCost(db, deckId)
 
+        deckMetadata := models.GetDeckMetadata(db, deckId)
+
+        overBudget := false
+        if deckMetadata.Budget > 0  && int(cost * 100) > deckMetadata.Budget {
+            overBudget = true
+        }
+
         return c.Render("partials/deck-builder/price", fiber.Map{
+            "IsOverBudget": overBudget,
             "DeckPrice": fmt.Sprintf("%.2f", cost),
             "ActiveDeckId": deckId,
         })

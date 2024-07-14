@@ -1,5 +1,5 @@
 <span 
-    class="line-snug"
+    class="line-snug {{ if .IsOverBudget }}font-red-400{{ end }}"
     hx-get="/partials/deck-builder/price/{{ .ActiveDeckId }}"
     hx-trigger="deckUpdated from:body"
     hx-swap="outerHTML"

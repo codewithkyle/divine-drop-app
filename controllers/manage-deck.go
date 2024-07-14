@@ -95,7 +95,14 @@ func DeckManagerControllers(app *fiber.App){
 
         cost := models.GetDeckCost(db, deck.Id);
 
+        overBudget := false
+        if deckMetadata.Budget > 0 && int(cost * 100) > deckMetadata.Budget {
+            overBudget = true
+        }
+
         return c.Render("pages/deck-manager/index", fiber.Map{
+            "IsOverBudget": overBudget,
+            "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget / 100)),
             "DeckPrice": fmt.Sprintf("%.2f", cost),
             "Page": "deck-editor",
             "User": user,
@@ -896,6 +903,39 @@ func DeckManagerControllers(app *fiber.App){
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Removed sleeves from " + deck.Label + "\"}")
         return c.SendStatus(200)
+    })
+
+    app.Post("/decks/:deckId/budget", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("deckId")
+        budget, err := strconv.ParseFloat(strings.Trim(c.Get("HX-Prompt", "0"), "$"), 32)
+        if err != nil {
+            budget = 0;
+        }
+        budgetInt := int(budget * 100)
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        if budget > 0 {
+            db.Exec("UPDATE Decks SET budget = ? WHERE id = UNHEX(?) AND user_id = ?", budgetInt, deck.Id, user.Id)
+        } else {
+            db.Exec("UPDATE Decks SET budget = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+        }
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Deck budget updated to $" + fmt.Sprintf("%.2f", budget) + "\", \"deckUpdated\": \"" + deckId + "\"}")
+        return c.Render("partials/deck-builder/budget", fiber.Map{
+            "Budget": fmt.Sprintf("%.2f", budget),
+        })
     })
 }
 

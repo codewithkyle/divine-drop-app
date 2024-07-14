@@ -21,6 +21,7 @@ type DeckMetadata struct {
     Id string `gorm:"column:id;primary_key"`
     UserId string `gorm:"column:user_id"`
     CardCount int
+    Budget int 
 }
 
 type Sleeve struct {
@@ -107,7 +108,7 @@ func GetDeckColors(db *gorm.DB, deckId string) (bool, bool, bool, bool, bool) {
 
 func GetDeckMetadata(db *gorm.DB, deckId string) DeckMetadata {
     var deckMetadata DeckMetadata
-    db.Raw("SELECT HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id AND DC.sideboard = 0) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)
+    db.Raw("SELECT IFNULL(D.budget, 0) AS budget, HEX(D.id) AS id, HEX(D.user_id) AS user_id, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id AND DC.sideboard = 0) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) GROUP BY D.id, D.user_id", deckId).Scan(&deckMetadata)
     return deckMetadata
 }
 
