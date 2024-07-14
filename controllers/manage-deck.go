@@ -20,6 +20,11 @@ import (
 	"app/models"
 )
 
+type PublicMetadata struct {
+    Name string
+    Cost string
+}
+
 func DeckManagerControllers(app *fiber.App){
     app.Get("/decks/:id", func(c *fiber.Ctx) error {
         user, err := helpers.GetUserFromSession(c)
@@ -459,6 +464,22 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         return c.JSON(deckCards)
+    })
+
+    app.Get("/api/v1/decks/:id/metadata", func(c *fiber.Ctx) error {
+        deckId := c.Params("id")
+        if deckId == "" {
+            return c.SendStatus(400)
+        }
+        db := helpers.ConnectDB()
+        deck := models.GetDeckMetadata(db, deckId)
+        cost := models.GetDeckCost(db, deck.Id)
+
+        metadata := PublicMetadata{}
+        metadata.Name = deck.Label
+        metadata.Cost = fmt.Sprintf("%.2f", cost)
+
+        return c.JSON(metadata)
     })
 
     app.Put("/decks/:id/sideboard/:cardId", func(c *fiber.Ctx) error {
