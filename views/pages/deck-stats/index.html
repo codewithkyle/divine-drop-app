@@ -9,19 +9,19 @@
         </div>
     </div>
     <number-stats>
-        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+        <div class="radius-1 bg-grey-900 p-2 text-center">
             <span class="block font-2xl font-medium">{{ .CreatureCount }}</span>
             <span class="block font-sm mt-0.5 font-grey-400">Creatures</span>
         </div>
-        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+        <div class="radius-1 bg-grey-900 p-2 text-center">
             <span class="block font-2xl font-medium">{{ .ArtifactCount }}</span>
             <span class="block font-sm mt-0.5 font-grey-400">Artifacts</span>
         </div>
-        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+        <div class="radius-1 bg-grey-900 p-2 text-center">
             <span class="block font-2xl font-medium">{{ .EnchantmentCount }}</span>
             <span class="block font-sm mt-0.5 font-grey-400">Enchantments</span>
         </div>
-        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+        <div class="radius-1 bg-grey-900 p-2 text-center">
             <span class="block font-2xl font-medium">{{ .SorceryCount }}</span>
             <span class="block font-sm mt-0.5 font-grey-400">Sorceries</span>
         </div>
@@ -32,7 +32,7 @@
     </number-stats>
     <div class="charts">
         <mana-ramp-chart 
-            class="mb-6"
+            class="mb-6 p-1.5 bg-grey-900 radius-1"
             data-tmc="{{ .TotalManaCosts }}" 
             data-tmc-creature="{{ .TotalCreatureCost }}"
             data-tmc-artifact="{{ .TotalArtifactCost }}"
@@ -41,6 +41,7 @@
             data-tmc-instant="{{ .TotalInstantCost }}"
         ></mana-ramp-chart>
         <mana-color-chart 
+            class="p-1.5 bg-grey-900 radius-1"
             data-color-counts="{{ .ColorCounts }}"
             data-creature-color-counts="{{ .CreatureColorCounts }}"
             data-enchantment-color-counts="{{ .EnchantmentColorCounts }}"
