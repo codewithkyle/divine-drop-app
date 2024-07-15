@@ -328,7 +328,7 @@
                                 placeholder="Max Price (0.00)"
                                 autocomplete="off"
                                 id="max-price"
-                                value="{{ .Price }}"
+                                value="{{ if ne .Price "0" }}{{ .Price }}{{ end }}"
                                 hx-post="/partials/deck-builder/card-grid"
                                 hx-target="deck-card-browser"
                                 hx-swap="innerHTML transition:true"
