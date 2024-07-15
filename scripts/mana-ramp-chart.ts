@@ -8,7 +8,8 @@ class ManaRampChart extends HTMLElement {
     }
 
     connectedCallback(){
-        this.canvas = this.querySelector("canvas");
+        this.canvas = document.createElement("canvas");
+        this.appendChild(this.canvas);
         const ctx = this.canvas.getContext("2d");
 
         //const range = JSON.parse(this.dataset.tmcRange);

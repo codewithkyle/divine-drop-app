@@ -129,7 +129,67 @@ func DeckStatsControllers(app *fiber.App){
             totalInstantCostJSON = []byte("[]")
         }
 
+        totalWhiteCards := models.GetDeckWhiteCardCount(db, deck.Id)
+        totalBlueCards := models.GetDeckBlueCardCount(db, deck.Id)
+        totalBlackCards := models.GetDeckBlackCardCount(db, deck.Id)
+        totalRedCards := models.GetDeckRedCardCount(db, deck.Id)
+        totalGreenCards := models.GetDeckGreenCardCount(db, deck.Id)
+        colorCounts := []int{totalWhiteCards, totalBlueCards, totalBlackCards, totalRedCards, totalGreenCards}
+        colorCountsJSON, err := json.Marshal(colorCounts)
+        if err != nil {
+            colorCountsJSON = []byte("[]")
+        }
+
+        totalWhiteCreatureCards := models.GetDeckWhiteCreatureCardCount(db, deck.Id)
+        totalBlueCreatureCards := models.GetDeckBlueCreatureCardCount(db, deck.Id)
+        totalBlackCreatureCards := models.GetDeckBlackCreatureCardCount(db, deck.Id)
+        totalRedCreatureCards := models.GetDeckRedCreatureCardCount(db, deck.Id)
+        totalGreenCreatureCards := models.GetDeckGreenCreatureCardCount(db, deck.Id)
+        creatureColorCounts := []int{totalWhiteCreatureCards, totalBlueCreatureCards, totalBlackCreatureCards, totalRedCreatureCards, totalGreenCreatureCards}
+        creatureColorCountsJSON, err := json.Marshal(creatureColorCounts)
+        if err != nil {
+            creatureColorCountsJSON = []byte("[]")
+        }
+
+        totalWhiteEnchantmentCards := models.GetDeckWhiteEnchantmentCardCount(db, deck.Id)
+        totalBlueEnchantmentCards := models.GetDeckBlueEnchantmentCardCount(db, deck.Id)
+        totalBlackEnchantmentCards := models.GetDeckBlackEnchantmentCardCount(db, deck.Id)
+        totalRedEnchantmentCards := models.GetDeckRedEnchantmentCardCount(db, deck.Id)
+        totalGreenEnchantmentCards := models.GetDeckGreenEnchantmentCardCount(db, deck.Id)
+        enchantmentColorCounts := []int{totalWhiteEnchantmentCards, totalBlueEnchantmentCards, totalBlackEnchantmentCards, totalRedEnchantmentCards, totalGreenEnchantmentCards}
+        enchantmentColorCountsJSON, err := json.Marshal(enchantmentColorCounts)
+        if err != nil {
+            enchantmentColorCountsJSON = []byte("[]")
+        }
+
+        totalWhiteSorceryCards := models.GetDeckWhiteSorceryCardCount(db, deck.Id)
+        totalBlueSorceryCards := models.GetDeckBlueSorceryCardCount(db, deck.Id)
+        totalBlackSorceryCards := models.GetDeckBlackSorceryCardCount(db, deck.Id)
+        totalRedSorceryCards := models.GetDeckRedSorceryCardCount(db, deck.Id)
+        totalGreenSorceryCards := models.GetDeckGreenSorceryCardCount(db, deck.Id)
+        sorceryColorCounts := []int{totalWhiteSorceryCards, totalBlueSorceryCards, totalBlackSorceryCards, totalRedSorceryCards, totalGreenSorceryCards}
+        sorceryColorCountsJSON, err := json.Marshal(sorceryColorCounts)
+        if err != nil {
+            sorceryColorCountsJSON = []byte("[]")
+        }
+
+        totalWhiteInstantCards := models.GetDeckWhiteInstantCardCount(db, deck.Id)
+        totalBlueInstantCards := models.GetDeckBlueInstantCardCount(db, deck.Id)
+        totalBlackInstantCards := models.GetDeckBlackInstantCardCount(db, deck.Id)
+        totalRedInstantCards := models.GetDeckRedInstantCardCount(db, deck.Id)
+        totalGreenInstantCards := models.GetDeckGreenInstantCardCount(db, deck.Id)
+        instantColorCounts := []int{totalWhiteInstantCards, totalBlueInstantCards, totalBlackInstantCards, totalRedInstantCards, totalGreenInstantCards}
+        instantColorCountsJSON, err := json.Marshal(instantColorCounts)
+        if err != nil {
+            instantColorCountsJSON = []byte("[]")
+        }
+
         return c.Render("pages/deck-stats/index", fiber.Map{
+            "EnchantmentColorCounts": string(enchantmentColorCountsJSON),
+            "SorceryColorCounts": string(sorceryColorCountsJSON),
+            "InstantColorCounts": string(instantColorCountsJSON),
+            "CreatureColorCounts": string(creatureColorCountsJSON),
+            "ColorCounts": string(colorCountsJSON),
             "TotalArtifactCost": string(totalArtifactCostJSON),
             "TotalEnchantmentCost": string(totalEnchantmentCostJSON),
             "TotalSorceryCost": string(totalSorceryCostJSON),

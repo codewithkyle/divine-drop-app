@@ -112,5 +112,11 @@ deck-stats{
         max-width: 100%;
         padding: 3rem;
         margin: 0 auto;
+
+        mana-color-chart {
+            display: block;
+            width: 75%;
+            margin: 0 auto;
+        }
     }
 }

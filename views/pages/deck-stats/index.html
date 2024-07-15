@@ -32,16 +32,24 @@
     </number-stats>
     <div class="charts">
         <mana-ramp-chart 
+            class="mb-6"
             data-tmc="{{ .TotalManaCosts }}" 
             data-tmc-creature="{{ .TotalCreatureCost }}"
             data-tmc-artifact="{{ .TotalArtifactCost }}"
             data-tmc-enchantment="{{ .TotalEnchantmentCost }}"
             data-tmc-sorcery="{{ .TotalSorceryCost }}"
             data-tmc-instant="{{ .TotalInstantCost }}"
+        ></mana-ramp-chart>
+        <mana-color-chart 
+            data-color-counts="{{ .ColorCounts }}"
+            data-creature-color-counts="{{ .CreatureColorCounts }}"
+            data-enchantment-color-counts="{{ .EnchantmentColorCounts }}"
+            data-sorcery-color-counts="{{ .SorceryColorCounts }}"
+            data-instant-color-counts="{{ .InstantColorCounts }}"
         >
-            <canvas></canvas>
-        </mana-ramp-chart>
+        </mana-color-chart>
     </div>
 </deck-stats>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="module" src="/js/mana-ramp-chart.js"></script>
+<script type="module" src="/js/mana-color-chart.js"></script>
