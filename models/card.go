@@ -150,7 +150,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, price int, offset int, limit int) []Card {
     var cards []Card
     query := "SELECT GROUP_CONCAT(CT.text) as text, C.name, C.price, C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C LEFT JOIN Card_Texts CT ON C.id = CT.card_id "
     name = strings.Trim(name, " ")
@@ -287,8 +287,13 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
 
     if set != "" {
-        query += "AND set_name = @set "
+        query += "AND C.set_name = @set "
         params["set"] = set
+    }
+
+    if price > 0 {
+        query += "AND C.price <= @price "
+        params["price"] = price
     }
 
     sortColumn := "C.name"

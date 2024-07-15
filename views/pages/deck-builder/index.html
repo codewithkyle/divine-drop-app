@@ -301,7 +301,7 @@
                                 <path d="M6 9l6 6l6 -6"></path>
                             </svg>
                         </div>
-                        <div class="select">
+                        <div class="select mb-1.5">
                             <select
                                 name="set"
                                 hx-post="/partials/deck-builder/card-grid"
@@ -320,6 +320,22 @@
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M6 9l6 6l6 -6"></path>
                             </svg>
+                        </div>
+                        <div class="input">
+                            <input 
+                                type="number" 
+                                name="price" 
+                                placeholder="Max Price (0.00)"
+                                autocomplete="off"
+                                id="max-price"
+                                value="{{ .Price }}"
+                                hx-post="/partials/deck-builder/card-grid"
+                                hx-target="deck-card-browser"
+                                hx-swap="innerHTML transition:true"
+                                hx-trigger="keyup delay:500ms"
+                                hx-encoding="multipart/form-data"
+                                hx-include=".deck-filters-form"
+                            >
                         </div>
                     </advanced-filters>
                 </div>

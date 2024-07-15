@@ -305,6 +305,49 @@ deck-builder{
                         }
                     }
 
+                    .input{
+                        display: block;
+                        width: 100%;
+                        position: relative;
+
+                        label {
+                            display: block;
+                            margin-bottom: 0.25rem;
+                            font-size: var(--font-xs);
+                        }
+
+                        input{
+                            padding: 0 calc(1rem + 18px) 0 0.5rem;
+                            color: var(--grey-100);
+                            background-color: var(--grey-900);
+                            font-size: var(--font-sm);
+                            border-radius: 0.5rem;
+                            border: 1px solid transparent;
+                            height: 36px;
+                            width: 100%;
+
+                            &:focus{
+                                outline: none;
+                                border-color: var(--yellow-400);
+                                background-color: hsl(var(--yellow-400-hsl)/0.05);
+
+                                & + svg{
+                                    color: var(--grey-100);
+                                }
+
+                                & ~ dropdown-menu{
+                                    opacity: 1;
+                                    visibility: visible;
+                                    pointer-events: all;
+                                }
+                            }
+
+                            &::placeholder{
+                                color: var(--grey-400);
+                            }
+                        }
+                    }
+
                     .combox-input{
                         display: block;
                         width: 100%;
