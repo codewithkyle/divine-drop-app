@@ -10,7 +10,7 @@
             </div>
             <div class="w-full mt-0.5" flex="row nowrap items-center justify-between">
                 <span 
-                    class="px-0.75 inline-block font-xs font-green-400"
+                    class="ml-0.25 px-0.5 inline-block font-xs font-green-400"
                     style="background-color:hsl(var(--green-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
                     x-data="{ price: {{ .Price }}, qty: {{ .Qty }} }"
                     x-on:qty-update.window="if ($event.detail.id = '{{ .CardId }}') qty = $event.detail.qty"
