@@ -99,7 +99,7 @@ deck-stats{
         gap: 1.5rem;
         width: 1400px;
         max-width: 100%;
-        padding: 3rem;
+        padding: 3rem 1rem;
         margin: 0 auto;
     }
 
@@ -110,13 +110,14 @@ deck-stats{
         gap: 1.5rem;
         width: 1400px;
         max-width: 100%;
-        padding: 3rem;
         margin: 0 auto;
 
         mana-color-chart {
-            display: block;
-            width: 75%;
-            margin: 0 auto;
+            canvas {
+                display: block;
+                width: 75%;
+                margin: 0 auto;
+            }
         }
     }
 }

@@ -25,14 +25,14 @@
             <span class="block font-2xl font-medium">{{ .SorceryCount }}</span>
             <span class="block font-sm mt-0.5 font-grey-400">Sorceries</span>
         </div>
-        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+        <div class="radius-1 bg-grey-900 p-2 text-center">
             <span class="block font-2xl font-medium">{{ .InstantCount }}</span>
             <span class="block font-sm mt-0.5 font-grey-400">Instants</span>
         </div>
     </number-stats>
-    <div class="charts">
+    <div class="charts px-1">
         <mana-ramp-chart 
-            class="mb-6 p-1.5 bg-grey-900 radius-1"
+            class="mb-2 p-1.5 bg-grey-900 radius-1"
             data-tmc="{{ .TotalManaCosts }}" 
             data-tmc-creature="{{ .TotalCreatureCost }}"
             data-tmc-artifact="{{ .TotalArtifactCost }}"
