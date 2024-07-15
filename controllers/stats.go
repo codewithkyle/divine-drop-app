@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -97,7 +98,44 @@ func DeckStatsControllers(app *fiber.App){
         sorceryCount := models.GetDeckSorceryCount(db, deck.Id)
         instantCount := models.GetDeckInstantCount(db, deck.Id)
 
+        totalManaCost := models.GetDeckManaCosts(db, deck.Id)
+        totalManaCostJSON, err := json.Marshal(totalManaCost)
+        if err != nil {
+            totalManaCostJSON = []byte("[]")
+        }
+        totalCreatureCost := models.GetDeckCreatureCosts(db, deck.Id)
+        totalCreatureCostJSON, err := json.Marshal(totalCreatureCost)
+        if err != nil {
+            totalCreatureCostJSON = []byte("[]")
+        }
+        totalArtifactCost := models.GetDeckArtifactCosts(db, deck.Id)
+        totalArtifactCostJSON, err := json.Marshal(totalArtifactCost)
+        if err != nil {
+            totalArtifactCostJSON = []byte("[]")
+        }
+        totalEnchantmentCost := models.GetDeckEnchantmentCosts(db, deck.Id)
+        totalEnchantmentCostJSON, err := json.Marshal(totalEnchantmentCost)
+        if err != nil {
+            totalEnchantmentCostJSON = []byte("[]")
+        }
+        totalSorceryCost := models.GetDeckSorceryCosts(db, deck.Id)
+        totalSorceryCostJSON, err := json.Marshal(totalSorceryCost)
+        if err != nil {
+            totalSorceryCostJSON = []byte("[]")
+        }
+        totalInstantCost := models.GetDeckInstantCosts(db, deck.Id)
+        totalInstantCostJSON, err := json.Marshal(totalInstantCost)
+        if err != nil {
+            totalInstantCostJSON = []byte("[]")
+        }
+
         return c.Render("pages/deck-stats/index", fiber.Map{
+            "TotalArtifactCost": string(totalArtifactCostJSON),
+            "TotalEnchantmentCost": string(totalEnchantmentCostJSON),
+            "TotalSorceryCost": string(totalSorceryCostJSON),
+            "TotalInstantCost": string(totalInstantCostJSON),
+            "TotalCreatureCost": string(totalCreatureCostJSON),
+            "TotalManaCosts": string(totalManaCostJSON),
             "ArtifactCount": artifactCount,
             "EnchantmentCount": enchantmentCount,
             "SorceryCount": sorceryCount,

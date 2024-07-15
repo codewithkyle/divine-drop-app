@@ -102,4 +102,15 @@ deck-stats{
         padding: 3rem;
         margin: 0 auto;
     }
+
+    .charts {
+        display: grid;
+        width: 100%;
+        grid-template-rows: 1fr;
+        gap: 1.5rem;
+        width: 1400px;
+        max-width: 100%;
+        padding: 3rem;
+        margin: 0 auto;
+    }
 }

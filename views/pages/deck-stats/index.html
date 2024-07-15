@@ -1,6 +1,12 @@
 {{ template "partials/deck-header" . }}
 <deck-stats>
     <div class="subnav">
+        <div class="actions">
+            <a href="/decks/{{ .ActiveDeckId }}" class="mr-0.5 bttn -yellow">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M5 12l4 4" /><path d="M5 12l4 -4" /></svg>
+                <span>Return to overview</span>
+            </a>
+        </div>
     </div>
     <number-stats>
         <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
@@ -24,4 +30,18 @@
             <span class="block font-sm mt-0.5 font-grey-400">Instants</span>
         </div>
     </number-stats>
+    <div class="charts">
+        <mana-ramp-chart 
+            data-tmc="{{ .TotalManaCosts }}" 
+            data-tmc-creature="{{ .TotalCreatureCost }}"
+            data-tmc-artifact="{{ .TotalArtifactCost }}"
+            data-tmc-enchantment="{{ .TotalEnchantmentCost }}"
+            data-tmc-sorcery="{{ .TotalSorceryCost }}"
+            data-tmc-instant="{{ .TotalInstantCost }}"
+        >
+            <canvas></canvas>
+        </mana-ramp-chart>
+    </div>
 </deck-stats>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="module" src="/js/mana-ramp-chart.js"></script>
