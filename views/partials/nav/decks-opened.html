@@ -70,12 +70,8 @@
         </deck-group>
     {{ end }}
     <ungrouped-decks>
-        {{ if not .UngroupedDecks }}
-            <p class="block text-center py-1 radius-0.5 border-1 border-dashed border-grey-700 font-xs">Drag here to ungroup</p>
-        {{ else }}
-            {{ range .UngroupedDecks }}
-                {{ template "partials/nav/deck-link" .}}
-            {{ end }}
+        {{ range .UngroupedDecks }}
+            {{ template "partials/nav/deck-link" .}}
         {{ end }}
     </ungrouped-decks>
 </deck-list>
