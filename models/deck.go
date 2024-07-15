@@ -210,37 +210,37 @@ func GetDeckManaCostsRange(db *gorm.DB, deckId string) []int {
 
 func GetDeckManaCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type NOT LIKE '%Land%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type NOT LIKE '%Land%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
 func GetDeckCreatureCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Creature%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Creature%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
 func GetDeckArtifactCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Artifact%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Artifact%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
 func GetDeckEnchantmentCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Enchantment%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Enchantment%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
 func GetDeckSorceryCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Sorcery%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Sorcery%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
 func GetDeckInstantCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Instant%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Instant%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
