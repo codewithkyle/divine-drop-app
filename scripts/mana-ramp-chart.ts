@@ -107,6 +107,7 @@ class ManaRampChart extends HTMLElement {
                         cubicInterpolationMode: 'monotone',
                         tension: 0.4,
                         fill: false,
+                        hidden: true,
                     },
                     {
                         label: "Artifacts",
@@ -114,6 +115,7 @@ class ManaRampChart extends HTMLElement {
                         cubicInterpolationMode: 'monotone',
                         tension: 0.4,
                         fill: false,
+                        hidden: true,
                     },
                     {
                         label: "Enchantments",
@@ -121,6 +123,7 @@ class ManaRampChart extends HTMLElement {
                         cubicInterpolationMode: 'monotone',
                         tension: 0.4,
                         fill: false,
+                        hidden: true,
                     },
                     {
                         label: "Sorceries",
@@ -128,6 +131,7 @@ class ManaRampChart extends HTMLElement {
                         cubicInterpolationMode: 'monotone',
                         tension: 0.4,
                         fill: false,
+                        hidden: true,
                     },
                     {
                         label: "Instants",
@@ -135,6 +139,7 @@ class ManaRampChart extends HTMLElement {
                         cubicInterpolationMode: 'monotone',
                         tension: 0.4,
                         fill: false,
+                        hidden: true,
                     },
                 ]
             },

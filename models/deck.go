@@ -234,7 +234,7 @@ func GetDeckEnchantmentCosts(db *gorm.DB, deckId string) []TypeCost {
 
 func GetDeckSorceryCosts(db *gorm.DB, deckId string) []TypeCost {
     count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND C.type LIKE '%Sorcey%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
+    db.Raw("SELECT C.totalManaCost as TMC, COUNT(C.totalManaCost) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND C.type LIKE '%Sorcery%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
     return count
 }
 
