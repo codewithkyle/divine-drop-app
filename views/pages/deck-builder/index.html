@@ -342,7 +342,8 @@
                         hx-include=".deck-filters-form"
                     >
                         <option {{ if eq .Sort "name" }}selected{{ end }} value="name">Name</option>
-                        <option {{ if eq .Sort "tmc" }}selected{{ end }} value="tmc">Total Mana Cost</option>
+                        <option {{ if eq .Sort "tmc" }}selected{{ end }} value="tmc">Highest Mana Cost</option>
+                        <option {{ if eq .Sort "lmc" }}selected{{ end }} value="lmc">Lowest Mana Cost</option>
                         <option {{ if eq .Sort "power" }}selected{{ end }} value="power">Power</option>
                         <option {{ if eq .Sort "toughness" }}selected{{ end }} value="toughness">Toughness</option>
                         <option {{ if eq .Sort "priceHL" }}selected{{ end }} value="priceHL">Price (H-L)</option>

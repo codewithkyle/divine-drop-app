@@ -297,6 +297,8 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
             sortColumn = "C.name"
         case "tmc":
             sortColumn = "C.totalManaCost DESC"
+        case "lmc":
+            sortColumn = "C.totalManaCost ASC"
         case "power":
             sortColumn = "C.power DESC"
         case "toughness":
