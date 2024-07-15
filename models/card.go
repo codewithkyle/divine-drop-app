@@ -127,17 +127,17 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
     filterLogic := "AND 1=1"
     switch filter {
         case "creatures":
-            filterLogic = "AND C.type = 'Creature'"
+            filterLogic = "AND C.type LIKE '%Creature%'"
         case "enchantments":
-            filterLogic = "AND C.type = 'Enchantment'"
+            filterLogic = "AND C.type LIKE '%Enchantment%'"
         case "artifacts":
-            filterLogic = "AND C.type = 'Artifact'"
+            filterLogic = "AND C.type LIKE '%Artifact%'"
         case "lands":
             filterLogic = "AND C.type LIKE '%Land%'"
         case "instants":
-            filterLogic = "AND C.type = 'Instant'"
+            filterLogic = "AND C.type LIKE '%Instant%'"
         case "sorceries":
-            filterLogic = "AND C.type = 'Sorcery'"
+            filterLogic = "AND C.type LIKE '%Sorcery%'"
     }
 
     if rarity != "any" && rarity != "" {
