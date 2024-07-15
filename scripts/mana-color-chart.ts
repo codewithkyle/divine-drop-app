@@ -66,7 +66,9 @@ class ManaColorChart extends HTMLElement {
                             backdropColor: 'rgba(0, 0, 0, 0.5)',
                             color: '#FFFFFF',
                             stepSize: 1,
-                            display: false,
+                            display: true,
+                            beginAtZero: true,
+                            min: 0,
                         }
                     }
                 },
