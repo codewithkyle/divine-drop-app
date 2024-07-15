@@ -166,3 +166,33 @@ func GetDeckCost(db *gorm.DB, deckId string) float32 {
     db.Raw("SELECT IFNULL(SUM(C.price * DC.qty), 0) AS total_price FROM Deck_Cards DC LEFT JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND C.name NOT IN ('forest', 'plains', 'mountain', 'island') AND DC.sideboard = 0", deckId).Scan(&cost)
     return float32(cost) / 100
 }
+
+func GetDeckCreaturesCount(db *gorm.DB, deckId string) int {
+    count := 0
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Creature%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
+    return count
+}
+
+func GetDeckArtifactCount(db *gorm.DB, deckId string) int {
+    count := 0
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Artifact%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
+    return count
+}
+
+func GetDeckEnchantmentCount(db *gorm.DB, deckId string) int {
+    count := 0
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Enchantment%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
+    return count
+}
+
+func GetDeckSorceryCount(db *gorm.DB, deckId string) int {
+    count := 0
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Sorcery%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
+    return count
+}
+
+func GetDeckInstantCount(db *gorm.DB, deckId string) int {
+    count := 0
+    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Instant%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
+    return count
+}

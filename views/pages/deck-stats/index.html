@@ -1,0 +1,27 @@
+{{ template "partials/deck-header" . }}
+<deck-stats>
+    <div class="subnav">
+    </div>
+    <number-stats>
+        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+            <span class="block font-2xl font-medium">{{ .CreatureCount }}</span>
+            <span class="block font-sm mt-0.5 font-grey-400">Creatures</span>
+        </div>
+        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+            <span class="block font-2xl font-medium">{{ .ArtifactCount }}</span>
+            <span class="block font-sm mt-0.5 font-grey-400">Artifacts</span>
+        </div>
+        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+            <span class="block font-2xl font-medium">{{ .EnchantmentCount }}</span>
+            <span class="block font-sm mt-0.5 font-grey-400">Enchantments</span>
+        </div>
+        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+            <span class="block font-2xl font-medium">{{ .SorceryCount }}</span>
+            <span class="block font-sm mt-0.5 font-grey-400">Sorceries</span>
+        </div>
+        <div class="radius-1 bg-grey-900 border-1 border-solid border-grey-700 p-2 text-center">
+            <span class="block font-2xl font-medium">{{ .InstantCount }}</span>
+            <span class="block font-sm mt-0.5 font-grey-400">Instants</span>
+        </div>
+    </number-stats>
+</deck-stats>
