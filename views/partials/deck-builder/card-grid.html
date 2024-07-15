@@ -71,10 +71,10 @@
             </div>
             <div class="w-full py-2 px-2.5 radius-1 bg-grey-900">
                 <div class="w-full mb-1" flex="row nowrap justify-between items-center">
-                    <span class="mb-0.25 font-md">{{ .Name }}</span>
+                    <span class="font-md">{{ .Name }}</span>
                     <span class="px-0.75 font-green-400 font-xs" style="background-color:hsl(var(--green-400-hsl)/0.15);height:24px;line-height:24px;border-radius:12px;">${{ .FmtPrice }}</span>
                 </div>
-                <p class="font-grey-400 line-normal mb-0.5">{{ .Text }}</p>
+                <card-text class="block w-full font-grey-400 line-normal mb-0.5">{{- printf .Text -}}</card-text>
             </div>
         </div>
     {{ end }}

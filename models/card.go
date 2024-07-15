@@ -150,7 +150,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
 
 func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, offset int, limit int) []Card {
     var cards []Card
-    query := "SELECT GROUP_CONCAT(CT.text SEPARATOR '\n') as text, C.name, C.price, C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C LEFT JOIN Card_Texts CT ON C.id = CT.card_id "
+    query := "SELECT GROUP_CONCAT(CT.text) as text, C.name, C.price, C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C LEFT JOIN Card_Texts CT ON C.id = CT.card_id "
     name = strings.Trim(name, " ")
 
     manaCheck := []string{}
