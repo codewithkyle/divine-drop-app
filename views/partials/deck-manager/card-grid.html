@@ -12,9 +12,9 @@
                 <span 
                     class="ml-0.25 px-0.5 inline-block font-xs font-green-400"
                     style="background-color:hsl(var(--green-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
-                    x-data="{ price: {{ .Price }}, qty: {{ .Qty }} }"
-                    x-on:qty-update.window="if ($event.detail.id = '{{ .CardId }}') qty = $event.detail.qty"
-                    x-text="`$${ (price * qty) / 100 }`"
+                    x-data="{ price: {{ .Price }}, qty: {{ .Qty }}, display: '' }"
+                    x-on:qty-update.window="if ($event.detail.id == '{{ .CardId }}') qty = $event.detail.qty"
+                    x-text="new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((price * qty) / 100)"
                 >${{ .FmtPrice }}</span>
                 <div class="actions">
                     <button
