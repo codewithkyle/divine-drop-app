@@ -301,6 +301,10 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
             sortColumn = "C.power DESC"
         case "toughness":
             sortColumn = "C.toughness DESC"
+        case "priceHL":
+            sortColumn = "C.price DESC"
+        case "priceLH":
+            sortColumn = "C.price ASC"
     }
     query += "GROUP BY C.name, C.front, C.back, C.id ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
