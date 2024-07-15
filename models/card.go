@@ -121,6 +121,8 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
             sortColumn = "C.power DESC"
         case "toughness":
             sortColumn = "C.toughness DESC"
+        case "price":
+            sortColumn = "C.price DESC"
     }
     filterLogic := "AND 1=1"
     switch filter {
