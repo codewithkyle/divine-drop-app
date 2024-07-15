@@ -25,31 +25,32 @@ class ManaColorChart extends HTMLElement {
                 datasets: [
                     {
                         label: 'All Cards',
-                        data: colorCounts,
+                        data: colorCounts.map(n => n === 0 ? null : n),
                     },
                     {
                         label: 'Creatures',
-                        data: creatureCount,
+                        data: creatureCount.map(n => n === 0 ? null : n),
                         hidden: true,
                     },
                     {
                         label: 'Enchantments',
-                        data: enchantmentCount,
+                        data: enchantmentCount.map(n => n === 0 ? null : n),
                         hidden: true,
                     },
                     {
                         label: 'Instants',
-                        data: instantCount,
+                        data: instantCount.map(n => n === 0 ? null : n),
                         hidden: true,
                     },
                     {
                         label: 'Sorceries',
-                        data: sorceryCount,
+                        data: sorceryCount.map(n => n === 0 ? null : n),
                         hidden: true,
                     },
                 ]
             },
             options: {
+                spanGaps: true,
                 scales: {
                     r: {
                         angleLines: {
@@ -65,6 +66,7 @@ class ManaColorChart extends HTMLElement {
                             backdropColor: 'rgba(0, 0, 0, 0.5)',
                             color: '#FFFFFF',
                             stepSize: 1,
+                            display: false,
                         }
                     }
                 },
