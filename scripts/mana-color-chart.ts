@@ -25,26 +25,26 @@ class ManaColorChart extends HTMLElement {
                 datasets: [
                     {
                         label: 'All Cards',
-                        data: colorCounts.map(n => n === 0 ? null : n),
+                        data: colorCounts,
                     },
                     {
                         label: 'Creatures',
-                        data: creatureCount.map(n => n === 0 ? null : n),
+                        data: creatureCount,
                         hidden: true,
                     },
                     {
                         label: 'Enchantments',
-                        data: enchantmentCount.map(n => n === 0 ? null : n),
+                        data: enchantmentCount,
                         hidden: true,
                     },
                     {
                         label: 'Instants',
-                        data: instantCount.map(n => n === 0 ? null : n),
+                        data: instantCount,
                         hidden: true,
                     },
                     {
                         label: 'Sorceries',
-                        data: sorceryCount.map(n => n === 0 ? null : n),
+                        data: sorceryCount,
                         hidden: true,
                     },
                 ]
