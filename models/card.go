@@ -63,6 +63,7 @@ type DeckCard struct {
     Print int `gorm:"column:print"`
     Price int `gorm:"column:price"`
     FmtPrice string
+    IsGuest bool
 }
 
 type DeckCardMetadata struct {

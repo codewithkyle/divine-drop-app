@@ -39,14 +39,14 @@ func DeckEditorControllers(app *fiber.App){
         user, err := helpers.GetUserFromSession(c)
         if err != nil {
             c.Response().Header.Add("HX-Redirect", "/sign-in")
-            return c.Send(nil)
+            return c.SendStatus(401)
         }
 
         deckId := c.Params("id")
 
         db := helpers.ConnectDB()
 
-        deck := models.GetDeck(db, deckId, user.Id)
+        deck := models.GetDeckByID(db, deckId)
         if deck.Id == "" {
             c.Response().Header.Add("HX-Redirect", "/")
             return c.Send(nil)
@@ -61,14 +61,18 @@ func DeckEditorControllers(app *fiber.App){
         for _, card := range models.GetDeckCards(db, deckId) {
             deckCardUUID := uuid.New().String()
             deckCardUUID = strings.ReplaceAll(deckCardUUID, "-", "")
-            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "')")
+            inSideboard := "0"
+            if card.InSideboard {
+                inSideboard = "1"
+            }
+            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "', " + inSideboard + ")")
         }
 
-        db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated) VALUES " + strings.Join(values, ", "))
+        db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated, sideboard) VALUES " + strings.Join(values, ", "))
 
         c.Response().Header.Set("HX-Redirect", "/decks/" + deckUUID)
         c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Cloned " + helpers.EscapeString(deck.Label) + "\"}")
-        return c.Send(nil)
+        return c.SendStatus(200)
     })
 
     app.Delete("/decks/:deckId", func(c *fiber.Ctx) error {

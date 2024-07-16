@@ -27,18 +27,20 @@ type PublicMetadata struct {
 
 func DeckManagerControllers(app *fiber.App){
     app.Get("/decks/:id", func(c *fiber.Ctx) error {
-        user, err := helpers.GetUserFromSession(c)
-        if err != nil {
-            return c.Redirect("/sign-in")
-        }
+        user, _ := helpers.GetUserFromSession(c)
 
         deckId := c.Params("id")
 
         db := helpers.ConnectDB()
 
-        deck := models.GetDeck(db, deckId, user.Id)
+        deck := models.GetDeckByID(db, deckId)
         if deck.Id == "" {
             return c.Redirect("/")
+        }
+
+        isGuest := true
+        if user.Id != "" && deck.UserId == user.Id {
+            isGuest = false
         }
 
         search := c.Query("search")
@@ -47,7 +49,7 @@ func DeckManagerControllers(app *fiber.App){
         rarity := c.Query("rarity")
         color := c.Query("color")
 
-        decks := models.GetDecks(db, deckId, user.Id)
+        decks := []models.Deck{}
         deckCards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -80,7 +82,11 @@ func DeckManagerControllers(app *fiber.App){
             }
         }
 
-        deckGroups := models.GetDeckGroups(db, user.Id)
+        deckGroups := []models.DeckGroup{}
+        if user.Id != "" {
+            deckGroups = models.GetDeckGroups(db, user.Id)
+            decks = models.GetDecks(db, deckId, user.Id)
+        }
 
         groupedDecks := make(map[string]*GroupedDecks)
         ungroupedDecks := []models.Deck{}
@@ -108,9 +114,11 @@ func DeckManagerControllers(app *fiber.App){
 
         for i := range deckCards {
             deckCards[i].FmtPrice = fmt.Sprintf("%.2f", float32(deckCards[i].Price * int(deckCards[i].Qty)) / 100)
+            deckCards[i].IsGuest = isGuest
         }
 
         return c.Render("pages/deck-manager/index", fiber.Map{
+            "IsGuest": isGuest,
             "IsOverBudget": overBudget,
             "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget) / 100),
             "DeckPrice": fmt.Sprintf("%.2f", cost),
@@ -142,10 +150,7 @@ func DeckManagerControllers(app *fiber.App){
     }) 
 
     app.Get("/partials/deck-manager/card-grid/:id", func(c *fiber.Ctx) error {
-        user, err := helpers.GetUserFromSession(c)
-        if err != nil {
-            return c.Redirect("/sign-in")
-        }
+        user, _ := helpers.GetUserFromSession(c)
 
         deckId := c.Params("id")
         search := c.Query("search")
@@ -156,9 +161,14 @@ func DeckManagerControllers(app *fiber.App){
 
         db := helpers.ConnectDB()
 
-        deck := models.GetDeck(db, deckId, user.Id)
+        deck := models.GetDeckByID(db, deckId)
         if deck.Id == "" {
             return c.Redirect("/")
+        }
+
+        isGuest := true
+        if user.Id != "" && deck.UserId == user.Id {
+            isGuest = false
         }
 
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
@@ -178,6 +188,7 @@ func DeckManagerControllers(app *fiber.App){
                     cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
                 }
             }
+            cards[i].IsGuest = isGuest
         }
 
         url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter) + "&rarity=" + url.QueryEscape(rarity) + "&color=" + url.QueryEscape(color)
@@ -560,10 +571,7 @@ func DeckManagerControllers(app *fiber.App){
     })
 
     app.Get("/partials/deck-manager/sideboard-card-grid/:id", func(c *fiber.Ctx) error {
-        user, err := helpers.GetUserFromSession(c)
-        if err != nil {
-            return c.Redirect("/sign-in")
-        }
+        user, _ := helpers.GetUserFromSession(c)
 
         deckId := c.Params("id")
         search := c.Query("search")
@@ -574,9 +582,14 @@ func DeckManagerControllers(app *fiber.App){
 
         db := helpers.ConnectDB()
 
-        deck := models.GetDeck(db, deckId, user.Id)
+        deck := models.GetDeckByID(db, deckId)
         if deck.Id == "" {
             return c.Redirect("/")
+        }
+
+        isGuest := true
+        if user.Id != "" && deck.UserId == user.Id {
+            isGuest = false
         }
 
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
@@ -595,6 +608,7 @@ func DeckManagerControllers(app *fiber.App){
                     cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
                 }
             }
+            cards[i].IsGuest = isGuest
         }
 
         url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter) + "&rarity=" + url.QueryEscape(rarity) + "&color=" + url.QueryEscape(color)

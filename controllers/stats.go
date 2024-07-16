@@ -16,20 +16,17 @@ import (
 
 func DeckStatsControllers(app *fiber.App){
     app.Get("/decks/:id/stats", func(c *fiber.Ctx) error {
-        user, err := helpers.GetUserFromSession(c)
-        if err != nil {
-            return c.Redirect("/sign-in")
-        }
+        user, _ := helpers.GetUserFromSession(c)
 
         deckId := c.Params("id")
 
         db := helpers.ConnectDB()
 
-        deck := models.GetDeck(db, deckId, user.Id)
+        deck := models.GetDeckByID(db, deckId)
         if deck.Id == "" {
             return c.Redirect("/")
         }
-        decks := models.GetDecks(db, deckId, user.Id)
+        decks := []models.Deck{}
         deckCards := models.SearchDeckCards(db, deckId, "", "", "", "", "")
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -62,7 +59,17 @@ func DeckStatsControllers(app *fiber.App){
             }
         }
 
-        deckGroups := models.GetDeckGroups(db, user.Id)
+        deckGroups := []models.DeckGroup{}
+        
+        isGuest := true
+        if user.Id != "" && user.Id == deck.UserId{
+            isGuest = false
+        }
+
+        if user.Id != "" {
+            decks = models.GetDecks(db, deckId, user.Id)
+            deckGroups = models.GetDeckGroups(db, user.Id)
+        }
 
         groupedDecks := make(map[string]*GroupedDecks)
         ungroupedDecks := []models.Deck{}
@@ -90,6 +97,7 @@ func DeckStatsControllers(app *fiber.App){
 
         for i := range deckCards {
             deckCards[i].FmtPrice = fmt.Sprintf("%.2f", float32(deckCards[i].Price * int(deckCards[i].Qty)) / 100)
+            deckCards[i].IsGuest = isGuest
         }
 
 
@@ -145,6 +153,7 @@ func DeckStatsControllers(app *fiber.App){
         }
 
         return c.Render("pages/deck-stats/index", fiber.Map{
+            "IsGuest": isGuest,
             "CardsTotalManaCosts": string(totalCardTypeCostJSON),
             "EnchantmentColorCounts": string(enchantmentColorCountsJSON),
             "SorceryColorCounts": string(sorceryColorCountsJSON),
