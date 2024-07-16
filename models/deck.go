@@ -61,6 +61,14 @@ type DeckCardColorAndTypeCount struct {
     CreatureCount int
 }
 
+type DeckCardColorCount struct {
+    WhiteCount int
+    BlueCount int
+    BlackCount int
+    RedCount int
+    GreenCount int
+}
+
 func GetDeckGroups(db *gorm.DB, userId string) []DeckGroup {
     var groups []DeckGroup
     db.Raw("SELECT HEX(id) as id, user_id, label FROM Deck_Groups WHERE user_id = ?", userId).Scan(&groups)
@@ -252,33 +260,20 @@ func GetDeckInstantCosts(db *gorm.DB, deckId string) []TypeCost {
     return count
 }
 
-func GetDeckWhiteCardCount(db *gorm.DB, deckId string) int  {
-    count := 0
-    db.Raw("SELECT SUM(DC.qty) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id JOIN Card_Colors CLR ON CLR.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND CLR.color_id = 1 GROUP BY CLR.color_id ORDER BY CLR.color_id ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckBlueCardCount(db *gorm.DB, deckId string) int  {
-    count := 0
-    db.Raw("SELECT SUM(DC.qty) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id JOIN Card_Colors CLR ON CLR.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND CLR.color_id = 2 GROUP BY CLR.color_id ORDER BY CLR.color_id ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckBlackCardCount(db *gorm.DB, deckId string) int  {
-    count := 0
-    db.Raw("SELECT SUM(DC.qty) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id JOIN Card_Colors CLR ON CLR.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND CLR.color_id = 3 GROUP BY CLR.color_id ORDER BY CLR.color_id ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckRedCardCount(db *gorm.DB, deckId string) int  {
-    count := 0
-    db.Raw("SELECT SUM(DC.qty) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id JOIN Card_Colors CLR ON CLR.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND CLR.color_id = 4 GROUP BY CLR.color_id ORDER BY CLR.color_id ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckGreenCardCount(db *gorm.DB, deckId string) int  {
-    count := 0
-    db.Raw("SELECT SUM(DC.qty) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id JOIN Card_Colors CLR ON CLR.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND CLR.color_id = 5 GROUP BY CLR.color_id ORDER BY CLR.color_id ASC", deckId).Scan(&count)
+func GetDeckCardCountsByColor(db *gorm.DB, deckId string) DeckCardColorCount {
+    count := DeckCardColorCount{}
+    db.Raw(`
+        SELECT
+            SUM(CASE WHEN CLR.color_id LIKE 1 THEN DC.qty ELSE 0 END) AS WhiteCount,
+            SUM(CASE WHEN CLR.color_id LIKE 2 THEN DC.qty ELSE 0 END) AS BlueCount,
+            SUM(CASE WHEN CLR.color_id LIKE 3 THEN DC.qty ELSE 0 END) AS BlackCount,
+            SUM(CASE WHEN CLR.color_id LIKE 4 THEN DC.qty ELSE 0 END) AS RedCount,
+            SUM(CASE WHEN CLR.color_id LIKE 5 THEN DC.qty ELSE 0 END) AS GreenCount
+        FROM Deck_Cards DC 
+        JOIN Cards C ON C.id = DC.card_id 
+        JOIN Card_Colors CLR ON CLR.card_id = C.id 
+        WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 
+    `, deckId).Scan(&count)
     return count
 }
 

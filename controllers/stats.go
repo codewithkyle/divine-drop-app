@@ -129,13 +129,9 @@ func DeckStatsControllers(app *fiber.App){
             totalInstantCostJSON = []byte("[]")
         }
 
-        totalWhiteCards := models.GetDeckWhiteCardCount(db, deck.Id)
-        totalBlueCards := models.GetDeckBlueCardCount(db, deck.Id)
-        totalBlackCards := models.GetDeckBlackCardCount(db, deck.Id)
-        totalRedCards := models.GetDeckRedCardCount(db, deck.Id)
-        totalGreenCards := models.GetDeckGreenCardCount(db, deck.Id)
-        colorCounts := []int{totalWhiteCards, totalBlueCards, totalBlackCards, totalRedCards, totalGreenCards}
-        colorCountsJSON, err := json.Marshal(colorCounts)
+        colorCounts := models.GetDeckCardCountsByColor(db, deck.Id)
+        colorCountsArr := []int{colorCounts.WhiteCount, colorCounts.BlueCount, colorCounts.BlackCount, colorCounts.RedCount, colorCounts.GreenCount}
+        colorCountsJSON, err := json.Marshal(colorCountsArr)
         if err != nil {
             colorCountsJSON = []byte("[]")
         }
