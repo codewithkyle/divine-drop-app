@@ -65,10 +65,14 @@ func DeckEditorControllers(app *fiber.App){
             if card.InSideboard {
                 inSideboard = "1"
             }
-            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "', " + inSideboard + ")")
+            cardPrint := "null"
+            if card.Print != 0 {
+                cardPrint = "'" + fmt.Sprint(card.Print) + "'"
+            }
+            values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "', " + inSideboard + ", " + cardPrint + ")")
         }
 
-        db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated, sideboard) VALUES " + strings.Join(values, ", "))
+        db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated, sideboard, print) VALUES " + strings.Join(values, ", "))
 
         c.Response().Header.Set("HX-Redirect", "/decks/" + deckUUID)
         c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Cloned " + helpers.EscapeString(deck.Label) + "\"}")
