@@ -53,6 +53,22 @@ type TypeCost struct {
     Count int
 }
 
+type DeckCardTypeCount struct {
+    TMC int
+    Count int
+    CardType string
+}
+
+type DeckCardTMCCount struct {
+    TMC int
+    Count int
+    InstantCount int
+    SorceryCount int
+    EnchantmentCount int
+    CreatureCount int
+    ArtifactCount int
+}
+
 type DeckCardColorAndTypeCount struct {
     ColorId int
     InstantCount int
@@ -218,46 +234,66 @@ func GetDeckInstantCount(db *gorm.DB, deckId string) int {
     return count
 }
 
-func GetDeckManaCostsRange(db *gorm.DB, deckId string) []int {
-    count := []int{}
-    db.Raw("SELECT DISTINCT C.totalManaCost FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckManaCosts(db *gorm.DB, deckId string) []TypeCost {
-    count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type NOT LIKE '%Land%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckCreatureCosts(db *gorm.DB, deckId string) []TypeCost {
-    count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Creature%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckArtifactCosts(db *gorm.DB, deckId string) []TypeCost {
-    count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Artifact%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckEnchantmentCosts(db *gorm.DB, deckId string) []TypeCost {
-    count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Enchantment%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckSorceryCosts(db *gorm.DB, deckId string) []TypeCost {
-    count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Sorcery%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckInstantCosts(db *gorm.DB, deckId string) []TypeCost {
-    count := []TypeCost{}
-    db.Raw("SELECT C.totalManaCost as TMC, SUM(DC.qty) as Count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE DC.deck_id = UNHEX(?) AND DC.sideboard = 0 AND C.type LIKE '%Instant%' GROUP BY C.totalManaCost ORDER BY C.totalManaCost ASC", deckId).Scan(&count)
-    return count
+func GetDeckCardCountsByType(db *gorm.DB, deckId string) map[int]*DeckCardTMCCount {
+    raw := []DeckCardTypeCount{}
+    db.Raw(`
+        SELECT 
+            C.totalManaCost as TMC,
+            SUM(DC.qty) as Count, 
+            CASE 
+                WHEN C.type NOT LIKE '%Creature%' AND C.type NOT LIKE '%Artifact%' AND C.type NOT LIKE '%Enchantment%' AND C.type NOT LIKE '%Sorcery%' AND C.type NOT LIKE '%Instant%' THEN 'Other'
+                WHEN C.type LIKE '%Creature%' THEN 'Creature'
+                WHEN C.type LIKE '%Artifact%' THEN 'Artifact'
+                WHEN C.type LIKE '%Enchantment%' THEN 'Enchantment'
+                WHEN C.type LIKE '%Sorcery%' THEN 'Sorcery'
+                WHEN C.type LIKE '%Instant%' THEN 'Instant'
+            END as CardType
+        FROM 
+            Deck_Cards DC 
+        JOIN 
+            Cards C 
+        ON 
+            C.id = DC.card_id 
+        WHERE 
+            DC.deck_id = UNHEX(?) 
+            AND DC.sideboard = 0 
+            AND C.type NOT LIKE '%Land%'
+        GROUP BY 
+            C.totalManaCost, CardType 
+        ORDER BY 
+            C.totalManaCost ASC
+    `, deckId).Scan(&raw)
+    counts := make(map[int]*DeckCardTMCCount)
+    for i := 0; i < 11; i++ {
+        counts[i] = &DeckCardTMCCount{
+            TMC: i,
+            Count: 0,
+            InstantCount: 0,
+            SorceryCount: 0,
+            EnchantmentCount: 0,
+            CreatureCount: 0,
+            ArtifactCount: 0,
+        }
+    }
+    for _, count := range raw {
+        if _, ok := counts[count.TMC]; ok {
+            counts[count.TMC].Count += count.Count
+            switch count.CardType {
+                case "Instant":
+                    counts[count.TMC].InstantCount += count.Count
+                case "Sorcery":
+                    counts[count.TMC].SorceryCount += count.Count
+                case "Enchantment":
+                    counts[count.TMC].EnchantmentCount += count.Count
+                case "Creature":
+                    println(count.TMC, count.Count)
+                    counts[count.TMC].CreatureCount += count.Count
+                case "Artifact":
+                    counts[count.TMC].ArtifactCount += count.Count
+            }
+        }
+    }
+    return counts
 }
 
 func GetDeckCardCountsByColor(db *gorm.DB, deckId string) DeckCardColorCount {

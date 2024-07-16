@@ -12,14 +12,8 @@ class ManaRampChart extends HTMLElement {
         this.appendChild(this.canvas);
         const ctx = this.canvas.getContext("2d");
 
-        //const range = JSON.parse(this.dataset.tmcRange);
         const range = Array.from({length: 11}, (_, i) => i);
-        const tmc = JSON.parse(this.dataset.tmc)
-        const tmcCreature = JSON.parse(this.dataset.tmcCreature);
-        const tmcArtifact = JSON.parse(this.dataset.tmcArtifact);
-        const tmcEnchantment = JSON.parse(this.dataset.tmcEnchantment);
-        const tmcSorcery = JSON.parse(this.dataset.tmcSorcery);
-        const tmcInstant = JSON.parse(this.dataset.tmcInstant);
+        const cardsTMC = JSON.parse(this.dataset.tmcCards);
 
         let creatures = [];
         let enchantments = [];
@@ -29,65 +23,21 @@ class ManaRampChart extends HTMLElement {
         let allCards = [];
 
         for (let i = 0; i < range.length; i++) {
-            let foundCard = false;
-            for (let j = 0; j < tmc.length; j++) {
-                if (tmc[j].TMC === range[i]) {
-                    allCards.push(tmc[j].Count);
-                    foundCard = true;
-                    break;
-                }
+            if (i in cardsTMC) {
+                allCards.push(cardsTMC[i].Count);
+                creatures.push(cardsTMC[i].CreatureCount);
+                enchantments.push(cardsTMC[i].EnchantmentCount);
+                sorceries.push(cardsTMC[i].SorceryCount);
+                artifacts.push(cardsTMC[i].ArtifactCount);
+                instants.push(cardsTMC[i].InstantCount);
+            } else {
+                creatures.push(0);
+                enchantments.push(0);
+                sorceries.push(0);
+                artifacts.push(0);
+                instants.push(0);
+                allCards.push(0);
             }
-            if (!foundCard) allCards.push(0);
-
-            let foundCreature = false;
-            for (let j = 0; j < tmcCreature.length; j++) {
-                if (tmcCreature[j].TMC === range[i]) {
-                    creatures.push(tmcCreature[j].Count);
-                    foundCreature = true;
-                    break;
-                }
-            }
-            if (!foundCreature) creatures.push(0);
-
-            let foundArtifact = false;
-            for (let j = 0; j < tmcArtifact.length; j++) {
-                if (tmcArtifact[j].TMC === range[i]) {
-                    artifacts.push(tmcArtifact[j].Count);
-                    foundArtifact = true;
-                    break;
-                }
-            }
-            if (!foundArtifact) artifacts.push(0);
-
-            let foundEnchantment = false;
-            for (let j = 0; j < tmcEnchantment.length; j++) {
-                if (tmcEnchantment[j].TMC === range[i]) {
-                    enchantments.push(tmcEnchantment[j].Count);
-                    foundEnchantment = true;
-                    break;
-                }
-            }
-            if (!foundEnchantment) enchantments.push(0);
-
-            let foundSorcery = false;
-            for (let j = 0; j < tmcSorcery.length; j++) {
-                if (tmcSorcery[j].TMC === range[i]) {
-                    sorceries.push(tmcSorcery[j].Count);
-                    foundSorcery = true;
-                    break;
-                }
-            }
-            if (!foundSorcery) sorceries.push(0);
-
-            let foundInstant = false;
-            for (let j = 0; j < tmcInstant.length; j++) {
-                if (tmcInstant[j].TMC === range[i]) {
-                    instants.push(tmcInstant[j].Count);
-                    foundInstant = true;
-                    break;
-                }
-            }
-            if (!foundInstant) instants.push(0);
         }
 
         new Chart(ctx, {

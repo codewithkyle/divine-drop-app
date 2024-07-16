@@ -98,35 +98,10 @@ func DeckStatsControllers(app *fiber.App){
         sorceryCount := models.GetDeckSorceryCount(db, deck.Id)
         instantCount := models.GetDeckInstantCount(db, deck.Id)
 
-        totalManaCost := models.GetDeckManaCosts(db, deck.Id)
-        totalManaCostJSON, err := json.Marshal(totalManaCost)
+        totalCardTypeCost := models.GetDeckCardCountsByType(db, deck.Id)
+        totalCardTypeCostJSON, err := json.Marshal(totalCardTypeCost)
         if err != nil {
-            totalManaCostJSON = []byte("[]")
-        }
-        totalCreatureCost := models.GetDeckCreatureCosts(db, deck.Id)
-        totalCreatureCostJSON, err := json.Marshal(totalCreatureCost)
-        if err != nil {
-            totalCreatureCostJSON = []byte("[]")
-        }
-        totalArtifactCost := models.GetDeckArtifactCosts(db, deck.Id)
-        totalArtifactCostJSON, err := json.Marshal(totalArtifactCost)
-        if err != nil {
-            totalArtifactCostJSON = []byte("[]")
-        }
-        totalEnchantmentCost := models.GetDeckEnchantmentCosts(db, deck.Id)
-        totalEnchantmentCostJSON, err := json.Marshal(totalEnchantmentCost)
-        if err != nil {
-            totalEnchantmentCostJSON = []byte("[]")
-        }
-        totalSorceryCost := models.GetDeckSorceryCosts(db, deck.Id)
-        totalSorceryCostJSON, err := json.Marshal(totalSorceryCost)
-        if err != nil {
-            totalSorceryCostJSON = []byte("[]")
-        }
-        totalInstantCost := models.GetDeckInstantCosts(db, deck.Id)
-        totalInstantCostJSON, err := json.Marshal(totalInstantCost)
-        if err != nil {
-            totalInstantCostJSON = []byte("[]")
+            totalCardTypeCostJSON = []byte("{}")
         }
 
         colorCounts := models.GetDeckCardCountsByColor(db, deck.Id)
@@ -162,17 +137,12 @@ func DeckStatsControllers(app *fiber.App){
         }
 
         return c.Render("pages/deck-stats/index", fiber.Map{
+            "CardsTotalManaCosts": string(totalCardTypeCostJSON),
             "EnchantmentColorCounts": string(enchantmentColorCountsJSON),
             "SorceryColorCounts": string(sorceryColorCountsJSON),
             "InstantColorCounts": string(instantColorCountsJSON),
             "CreatureColorCounts": string(creatureColorCountsJSON),
             "ColorCounts": string(colorCountsJSON),
-            "TotalArtifactCost": string(totalArtifactCostJSON),
-            "TotalEnchantmentCost": string(totalEnchantmentCostJSON),
-            "TotalSorceryCost": string(totalSorceryCostJSON),
-            "TotalInstantCost": string(totalInstantCostJSON),
-            "TotalCreatureCost": string(totalCreatureCostJSON),
-            "TotalManaCosts": string(totalManaCostJSON),
             "ArtifactCount": artifactCount,
             "EnchantmentCount": enchantmentCount,
             "SorceryCount": sorceryCount,

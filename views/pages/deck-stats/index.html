@@ -33,12 +33,7 @@
     <div class="charts px-1">
         <mana-ramp-chart 
             class="mb-2 p-1.5 bg-grey-900 radius-1"
-            data-tmc="{{ .TotalManaCosts }}" 
-            data-tmc-creature="{{ .TotalCreatureCost }}"
-            data-tmc-artifact="{{ .TotalArtifactCost }}"
-            data-tmc-enchantment="{{ .TotalEnchantmentCost }}"
-            data-tmc-sorcery="{{ .TotalSorceryCost }}"
-            data-tmc-instant="{{ .TotalInstantCost }}"
+            data-tmc-cards="{{ .CardsTotalManaCosts }}"
         ></mana-ramp-chart>
         <mana-color-chart 
             class="p-1.5 bg-grey-900 radius-1"
