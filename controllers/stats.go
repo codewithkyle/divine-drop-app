@@ -140,45 +140,26 @@ func DeckStatsControllers(app *fiber.App){
             colorCountsJSON = []byte("[]")
         }
 
-        totalWhiteCreatureCards := models.GetDeckWhiteCreatureCardCount(db, deck.Id)
-        totalBlueCreatureCards := models.GetDeckBlueCreatureCardCount(db, deck.Id)
-        totalBlackCreatureCards := models.GetDeckBlackCreatureCardCount(db, deck.Id)
-        totalRedCreatureCards := models.GetDeckRedCreatureCardCount(db, deck.Id)
-        totalGreenCreatureCards := models.GetDeckGreenCreatureCardCount(db, deck.Id)
-        creatureColorCounts := []int{totalWhiteCreatureCards, totalBlueCreatureCards, totalBlackCreatureCards, totalRedCreatureCards, totalGreenCreatureCards}
+        colorAndTypeCounts := models.GetDeckCardCountsByColorAndType(db, deck.Id)
+        creatureColorCounts := []int{colorAndTypeCounts[1].CreatureCount, colorAndTypeCounts[2].CreatureCount, colorAndTypeCounts[3].CreatureCount, colorAndTypeCounts[4].CreatureCount, colorAndTypeCounts[5].CreatureCount}
         creatureColorCountsJSON, err := json.Marshal(creatureColorCounts)
         if err != nil {
             creatureColorCountsJSON = []byte("[]")
         }
 
-        totalWhiteEnchantmentCards := models.GetDeckWhiteEnchantmentCardCount(db, deck.Id)
-        totalBlueEnchantmentCards := models.GetDeckBlueEnchantmentCardCount(db, deck.Id)
-        totalBlackEnchantmentCards := models.GetDeckBlackEnchantmentCardCount(db, deck.Id)
-        totalRedEnchantmentCards := models.GetDeckRedEnchantmentCardCount(db, deck.Id)
-        totalGreenEnchantmentCards := models.GetDeckGreenEnchantmentCardCount(db, deck.Id)
-        enchantmentColorCounts := []int{totalWhiteEnchantmentCards, totalBlueEnchantmentCards, totalBlackEnchantmentCards, totalRedEnchantmentCards, totalGreenEnchantmentCards}
+        enchantmentColorCounts := []int{colorAndTypeCounts[1].EnchantmentCount, colorAndTypeCounts[2].EnchantmentCount, colorAndTypeCounts[3].EnchantmentCount, colorAndTypeCounts[4].EnchantmentCount, colorAndTypeCounts[5].EnchantmentCount}
         enchantmentColorCountsJSON, err := json.Marshal(enchantmentColorCounts)
         if err != nil {
             enchantmentColorCountsJSON = []byte("[]")
         }
 
-        totalWhiteSorceryCards := models.GetDeckWhiteSorceryCardCount(db, deck.Id)
-        totalBlueSorceryCards := models.GetDeckBlueSorceryCardCount(db, deck.Id)
-        totalBlackSorceryCards := models.GetDeckBlackSorceryCardCount(db, deck.Id)
-        totalRedSorceryCards := models.GetDeckRedSorceryCardCount(db, deck.Id)
-        totalGreenSorceryCards := models.GetDeckGreenSorceryCardCount(db, deck.Id)
-        sorceryColorCounts := []int{totalWhiteSorceryCards, totalBlueSorceryCards, totalBlackSorceryCards, totalRedSorceryCards, totalGreenSorceryCards}
+        sorceryColorCounts := []int{colorAndTypeCounts[1].SorceryCount, colorAndTypeCounts[2].SorceryCount, colorAndTypeCounts[3].SorceryCount, colorAndTypeCounts[4].SorceryCount, colorAndTypeCounts[5].SorceryCount}
         sorceryColorCountsJSON, err := json.Marshal(sorceryColorCounts)
         if err != nil {
             sorceryColorCountsJSON = []byte("[]")
         }
 
-        totalWhiteInstantCards := models.GetDeckWhiteInstantCardCount(db, deck.Id)
-        totalBlueInstantCards := models.GetDeckBlueInstantCardCount(db, deck.Id)
-        totalBlackInstantCards := models.GetDeckBlackInstantCardCount(db, deck.Id)
-        totalRedInstantCards := models.GetDeckRedInstantCardCount(db, deck.Id)
-        totalGreenInstantCards := models.GetDeckGreenInstantCardCount(db, deck.Id)
-        instantColorCounts := []int{totalWhiteInstantCards, totalBlueInstantCards, totalBlackInstantCards, totalRedInstantCards, totalGreenInstantCards}
+        instantColorCounts := []int{colorAndTypeCounts[1].InstantCount, colorAndTypeCounts[2].InstantCount, colorAndTypeCounts[3].InstantCount, colorAndTypeCounts[4].InstantCount, colorAndTypeCounts[5].InstantCount}
         instantColorCountsJSON, err := json.Marshal(instantColorCounts)
         if err != nil {
             instantColorCountsJSON = []byte("[]")
