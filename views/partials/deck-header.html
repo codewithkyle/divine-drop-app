@@ -1,7 +1,7 @@
 <header class="deck-editor">
     <div 
         class="art-banner"
-        x-data="{ url: decodeURIComponent('{{ .BannerArtUrl }}') }"
+        x-data="{ url: decodeURIComponent('{{ .EncodedBannerArtUrl }}') }"
         x-on:banner-art-update.document="if ($event.detail.value != $data.url) $data.url = event.detail.value;"
     >
             <img x-show="url != ''" :src="url">

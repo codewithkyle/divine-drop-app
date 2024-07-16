@@ -11,6 +11,29 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        {{ if .Deck }}
+            <meta property="og:title" content="{{ .Deck.Label }} - Divine Drop">
+            <meta property="og:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="og:image" content="{{- .BannerArtUrl -}}">
+            <meta property="og:image:width" content="1200">
+            <meta property="og:image:height" content="630">
+            <meta property="og:url" content="https://divinedrop.app/decks/{{ .Deck.Id }}">
+            <meta property="twitter:title" content="{{ .Deck.Label }} - Divine Drop">
+            <meta property="twitter:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="twitter:image" content="{{- .BannerArtUrl -}}">
+            <meta property="twitter:card" content="summary_large_image">
+            <meta property="twitter:url" content="https://divinedrop.app/decks/{{ .Deck.Id }}">
+        {{ else }}
+            <meta property="og:title" content="Divine Drop">
+            <meta property="og:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="twitter:title" content="Divine Drop">
+            <meta property="twitter:description" content="MTG deck builder, card browser, and play testing.">
+        {{ end }}
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Divine Drop">
+        <meta property="twitter:creator" content="@codewithkyle">
+
         <link rel="stylesheet" href="/css/normalize.css">
         <link rel="stylesheet" href="/css/brixi.css">
         <link rel="stylesheet" href="/css/base.css">
