@@ -92,16 +92,24 @@ func DeckStatsControllers(app *fiber.App){
             deckCards[i].FmtPrice = fmt.Sprintf("%.2f", float32(deckCards[i].Price * int(deckCards[i].Qty)) / 100)
         }
 
-        creatureCount := models.GetDeckCreaturesCount(db, deck.Id)
-        artifactCount := models.GetDeckArtifactCount(db, deck.Id)
-        enchantmentCount := models.GetDeckEnchantmentCount(db, deck.Id)
-        sorceryCount := models.GetDeckSorceryCount(db, deck.Id)
-        instantCount := models.GetDeckInstantCount(db, deck.Id)
 
-        totalCardTypeCost := models.GetDeckCardCountsByType(db, deck.Id)
+        totalCardTypeCost := models.GetDeckCardManaCountsByType(db, deck.Id)
         totalCardTypeCostJSON, err := json.Marshal(totalCardTypeCost)
         if err != nil {
             totalCardTypeCostJSON = []byte("{}")
+        }
+
+        creatureCount := 0
+        artifactCount := 0
+        enchantmentCount := 0
+        sorceryCount := 0
+        instantCount := 0
+        for i := range totalCardTypeCost {
+            creatureCount += totalCardTypeCost[i].CreatureCount
+            artifactCount += totalCardTypeCost[i].ArtifactCount
+            enchantmentCount += totalCardTypeCost[i].EnchantmentCount
+            sorceryCount += totalCardTypeCost[i].SorceryCount
+            instantCount += totalCardTypeCost[i].InstantCount
         }
 
         colorCounts := models.GetDeckCardCountsByColor(db, deck.Id)

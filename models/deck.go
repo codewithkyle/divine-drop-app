@@ -204,37 +204,7 @@ func GetDeckCost(db *gorm.DB, deckId string) float32 {
     return float32(cost) / 100
 }
 
-func GetDeckCreaturesCount(db *gorm.DB, deckId string) int {
-    count := 0
-    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Creature%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckArtifactCount(db *gorm.DB, deckId string) int {
-    count := 0
-    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Artifact%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckEnchantmentCount(db *gorm.DB, deckId string) int {
-    count := 0
-    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Enchantment%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckSorceryCount(db *gorm.DB, deckId string) int {
-    count := 0
-    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Sorcery%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckInstantCount(db *gorm.DB, deckId string) int {
-    count := 0
-    db.Raw("SELECT IFNULL(SUM(DC.qty), 0) as count FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id WHERE C.type LIKE '%Instant%' AND DC.deck_id = UNHEX(?)", deckId).Scan(&count)
-    return count
-}
-
-func GetDeckCardCountsByType(db *gorm.DB, deckId string) map[int]*DeckCardTMCCount {
+func GetDeckCardManaCountsByType(db *gorm.DB, deckId string) map[int]*DeckCardTMCCount {
     raw := []DeckCardTypeCount{}
     db.Raw(`
         SELECT 
@@ -286,7 +256,6 @@ func GetDeckCardCountsByType(db *gorm.DB, deckId string) map[int]*DeckCardTMCCou
                 case "Enchantment":
                     counts[count.TMC].EnchantmentCount += count.Count
                 case "Creature":
-                    println(count.TMC, count.Count)
                     counts[count.TMC].CreatureCount += count.Count
                 case "Artifact":
                     counts[count.TMC].ArtifactCount += count.Count
