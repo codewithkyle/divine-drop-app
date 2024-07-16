@@ -104,7 +104,7 @@ func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
     return cards
 }
 
-func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string, rarity string) []DeckCard {
+func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string, rarity string, color string) []DeckCard {
     query := "SELECT C.price, DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
     params := map[string]interface{}{
         "deck": deckId,
@@ -138,6 +138,19 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
             filterLogic = "AND C.type LIKE '%Instant%'"
         case "sorceries":
             filterLogic = "AND C.type LIKE '%Sorcery%'"
+    }
+
+    switch color {
+        case "W":
+            query += "JOIN Card_Colors cc ON C.id = cc.card_id JOIN Colors c ON cc.color_id = c.id AND c.color = 'W' "
+        case "U":
+            query += "JOIN Card_Colors cc ON C.id = cc.card_id JOIN Colors c ON cc.color_id = c.id AND c.color = 'U' "
+        case "B":
+            query += "JOIN Card_Colors cc ON C.id = cc.card_id JOIN Colors c ON cc.color_id = c.id AND c.color = 'B' "
+        case "R":
+            query += "JOIN Card_Colors cc ON C.id = cc.card_id JOIN Colors c ON cc.color_id = c.id AND c.color = 'R' "
+        case "G":
+            query += "JOIN Card_Colors cc ON C.id = cc.card_id JOIN Colors c ON cc.color_id = c.id AND c.color = 'G' "
     }
 
     if rarity != "any" && rarity != "" {

@@ -30,7 +30,7 @@ func DeckStatsControllers(app *fiber.App){
             return c.Redirect("/")
         }
         decks := models.GetDecks(db, deckId, user.Id)
-        deckCards := models.SearchDeckCards(db, deckId, "", "", "", "")
+        deckCards := models.SearchDeckCards(db, deckId, "", "", "", "", "")
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
         mythicsCount := models.GetMythicsCount(db, deckId)

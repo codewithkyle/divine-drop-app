@@ -45,9 +45,10 @@ func DeckManagerControllers(app *fiber.App){
         sort := c.Query("sort")
         filter := c.Query("filter")
         rarity := c.Query("rarity")
+        color := c.Query("color")
 
         decks := models.GetDecks(db, deckId, user.Id)
-        deckCards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity)
+        deckCards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
         mythicsCount := models.GetMythicsCount(db, deckId)
@@ -151,6 +152,7 @@ func DeckManagerControllers(app *fiber.App){
         sort := c.Query("sort")
         filter := c.Query("filter")
         rarity := c.Query("rarity")
+        color := c.Query("color")
 
         db := helpers.ConnectDB()
 
@@ -159,7 +161,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.Redirect("/")
         }
 
-        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity)
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
         for i := range(cards) {
             if cards[i].CardId == deck.CommanderCardId {
@@ -178,7 +180,7 @@ func DeckManagerControllers(app *fiber.App){
             }
         }
 
-        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter)
+        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter) + "&rarity=" + url.QueryEscape(rarity) + "&color=" + url.QueryEscape(color)
         c.Response().Header.Set("Hx-Replace-Url", url)
 
         return c.Render("partials/deck-manager/card-grid", fiber.Map{
@@ -568,6 +570,7 @@ func DeckManagerControllers(app *fiber.App){
         sort := c.Query("sort")
         filter := c.Query("filter")
         rarity := c.Query("rarity")
+        color := c.Query("color")
 
         db := helpers.ConnectDB()
 
@@ -576,7 +579,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.Redirect("/")
         }
 
-        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity)
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
         for i := range(cards) {
             if cards[i].CardId == deck.CommanderCardId {
@@ -594,7 +597,7 @@ func DeckManagerControllers(app *fiber.App){
             }
         }
 
-        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter)
+        url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter) + "&rarity=" + url.QueryEscape(rarity) + "&color=" + url.QueryEscape(color)
         c.Response().Header.Set("Hx-Replace-Url", url)
 
         return c.Render("partials/deck-manager/sideboard-card-grid", fiber.Map{

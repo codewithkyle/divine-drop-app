@@ -68,7 +68,7 @@
                     <option {{ if eq .Filter "lands" }}selected{{ end }} value="lands">Lands</option>
                 </select>
             </div>
-            <div class="select">
+            <div class="select mr-1.5">
                 <select
                     name="rarity"
                     hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
@@ -81,6 +81,26 @@
                     <option {{ if eq .Rarity "uncommon" }}selected{{ end }} value="uncommon">Uncommon</option>
                     <option {{ if eq .Rarity "rare" }}selected{{ end }} value="rare">Rare</option>
                     <option {{ if eq .Rarity "mythic" }}selected{{ end }} value="mythic">Mythic</option>
+                </select>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M6 9l6 6l6 -6"></path>
+                </svg>
+            </div>
+            <div class="select">
+                <select
+                    name="color"
+                    hx-get="/partials/deck-manager/card-grid/{{ .ActiveDeckId }}"
+                    hx-target="card-grid"
+                    hx-trigger="change"
+                    hx-include=".filters"
+                >
+                    <option {{ if eq .Color "" }}selected{{ end }} value="">Any Color</option>
+                    <option {{ if eq .Color "W" }}selected{{ end }} value="W">White</option>
+                    <option {{ if eq .Color "U" }}selected{{ end }} value="U">Blue</option>
+                    <option {{ if eq .Color "B" }}selected{{ end }} value="B">Black</option>
+                    <option {{ if eq .Color "R" }}selected{{ end }} value="R">Red</option>
+                    <option {{ if eq .Color "G" }}selected{{ end }} value="G">Green</option>
                 </select>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
