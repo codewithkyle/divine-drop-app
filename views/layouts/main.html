@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <title>Divine Drop</title>
-        <meta name="description" content="MTG deck builder, card browser, and play testing.">
+        <meta name="description" content="Browse, build, share, and playtest Magic: The Gathering decks.">
 
         <link rel="icon" href="/static/favicon.ico" sizes="any">        
         <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
@@ -12,22 +12,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         {{ if .Deck }}
-            <meta property="og:title" content="{{ .Deck.Label }} - Divine Drop">
-            <meta property="og:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="og:title" content="{{ .Deck.Label }}">
+            <meta property="og:description" content="Browse, build, share, and playtest Magic: The Gathering decks.">
             <meta property="og:image" content="{{- .BannerArtUrl -}}">
-            <meta property="og:image:width" content="1200">
-            <meta property="og:image:height" content="630">
+            <meta property="og:image:width" content="600">
+            <meta property="og:image:height" content="450">
             <meta property="og:url" content="https://divinedrop.app/decks/{{ .Deck.Id }}">
-            <meta property="twitter:title" content="{{ .Deck.Label }} - Divine Drop">
-            <meta property="twitter:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="twitter:title" content="{{ .Deck.Label }}">
+            <meta property="twitter:description" content="Browse, build, share, and playtest Magic: The Gathering decks.">
             <meta property="twitter:image" content="{{- .BannerArtUrl -}}">
             <meta property="twitter:card" content="summary_large_image">
             <meta property="twitter:url" content="https://divinedrop.app/decks/{{ .Deck.Id }}">
         {{ else }}
             <meta property="og:title" content="Divine Drop">
-            <meta property="og:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="og:description" content="Browse, build, share, and playtest Magic: The Gathering decks.">
             <meta property="twitter:title" content="Divine Drop">
-            <meta property="twitter:description" content="MTG deck builder, card browser, and play testing.">
+            <meta property="twitter:description" content="Browse, build, share, and playtest Magic: The Gathering decks.">
         {{ end }}
 
         <meta property="og:type" content="website" />
