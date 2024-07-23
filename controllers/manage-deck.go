@@ -129,7 +129,6 @@ func DeckManagerControllers(app *fiber.App){
                 }
             }
             if !deckCards[i].IsLegal && !deckCards[i].InSideboard {
-                println(deckCards[i].Name)
                 deck.IsLegal = false
             }
         }
@@ -648,7 +647,6 @@ func DeckManagerControllers(app *fiber.App){
                         }
                     case "commander":
                         if !cards[i].LegalCommander {
-                            println(cards[i].Name)
                             metadata.IsLegal = false
                         }
                     case "oathbreaker":

@@ -1,4 +1,12 @@
-{{ if and (not .Deck.IsLegal) (ne .Deck.Gamemode "") }}
+{{ if eq .Deck.Gamemode "" }}
+    <span
+        class="px-0.75 inline-block font-sm font-grey-300"
+        style="background-color:hsl(var(--grey-400-hsl)/0.1);height:24px;line-height:24px;border-radius:12px;"
+        hx-get="/partials/deck-manager/legality/{{ .Deck.Id }}"
+        hx-trigger="deckUpdated from:body"
+        hx-swap="outerHTML"
+    >Missing restrictions</span>
+{{ else if not .Deck.IsLegal }}
     <span
         class="px-0.75 inline-block font-sm font-red-400"
         style="background-color:hsl(var(--red-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
