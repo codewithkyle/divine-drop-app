@@ -117,7 +117,7 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT C.price, DC.print, DC.sideboard, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh, C.price, DC.print, DC.sideboard, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 

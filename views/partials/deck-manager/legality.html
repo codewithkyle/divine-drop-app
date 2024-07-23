@@ -1,0 +1,17 @@
+{{ if and (not .Deck.IsLegal) (ne .Deck.Gamemode "") }}
+    <span
+        class="px-0.75 inline-block font-sm font-red-400"
+        style="background-color:hsl(var(--red-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
+        hx-get="/partials/deck-manager/legality/{{ .Deck.Id }}"
+        hx-trigger="deckUpdated from:body"
+        hx-swap="outerHTML"
+    >Illegal {{ .Deck.Gamemode }} deck</span>
+{{ else }}
+    <span
+        class="px-0.75 inline-block font-sm font-green-400"
+        style="background-color:hsl(var(--green-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
+        hx-get="/partials/deck-manager/legality/{{ .Deck.Id }}"
+        hx-trigger="deckUpdated from:body"
+        hx-swap="outerHTML"
+    >Legal {{ .Deck.Gamemode }} deck</span>
+{{ end }}

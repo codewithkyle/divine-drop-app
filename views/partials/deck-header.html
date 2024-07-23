@@ -26,6 +26,9 @@
                 {{ template "partials/deck-builder/price" . }}
             </div>
             {{ template "partials/deck-builder/mana-types" . }}
+            {{ if eq .Page "deck-manager" }}
+                {{ template "partials/deck-manager/legality" . }}
+            {{ end }}
         </div>
     </div>
     <div flex="row nowrap items-start">

@@ -23,6 +23,8 @@ import (
 type PublicMetadata struct {
     Name string
     Cost string
+    Gamemode string
+    IsLegal bool
 }
 
 func DeckManagerControllers(app *fiber.App){
@@ -37,6 +39,7 @@ func DeckManagerControllers(app *fiber.App){
         if deck.Id == "" {
             return c.Redirect("/")
         }
+        deck.IsLegal = true
 
         isGuest := true
         if user.Id != "" && deck.UserId == user.Id {
@@ -124,8 +127,10 @@ func DeckManagerControllers(app *fiber.App){
                     case "predh":
                         deckCards[i].IsLegal = deckCards[i].LegalPredh
                 }
-            } else {
-                deckCards[i].IsLegal = true
+            }
+            if !deckCards[i].IsLegal && !deckCards[i].InSideboard {
+                println(deckCards[i].Name)
+                deck.IsLegal = false
             }
         }
 
@@ -587,10 +592,108 @@ func DeckManagerControllers(app *fiber.App){
         db := helpers.ConnectDB()
         deck := models.GetDeckMetadata(db, deckId)
         cost := models.GetDeckCost(db, deck.Id)
+        cards := models.GetDeckCards(db, deck.Id)
 
         metadata := PublicMetadata{}
         metadata.Name = deck.Label
         metadata.Cost = fmt.Sprintf("%.2f", cost)
+        metadata.Gamemode = deck.Gamemode
+        metadata.IsLegal = true
+
+        if deck.Gamemode != "" {
+            for i := range cards {
+                if cards[i].InSideboard {
+                    continue
+                }
+                switch deck.Gamemode {
+                    case "standard":
+                        if !cards[i].LegalStandard {
+                            metadata.IsLegal = false
+                        }
+                    case "future":
+                        if !cards[i].LegalFuture {
+                            metadata.IsLegal = false
+                        }
+                    case "historic":
+                        if !cards[i].LegalHistoric {
+                            metadata.IsLegal = false
+                        }
+                    case "gladiator":
+                        if !cards[i].LegalGladiator {
+                            metadata.IsLegal = false
+                        }
+                    case "pioneer":
+                        if !cards[i].LegalPioneer {
+                            metadata.IsLegal = false
+                        }
+                    case "explorer":
+                        if !cards[i].LegalExplorer {
+                            metadata.IsLegal = false
+                        }
+                    case "modern":
+                        if !cards[i].LegalModern {
+                            metadata.IsLegal = false
+                        }
+                    case "legacy":
+                        if !cards[i].LegalLegacy {
+                            metadata.IsLegal = false
+                        }
+                    case "pauper":
+                        if !cards[i].LegalPauper {
+                            metadata.IsLegal = false
+                        }
+                    case "vintage":
+                        if !cards[i].LegalVintage {
+                            metadata.IsLegal = false
+                        }
+                    case "commander":
+                        if !cards[i].LegalCommander {
+                            println(cards[i].Name)
+                            metadata.IsLegal = false
+                        }
+                    case "oathbreaker":
+                        if !cards[i].LegalOathbreaker {
+                            metadata.IsLegal = false
+                        }
+                    case "brawl":
+                        if !cards[i].LegalBrawl {
+                            metadata.IsLegal = false
+                        }
+                    case "historicbrawl":
+                        if !cards[i].LegalHistoricBrawl {
+                            metadata.IsLegal = false
+                        }
+                    case "alchemy":
+                        if !cards[i].LegalAlchemy {
+                            metadata.IsLegal = false
+                        }
+                    case "paupercommander":
+                        if !cards[i].LegalPauperCommander {
+                            metadata.IsLegal = false
+                        }
+                    case "duel":
+                        if !cards[i].LegalDuel {
+                            metadata.IsLegal = false
+                        }
+                    case "oldschool":
+                        if !cards[i].LegalOldSchool {
+                            metadata.IsLegal = false
+                        }
+                    case "premodern":
+                        if !cards[i].LegalPremodern {
+                            metadata.IsLegal = false
+                        }
+                    case "predh":
+                        if !cards[i].LegalPredh {
+                            metadata.IsLegal = false
+                        }
+                }
+                if !metadata.IsLegal {
+                    break
+                }
+            }
+        }
+
 
         return c.JSON(metadata)
     })
@@ -1166,6 +1269,117 @@ func DeckManagerControllers(app *fiber.App){
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Deck gamemode changed to " + gamemode + "\", \"deckUpdated\": \"" + deckId + "\"}")
         return c.Render("partials/deck-manager/card-grid", fiber.Map{
             "Cards": cards,
+        })
+    })
+
+    app.Get("/partials/deck-manager/legality/:id", func(c *fiber.Ctx) error {
+        user, _ := helpers.GetUserFromSession(c)
+
+        deckId := c.Params("id")
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            return c.Redirect("/")
+        }
+        deck.IsLegal = true
+        cards := models.SearchDeckCards(db, deckId, "", "", "", "", "")
+
+        if deck.Gamemode != "" {
+            for i := range(cards) {
+                if cards[i].InSideboard {
+                    continue
+                }
+                switch deck.Gamemode {
+                    case "standard":
+                        if !cards[i].LegalStandard {
+                            deck.IsLegal = false
+                        }
+                    case "future":
+                        if !cards[i].LegalFuture {
+                            deck.IsLegal = false
+                        }
+                    case "historic":
+                        if !cards[i].LegalHistoric {
+                            deck.IsLegal = false
+                        }
+                    case "gladiator":
+                        if !cards[i].LegalGladiator {
+                            deck.IsLegal = false
+                        }
+                    case "pioneer":
+                        if !cards[i].LegalPioneer {
+                            deck.IsLegal = false
+                        }
+                    case "explorer":
+                        if !cards[i].LegalExplorer {
+                            deck.IsLegal = false
+                        }
+                    case "modern":
+                        if !cards[i].LegalModern {
+                            deck.IsLegal = false
+                        }
+                    case "legacy":
+                        if !cards[i].LegalLegacy {
+                            deck.IsLegal = false
+                        }
+                    case "pauper":
+                        if !cards[i].LegalPauper {
+                            deck.IsLegal = false
+                        }
+                    case "vintage":
+                        if !cards[i].LegalVintage {
+                            deck.IsLegal = false
+                        }
+                    case "commander":
+                        if !cards[i].LegalCommander {
+                            deck.IsLegal = false
+                        }
+                    case "oathbreaker":
+                        if !cards[i].LegalOathbreaker {
+                            deck.IsLegal = false
+                        }
+                    case "brawl":
+                        if !cards[i].LegalBrawl {
+                            deck.IsLegal = false
+                        }
+                    case "historicbrawl":
+                        if !cards[i].LegalHistoricBrawl {
+                            deck.IsLegal = false
+                        }
+                    case "alchemy":
+                        if !cards[i].LegalAlchemy {
+                            deck.IsLegal = false
+                        }
+                    case "paupercommander":
+                        if !cards[i].LegalPauperCommander {
+                            deck.IsLegal = false
+                        }
+                    case "duel":
+                        if !cards[i].LegalDuel {
+                            deck.IsLegal = false
+                        }
+                    case "oldschool":
+                        if !cards[i].LegalOldSchool {
+                            deck.IsLegal = false
+                        }
+                    case "premodern":
+                        if !cards[i].LegalPremodern {
+                            deck.IsLegal = false
+                        }
+                    case "predh":
+                        if !cards[i].LegalPredh {
+                            deck.IsLegal = false
+                        }
+                }
+                if !deck.IsLegal {
+                    break
+                }
+            }
+        }
+
+        return c.Render("partials/deck-manager/legality", fiber.Map{
+            "Deck": deck,
         })
     })
 }
