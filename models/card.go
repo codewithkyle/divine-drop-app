@@ -64,6 +64,28 @@ type DeckCard struct {
     Price int `gorm:"column:price"`
     FmtPrice string
     IsGuest bool
+    IsLegal bool
+    LegalStandard bool `gorm:"column:standard;type:tinyint"`
+    LegalFuture bool `gorm:"column:future;type:tinyint"`
+    LegalHistoric bool `gorm:"column:historic;type:tinyint"`
+    LegalGladiator bool `gorm:"column:gladiator;type:tinyint"`
+    LegalPioneer bool `gorm:"column:pioneer;type:tinyint"`
+    LegalExplorer bool `gorm:"column:explorer;type:tinyint"`
+    LegalModern bool `gorm:"column:modern;type:tinyint"`
+    LegalLegacy bool `gorm:"column:legacy;type:tinyint"`
+    LegalPauper bool `gorm:"column:pauper;type:tinyint"`
+    LegalVintage bool `gorm:"column:vintage;type:tinyint"`
+    LegalPenny bool `gorm:"column:penny;type:tinyint"`
+    LegalCommander bool `gorm:"column:commander;type:tinyint"`
+    LegalOathbreaker bool `gorm:"column:oathbreaker;type:tinyint"`
+    LegalBrawl bool `gorm:"column:brawl;type:tinyint"`
+    LegalHistoricBrawl bool `gorm:"column:historicbrawl;type:tinyint"`
+    LegalAlchemy bool `gorm:"column:alchemy;type:tinyint"`
+    LegalPauperCommander bool `gorm:"column:paupercommander;type:tinyint"`
+    LegalDuel bool `gorm:"column:duel;type:tinyint"`
+    LegalOldSchool bool `gorm:"column:oldschool;type:tinyint"`
+    LegalPremodern bool `gorm:"column:premodern;type:tinyint"`
+    LegalPredh bool `gorm:"column:predh;type:tinyint"`
 }
 
 type DeckCardMetadata struct {
@@ -106,7 +128,9 @@ func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
 }
 
 func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string, rarity string, color string) []DeckCard {
-    query := "SELECT C.price, DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
+    query := "SELECT C.price, DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name, "
+    query += "C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh "
+    query += "FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
     params := map[string]interface{}{
         "deck": deckId,
         "name": "%" + strings.Trim(name, " ") + "%",

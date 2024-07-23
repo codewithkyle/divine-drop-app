@@ -1,7 +1,7 @@
 {{ range .Cards }}
     {{ if not .InSideboard }}
         <div 
-            class="card"
+            class="card {{ if not .IsLegal }}is-illegal{{ end }}"
             x-data="{ flip: false }"
             :class="{ 'flipped': flip }"
         >
@@ -9,13 +9,20 @@
                 {{ template "partials/deck-manager/card-image" . }}
             </div>
             <div class="w-full mt-0.5" flex="row nowrap items-center justify-between">
-                <span 
-                    class="ml-0.25 px-0.5 inline-block font-xs font-green-400"
-                    style="background-color:hsl(var(--green-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
-                    x-data="{ price: {{ .Price }}, qty: {{ .Qty }}, display: '' }"
-                    x-on:qty-update.window="if ($event.detail.id == '{{ .CardId }}') qty = $event.detail.qty"
-                    x-text="new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((price * qty) / 100)"
-                >${{ .FmtPrice }}</span>
+                {{ if .IsLegal }}
+                    <span 
+                        class="ml-0.25 px-0.5 inline-block font-xs font-green-400"
+                        style="background-color:hsl(var(--green-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
+                        x-data="{ price: {{ .Price }}, qty: {{ .Qty }}, display: '' }"
+                        x-on:qty-update.window="if ($event.detail.id == '{{ .CardId }}') qty = $event.detail.qty"
+                        x-text="new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((price * qty) / 100)"
+                    >${{ .FmtPrice }}</span>
+                {{ else }}
+                    <span
+                        class="ml-0.25 px-0.75 inline-block font-xs font-red-400"
+                        style="background-color:hsl(var(--red-400-hsl)/0.05);height:24px;line-height:24px;border-radius:12px;"
+                    >Illegal</span>
+                {{ end }}
                 <div class="actions">
                     <button
                         x-data=""

@@ -80,6 +80,53 @@ func DeckManagerControllers(app *fiber.App){
                     deckCards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deckCards[i].CardId) + "-" + printDate +  "-back.png"
                 }
             }
+
+            if deck.Gamemode != "" {
+                switch deck.Gamemode {
+                    case "standard":
+                        deckCards[i].IsLegal = deckCards[i].LegalStandard
+                    case "future":
+                        deckCards[i].IsLegal = deckCards[i].LegalFuture
+                    case "historic":
+                        deckCards[i].IsLegal = deckCards[i].LegalHistoric
+                    case "gladiator":
+                        deckCards[i].IsLegal = deckCards[i].LegalGladiator
+                    case "pioneer":
+                        deckCards[i].IsLegal = deckCards[i].LegalPioneer
+                    case "explorer":
+                        deckCards[i].IsLegal = deckCards[i].LegalExplorer
+                    case "modern":
+                        deckCards[i].IsLegal = deckCards[i].LegalModern
+                    case "legacy":
+                        deckCards[i].IsLegal = deckCards[i].LegalLegacy
+                    case "pauper":
+                        deckCards[i].IsLegal = deckCards[i].LegalPauper
+                    case "vintage":
+                        deckCards[i].IsLegal = deckCards[i].LegalVintage
+                    case "commander":
+                        deckCards[i].IsLegal = deckCards[i].LegalCommander
+                    case "oathbreaker":
+                        deckCards[i].IsLegal = deckCards[i].LegalOathbreaker
+                    case "brawl":
+                        deckCards[i].IsLegal = deckCards[i].LegalBrawl
+                    case "historicbrawl":
+                        deckCards[i].IsLegal = deckCards[i].LegalHistoricBrawl
+                    case "alchemy":
+                        deckCards[i].IsLegal = deckCards[i].LegalAlchemy
+                    case "paupercommander":
+                        deckCards[i].IsLegal = deckCards[i].LegalPauperCommander
+                    case "duel":
+                        deckCards[i].IsLegal = deckCards[i].LegalDuel
+                    case "oldschool":
+                        deckCards[i].IsLegal = deckCards[i].LegalOldSchool
+                    case "premodern":
+                        deckCards[i].IsLegal = deckCards[i].LegalPremodern
+                    case "predh":
+                        deckCards[i].IsLegal = deckCards[i].LegalPredh
+                }
+            } else {
+                deckCards[i].IsLegal = true
+            }
         }
 
         deckGroups := []models.DeckGroup{}
@@ -118,11 +165,12 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         return c.Render("pages/deck-manager/index", fiber.Map{
+            "Legality": deck.Gamemode,
             "IsGuest": isGuest,
             "IsOverBudget": overBudget,
             "Budget": fmt.Sprintf("%.2f", float32(deckMetadata.Budget) / 100),
             "DeckPrice": fmt.Sprintf("%.2f", cost),
-            "Page": "deck-editor",
+            "Page": "deck-manager",
             "User": user,
             "Deck": deck,
             "GroupedDecks": groupedDecks,
@@ -190,6 +238,53 @@ func DeckManagerControllers(app *fiber.App){
                 }
             }
             cards[i].IsGuest = isGuest
+
+            if deck.Gamemode != "" {
+                switch deck.Gamemode {
+                    case "standard":
+                        cards[i].IsLegal = cards[i].LegalStandard
+                    case "future":
+                        cards[i].IsLegal = cards[i].LegalFuture
+                    case "historic":
+                        cards[i].IsLegal = cards[i].LegalHistoric
+                    case "gladiator":
+                        cards[i].IsLegal = cards[i].LegalGladiator
+                    case "pioneer":
+                        cards[i].IsLegal = cards[i].LegalPioneer
+                    case "explorer":
+                        cards[i].IsLegal = cards[i].LegalExplorer
+                    case "modern":
+                        cards[i].IsLegal = cards[i].LegalModern
+                    case "legacy":
+                        cards[i].IsLegal = cards[i].LegalLegacy
+                    case "pauper":
+                        cards[i].IsLegal = cards[i].LegalPauper
+                    case "vintage":
+                        cards[i].IsLegal = cards[i].LegalVintage
+                    case "commander":
+                        cards[i].IsLegal = cards[i].LegalCommander
+                    case "oathbreaker":
+                        cards[i].IsLegal = cards[i].LegalOathbreaker
+                    case "brawl":
+                        cards[i].IsLegal = cards[i].LegalBrawl
+                    case "historicbrawl":
+                        cards[i].IsLegal = cards[i].LegalHistoricBrawl
+                    case "alchemy":
+                        cards[i].IsLegal = cards[i].LegalAlchemy
+                    case "paupercommander":
+                        cards[i].IsLegal = cards[i].LegalPauperCommander
+                    case "duel":
+                        cards[i].IsLegal = cards[i].LegalDuel
+                    case "oldschool":
+                        cards[i].IsLegal = cards[i].LegalOldSchool
+                    case "premodern":
+                        cards[i].IsLegal = cards[i].LegalPremodern
+                    case "predh":
+                        cards[i].IsLegal = cards[i].LegalPredh
+                }
+            } else {
+                cards[i].IsLegal = true
+            }
         }
 
         url := "/decks/" + deckId + "?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&filter=" + url.QueryEscape(filter) + "&rarity=" + url.QueryEscape(rarity) + "&color=" + url.QueryEscape(color)
@@ -978,6 +1073,99 @@ func DeckManagerControllers(app *fiber.App){
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Deck budget updated to $" + fmt.Sprintf("%.2f", budget) + "\", \"deckUpdated\": \"" + deckId + "\"}")
         return c.Render("partials/deck-builder/budget", fiber.Map{
             "Budget": fmt.Sprintf("%.2f", budget),
+        })
+    })
+
+    app.Post("/decks/:deckId/gamemode", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("deckId")
+        gamemode := c.FormValue("gamemode", "")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        if gamemode == "" {
+            db.Exec("UPDATE Decks SET gamemode = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+        } else {
+            db.Exec("UPDATE Decks SET gamemode = ? WHERE id = UNHEX(?) AND user_id = ?", gamemode, deck.Id, user.Id)
+        }
+
+        search := c.FormValue("search")
+        sort := c.FormValue("sort")
+        filter := c.FormValue("filter")
+        rarity := c.FormValue("rarity")
+        color := c.FormValue("color")
+
+        cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
+
+        for i := range(cards) {
+            if cards[i].CardId == deck.CommanderCardId {
+                cards[i].IsCommander = true
+            }
+            if cards[i].CardId == deck.OathbreakerCardId {
+                cards[i].IsOathbreaker = true
+            }
+
+            if cards[i].Print != 0 {
+                printDate := strconv.Itoa(cards[i].Print)
+                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
+                if cards[i].Back != "" {
+                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                }
+            }
+
+            if gamemode != "" {
+                switch gamemode {
+                    case "standard":
+                        cards[i].IsLegal = cards[i].LegalStandard
+                    case "pioneer":
+                        cards[i].IsLegal = cards[i].LegalPioneer
+                    case "modern":
+                        cards[i].IsLegal = cards[i].LegalModern
+                    case "legacy":
+                        cards[i].IsLegal = cards[i].LegalLegacy
+                    case "pauper":
+                        cards[i].IsLegal = cards[i].LegalPauper
+                    case "vintage":
+                        cards[i].IsLegal = cards[i].LegalVintage
+                    case "commander":
+                        cards[i].IsLegal = cards[i].LegalCommander
+                    case "oathbreaker":
+                        cards[i].IsLegal = cards[i].LegalOathbreaker
+                    case "brawl":
+                        cards[i].IsLegal = cards[i].LegalBrawl
+                    case "historicbrawl":
+                        cards[i].IsLegal = cards[i].LegalHistoricBrawl
+                    case "alchemy":
+                        cards[i].IsLegal = cards[i].LegalAlchemy
+                    case "paupercommander":
+                        cards[i].IsLegal = cards[i].LegalPauperCommander
+                    case "duel":
+                        cards[i].IsLegal = cards[i].LegalDuel
+                    case "oldschool":
+                        cards[i].IsLegal = cards[i].LegalOldSchool
+                    case "premodern":
+                        cards[i].IsLegal = cards[i].LegalPremodern
+                    case "predh":
+                        cards[i].IsLegal = cards[i].LegalPredh
+                }
+            } else {
+                cards[i].IsLegal = true
+            }
+        }
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Deck gamemode changed to " + gamemode + "\", \"deckUpdated\": \"" + deckId + "\"}")
+        return c.Render("partials/deck-manager/card-grid", fiber.Map{
+            "Cards": cards,
         })
     })
 }

@@ -117,6 +117,12 @@ deck-manager{
                 }
             }
 
+            &.is-illegal {
+                .container{
+                    filter: grayscale(100%);
+                }
+            }
+
             .actions{
                 display: flex;
                 align-items: center;

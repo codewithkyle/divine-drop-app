@@ -96,6 +96,40 @@
                         <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 7v10" /></svg>
                         {{ template "partials/deck-builder/budget" . }}
                     </button>
+                    {{ if eq .Page "deck-manager" }}
+                        <div class="select">
+                            <select
+                                name="gamemode"
+                                hx-post="/decks/{{ .ActiveDeckId }}/gamemode"
+                                hx-target="card-grid"
+                                hx-include=".filters"
+                            >
+                                <option {{ if eq .Legality "" }}selected{{ end }} value="">No Restrictions</option>
+                                <option {{ if eq .Legality "standard" }}selected{{ end }} value="standard">Standard</option>
+                                <option {{ if eq .Legality "future" }}selected{{ end }} value="future">Future</option>
+                                <option {{ if eq .Legality "historic" }}selected{{ end }} value="historic">Historic</option>
+                                <option {{ if eq .Legality "gladiator" }}selected{{ end }} value="gladiator">Gladiator</option>
+                                <option {{ if eq .Legality "pioneer" }}selected{{ end }} value="pioneer">Pioneer</option>
+                                <option {{ if eq .Legality "explorer" }}selected{{ end }} value="explorer">Explorer</option>
+                                <option {{ if eq .Legality "modern" }}selected{{ end }} value="modern">Modern</option>
+                                <option {{ if eq .Legality "legacy" }}selected{{ end }} value="legacy">Legacy</option>
+                                <option {{ if eq .Legality "pauper" }}selected{{ end }} value="pauper">Pauper</option>
+                                <option {{ if eq .Legality "vintage" }}selected{{ end }} value="vintage">Vintage</option>
+                                <option {{ if eq .Legality "penny" }}selected{{ end }} value="penny">Penny</option>
+                                <option {{ if eq .Legality "commander" }}selected{{ end }} value="commander">Commander</option>
+                                <option {{ if eq .Legality "oathbreaker" }}selected{{ end }} value="oathbreaker">Oathbreaker</option>
+                                <option {{ if eq .Legality "brawl" }}selected{{ end }} value="brawl">Brawl</option>
+                                <option {{ if eq .Legality "historicbrawl" }}selected{{ end }} value="historicbrawl">Historic Brawl</option>
+                                <option {{ if eq .Legality "alchemy" }}selected{{ end }} value="alchemy">Alchemy</option>
+                                <option {{ if eq .Legality "paupercommander" }}selected{{ end }} value="paupercommander">Pauper Commander</option>
+                                <option {{ if eq .Legality "duel" }}selected{{ end }} value="duel">Duel</option>
+                                <option {{ if eq .Legality "oldschool" }}selected{{ end }} value="oldschool">Oldschool</option>
+                                <option {{ if eq .Legality "premodern" }}selected{{ end }} value="premodern">Premodern</option>
+                                <option {{ if eq .Legality "predh" }}selected{{ end }} value="predh">preDH</option>
+                            </select>
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 10l7.383 7.418c.823 .82 .823 2.148 0 2.967a2.11 2.11 0 0 1 -2.976 0l-7.407 -7.385" /><path d="M6 9l4 4" /><path d="M13 10l-4 -4" /><path d="M3 21h7" /><path d="M6.793 15.793l-3.586 -3.586a1 1 0 0 1 0 -1.414l2.293 -2.293l.5 .5l3 -3l-.5 -.5l2.293 -2.293a1 1 0 0 1 1.414 0l3.586 3.586a1 1 0 0 1 0 1.414l-2.293 2.293l-.5 -.5l-3 3l.5 .5l-2.293 2.293a1 1 0 0 1 -1.414 0z" /></svg>
+                        </div>
+                    {{ end }}
                 {{ end }}
                 <a href="/decks/{{ .ActiveDeckId }}/stats">
                     <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3v18h18" /><path d="M20 18v3" /><path d="M16 16v5" /><path d="M12 13v8" /><path d="M8 16v5" /><path d="M3 11c6 0 5 -5 9 -5s3 5 9 5" /></svg>
