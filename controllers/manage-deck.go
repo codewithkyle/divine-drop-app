@@ -128,6 +128,8 @@ func DeckManagerControllers(app *fiber.App){
                     case "predh":
                         deckCards[i].IsLegal = deckCards[i].LegalPredh
                 }
+            } else {
+                deckCards[i].IsLegal = true
             }
             if !deckCards[i].IsLegal && !deckCards[i].InSideboard {
                 deck.IsLegal = false
@@ -1263,7 +1265,7 @@ func DeckManagerControllers(app *fiber.App){
                         cards[i].IsLegal = cards[i].LegalPredh
                 }
             } else {
-                cards[i].IsLegal = false
+                cards[i].IsLegal = true
             }
         }
 
