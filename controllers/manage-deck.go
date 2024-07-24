@@ -74,6 +74,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         for i := range deckCards {
+            deckCards[i].Gamemode = deck.Gamemode
             deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
             if deckCards[i].Print != 0 {
@@ -227,6 +228,7 @@ func DeckManagerControllers(app *fiber.App){
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
         for i := range(cards) {
+            cards[i].Gamemode = deck.Gamemode
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
             }
@@ -1209,6 +1211,7 @@ func DeckManagerControllers(app *fiber.App){
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
         for i := range(cards) {
+            cards[i].Gamemode = gamemode
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
             }
@@ -1260,7 +1263,7 @@ func DeckManagerControllers(app *fiber.App){
                         cards[i].IsLegal = cards[i].LegalPredh
                 }
             } else {
-                cards[i].IsLegal = true
+                cards[i].IsLegal = false
             }
         }
 

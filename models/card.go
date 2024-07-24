@@ -56,6 +56,7 @@ type DeckCard struct {
     Back string
     Name string
     Art string
+    Gamemode string
     DateCreated string `gorm:"column:dateCreated;type:datetime"`
     IsCommander bool
     IsOathbreaker bool
