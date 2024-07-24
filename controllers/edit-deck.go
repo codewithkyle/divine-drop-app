@@ -119,6 +119,7 @@ func DeckEditorControllers(app *fiber.App){
         set := c.Query("set")
         layout := c.Query("layout", "grid")
         price := c.Query("price", "0")
+        searchText := c.Query("searchText", "")
 
         priceFloat, err := strconv.ParseFloat(price, 32)
         priceInt := 0
@@ -160,7 +161,7 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         decks := models.GetDecks(db, deckId, user.Id)
-        cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, set, priceInt, 0, 20)
+        cards := models.FilterCards(db, search, searchText == "on", sort, mana, types, subtypes, keywords, rarity, legality, set, priceInt, 0, 20)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -382,6 +383,12 @@ func DeckEditorControllers(app *fiber.App){
             set := form.Value["set"][0]
             layout := form.Value["layout"][0]
             price := form.Value["price"][0]
+            searchText := form.Value["searchText"]
+
+            searchTextValue := ""
+            if len(searchText) > 0 {
+                searchTextValue = "on"
+            }
 
             if price == "" {
                 price = "0"
@@ -401,9 +408,9 @@ func DeckEditorControllers(app *fiber.App){
             }
 
             db := helpers.ConnectDB()
-            cards := models.FilterCards(db, search, sort, mana, types, subtypes, keywords, rarity, legality, set, priceInt, offset, 20)
+            cards := models.FilterCards(db, search, searchText != nil, sort, mana, types, subtypes, keywords, rarity, legality, set, priceInt, offset, 20)
 
-            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality) + "&layout=" + url.QueryEscape(layout) + "&set=" + url.QueryEscape(set) + "&price=" + url.QueryEscape(price))
+            c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality) + "&layout=" + url.QueryEscape(layout) + "&set=" + url.QueryEscape(set) + "&price=" + url.QueryEscape(price) + "&searchText=" + searchTextValue)
 
             if offset > 0 {
                 if len(cards) > 0 {

@@ -188,7 +188,7 @@ func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filte
     return cards
 }
 
-func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, price int, offset int, limit int) []Card {
+func FilterCards(db *gorm.DB, name string, searchText bool, sort string, mana []string, types []string, subtypes []string, keywords []string, rarity string, legality string, set string, price int, offset int, limit int) []Card {
     var cards []Card
     query := "SELECT GROUP_CONCAT(CT.text) as text, C.name, C.price, C.front, C.back, HEX(C.id) AS id, C.name FROM Cards AS C LEFT JOIN Card_Texts CT ON C.id = CT.card_id "
     name = strings.Trim(name, " ")
@@ -256,10 +256,13 @@ func FilterCards(db *gorm.DB, name string, sort string, mana []string, types []s
     }
 
     if name != "" {
-        query += "LEFT JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN NATURAL LANGUAGE MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
-        query += "WHERE C.name LIKE @name "
-        params["name"] = "%" + strings.Trim(name, " ") + "%"
-        params["fts"] = name
+        if searchText {
+            query += "JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN NATURAL LANGUAGE MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
+            params["fts"] = name
+        } else {
+            query += "WHERE C.name LIKE @name "
+            params["name"] = "%" + strings.Trim(name, " ") + "%"
+        }
     } else {
         query += "WHERE 1=1 "
     }
