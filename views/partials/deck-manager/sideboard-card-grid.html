@@ -9,20 +9,22 @@
                 {{ template "partials/deck-manager/card-image" . }}
             </div>
             <div class="actions mt-0.5">
-                <button x-data=""
-                    x-on:click="$dispatch('card-print-modal', { cardId: '{{ .CardId }}' });"
-                    tooltip="Change print"
-                >
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M12 21h-6a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v6" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l3 3" /><path d="M14 14l1 -1c.48 -.461 1.016 -.684 1.551 -.67" /><path d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19.001 15.5v1.5" /><path d="M19.001 21v1.5" /><path d="M22.032 17.25l-1.299 .75" /><path d="M17.27 20l-1.3 .75" /><path d="M15.97 17.25l1.3 .75" /><path d="M20.733 20l1.3 .75" /></svg>
-                </button>
-                <button
-                    tooltip="Send to deck"
-                    hx-delete="/decks/{{ .DeckId }}/sideboard/{{ .CardId }}"
-                    hx-target="closest .card"
-                    hx-swap="delete"
-                >
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 11l-6 -6" /><path d="M6 11l6 -6" /></svg>
-                </button>
+                {{ if not .IsGuest }}
+                    <button x-data=""
+                        x-on:click="$dispatch('card-print-modal', { cardId: '{{ .CardId }}' });"
+                        tooltip="Change print"
+                    >
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M12 21h-6a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v6" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l3 3" /><path d="M14 14l1 -1c.48 -.461 1.016 -.684 1.551 -.67" /><path d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19.001 15.5v1.5" /><path d="M19.001 21v1.5" /><path d="M22.032 17.25l-1.299 .75" /><path d="M17.27 20l-1.3 .75" /><path d="M15.97 17.25l1.3 .75" /><path d="M20.733 20l1.3 .75" /></svg>
+                    </button>
+                    <button
+                        tooltip="Send to deck"
+                        hx-delete="/decks/{{ .DeckId }}/sideboard/{{ .CardId }}"
+                        hx-target="closest .card"
+                        hx-swap="delete"
+                    >
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 11l-6 -6" /><path d="M6 11l6 -6" /></svg>
+                    </button>
+                {{ end }}
                 <input 
                     type="number"
                     min="1"
@@ -32,24 +34,27 @@
                     hx-trigger="keyup delay:500ms"
                     name="qty"
                     class="mr-0.5"
+                    {{ if .IsGuest }}readonly{{ end }}
                 >
-                <button
-                    class="-delete"
-                    aria-label="Delete card"
-                    tooltip
-                    hx-delete="/decks/{{ .DeckId }}/cards/{{ .CardId }}"
-                    hx-swap="delete"
-                    hx-target="closest .card"
-                    hx-confirm="Are you sure you want to remove {{ .Name }}?"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M4 7h16"></path>
-                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                        <path d="M10 12l4 4m0 -4l-4 4"></path>
-                    </svg>
-                </button>
+                {{ if not .IsGuest }}
+                    <button
+                        class="-delete"
+                        aria-label="Delete card"
+                        tooltip
+                        hx-delete="/decks/{{ .DeckId }}/cards/{{ .CardId }}"
+                        hx-swap="delete"
+                        hx-target="closest .card"
+                        hx-confirm="Are you sure you want to remove {{ .Name }}?"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M4 7h16"></path>
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                            <path d="M10 12l4 4m0 -4l-4 4"></path>
+                        </svg>
+                    </button>
+                {{ end }}
             </div>
         </div>
     {{ end }}
