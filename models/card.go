@@ -59,6 +59,7 @@ type DeckCard struct {
     Gamemode string
     DateCreated string `gorm:"column:dateCreated;type:datetime"`
     IsCommander bool
+    IsPartner bool
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
     Print int `gorm:"column:print"`
@@ -96,6 +97,7 @@ type DeckCardMetadata struct {
     Back string
     Name string
     IsCommander bool
+    IsPartner bool
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
     Print int `gorm:"column:print"`

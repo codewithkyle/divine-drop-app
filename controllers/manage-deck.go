@@ -76,6 +76,7 @@ func DeckManagerControllers(app *fiber.App){
         for i := range deckCards {
             deckCards[i].Gamemode = deck.Gamemode
             deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
+            deckCards[i].IsPartner = deckCards[i].CardId == deck.PartnerCardId
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
             if deckCards[i].Print != 0 {
                 printDate := strconv.Itoa(deckCards[i].Print)
@@ -234,6 +235,9 @@ func DeckManagerControllers(app *fiber.App){
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
             }
+            if cards[i].CardId == deck.PartnerCardId {
+                cards[i].IsPartner = true
+            }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
             }
@@ -335,6 +339,42 @@ func DeckManagerControllers(app *fiber.App){
         db.Exec("UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
+
+        return c.SendStatus(200)
+    })
+
+    app.Post("/decks/:id/partner/:cardId", func(c *fiber.Ctx) error {
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            return c.Redirect("/sign-in")
+        }
+
+        deckId := c.Params("id")
+        cardId := c.Params("cardId")
+
+        db := helpers.ConnectDB()
+
+        deck := models.GetDeck(db, deckId, user.Id)
+        if deck.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        if deck.PartnerCardId == cardId {
+            db.Exec("UPDATE Decks SET partner_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Partner removed\", \"deckUpdated\": \"" + deckId + "\"}")
+            return c.SendStatus(200)
+        }
+
+        card := models.GetCard(db, cardId)
+        if card.Id == "" {
+            c.Response().Header.Set("Hx-Redirect", "/")
+            return c.SendStatus(404)
+        }
+
+        db.Exec("UPDATE Decks SET partner_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander's partner\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
@@ -578,6 +618,9 @@ func DeckManagerControllers(app *fiber.App){
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
             }
+            if cards[i].CardId == deck.PartnerCardId {
+                cards[i].IsPartner = true
+            }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
             }
@@ -798,6 +841,9 @@ func DeckManagerControllers(app *fiber.App){
         for i := range(cards) {
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
+            }
+            if cards[i].CardId == deck.PartnerCardId {
+                cards[i].IsPartner = true
             }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
@@ -1216,6 +1262,9 @@ func DeckManagerControllers(app *fiber.App){
             cards[i].Gamemode = gamemode
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
+            }
+            if cards[i].CardId == deck.PartnerCardId {
+                cards[i].IsPartner = true
             }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
