@@ -6,6 +6,7 @@ services:
       - "--interval"
       - "30"
       - "--rolling-restart"
+      - "--no-pull"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   reverse-proxy:
@@ -26,7 +27,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - letsencrypt:/letsencrypt
-  server:
+  divinedrop:
     image: codewithkyle/divinedrop:prod
     network_mode: "host"
     labels:
@@ -34,6 +35,7 @@ services:
       - "traefik.http.routers.divinedrop.rule=Host(`divinedrop.app`)"
       - "traefik.http.routers.divinedrop.entrypoints=websecure"
       - "traefik.http.routers.divinedrop.tls.certresolver=myresolver"
+      - "traefik.http.servides.divinedrop.loadbalancer.server.port=3000"
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - .:/app
