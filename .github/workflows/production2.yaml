@@ -35,7 +35,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Deploy
-        run: scp ./divinedrop.tar ./compose.prod.yaml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/docker
+        run: scp -o StrictHostKeyChecking=no ./divinedrop.tar ./compose.prod.yaml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/docker
 
       - name: Post Deployment
         uses: appleboy/ssh-action@master
