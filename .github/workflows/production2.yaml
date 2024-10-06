@@ -1,0 +1,47 @@
+name: Build and Deploy Docker Image
+
+on:
+  push:
+    branches:
+      - docker
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.14.0
+
+      - name: Install NPM Packages
+        run: npm ci
+
+      - name: Compile UI
+        run:  npm run build:css && npm run build:brixi && npm run build:bundle && npm run build:js
+
+      - name: Build Docker image
+        run: docker build -t codewithkyle/divinedrop:prod .
+
+      - name: Save Docker image as tarball
+        run: docker save -o divinedrop.tar codewithkyle/divinedrop:prod
+
+      - name: Load SSH Key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy
+        run: scp ./divinedrop.tar ./compose.prod.yaml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/docker
+
+      - name: Post Deployment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PORT: 22
+          KEY: ${{ secrets.SSH_KEY }}
+          script: docker load -i ~/divinedrop.tar
