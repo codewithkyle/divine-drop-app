@@ -4,6 +4,7 @@ import (
 	"app/controllers"
 	"app/helpers"
 	"app/models"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -23,6 +24,8 @@ func main() {
         BodyLimit: 1024 * 1024 * 100,
         StreamRequestBody: true,
     })
+
+    log.Println("hit")
 
     app.Static("/css", "./public/css")
     app.Static("/js", "./public/js")
