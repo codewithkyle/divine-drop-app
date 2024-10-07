@@ -4,7 +4,6 @@ import (
 	"app/controllers"
 	"app/helpers"
 	"app/models"
-	"log"
 	"os"
 	"strings"
 	"time"
