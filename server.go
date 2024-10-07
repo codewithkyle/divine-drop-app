@@ -25,13 +25,6 @@ func main() {
         StreamRequestBody: true,
     })
 
-    app.Use(func(c *fiber.Ctx) error {
-        ip := c.IP()
-        timestamp := time.Now().Format(time.RFC3339)
-        log.Printf("Request from IP: %s at %s", ip, timestamp)
-        return c.Next()
-    })
-
     app.Static("/css", "./public/css")
     app.Static("/js", "./public/js")
     app.Static("/static", "./public/static")
