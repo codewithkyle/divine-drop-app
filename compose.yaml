@@ -1,0 +1,45 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - divine-network
+  divinedrop:
+    build: .
+    labels:
+      - "traefik.http.routers.divinedrop.rule=Host(`divinedrop.local`)"
+    volumes:
+      - .:/app
+    env_file: ".env"
+    depends_on:
+      - mysql
+      - reverse-proxy
+    networks:
+      - divine-network
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 3
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "divinedrop"
+      MYSQL_USER: "ddadmin"
+      MYSQL_PASSWORD: "password"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - divine-network
+networks:
+  divine-network:
+    driver: bridge
+volumes:
+  mysql_data:

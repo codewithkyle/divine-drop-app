@@ -8,3 +8,4 @@ _types
 app
 .env
 tmp
+divinedrop.sql

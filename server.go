@@ -4,7 +4,6 @@ import (
 	"app/controllers"
 	"app/helpers"
 	"app/models"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -13,14 +12,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("failed to load environment variables: %v", err)
-	}
-
     client, _ := clerk.NewClient(os.Getenv("CLERK_API_KEY"))
 
     engine := html.New("./views", ".html")
