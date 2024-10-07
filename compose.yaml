@@ -1,9 +1,33 @@
 services:
-  server:
+  divinedrop:
     build: .
-    network_mode: "host"
-    environment:
-      - PORT=3001
     volumes:
       - .:/app
     env_file: ".env"
+    depends_on:
+      - mysql
+    networks:
+      - divine-network
+    ports:
+      - "3000:3000"
+    restart: always
+    container_name: divinedrop
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "divinedrop"
+      MYSQL_USER: "ddadmin"
+      MYSQL_PASSWORD: "password"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - divine-network
+networks:
+  divine-network:
+    driver: bridge
+volumes:
+  mysql_data:

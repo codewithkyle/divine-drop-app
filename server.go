@@ -115,5 +115,5 @@ func main() {
         }, "layouts/main")
     })
 
-    app.Listen(":" + os.Getenv("PORT"))
+    app.Listen(":3000")
 }
