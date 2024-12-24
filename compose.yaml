@@ -22,9 +22,6 @@ services:
     networks:
       - divine-network
     restart: always
-    deploy:
-      mode: replicated
-      replicas: 3
   mysql:
     image: mysql:8.0
     environment:

@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 
-    "net/url"
+	"net/url"
 
 	"app/helpers"
 	"app/models"
@@ -11,7 +12,10 @@ import (
 
 func HomepageControllers(app *fiber.App) {
     app.Get("/", func(c *fiber.Ctx) error {
-        user, _ := helpers.GetUserFromSession(c)
+        user, err := helpers.GetUserFromSession(c)
+        if err != nil {
+            log.Error("Failed to get user session", "error", err)
+        }
 
         search := c.Query("search")
 
