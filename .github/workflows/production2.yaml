@@ -1,9 +1,10 @@
 name: Build and Deploy Docker Image
 
+# Manual only. This workflow loads the image but never starts a container, so
+# running it on every push raced production.yml (which is what actually
+# deploys) and purged the Cloudflare cache a second time for no reason.
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   build:

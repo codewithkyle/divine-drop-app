@@ -154,6 +154,38 @@ func GetDeckMetadata(db *gorm.DB, deckId string) DeckMetadata {
     return deckMetadata
 }
 
+type DeckCardCounts struct {
+    Mythic    int
+    Rare      int
+    Uncommon  int
+    Common    int
+    Land      int
+    Sideboard int
+}
+
+// GetDeckCardCounts replaces five near-identical aggregates (GetMythicsCount,
+// GetUncommonsCount, GetCommonsCount, GetLandCount, GetSideboardCount) with a
+// single pass over the deck. The joins are LEFT so that a deck card with a
+// missing card or rarity row still counts toward the sideboard total, matching
+// what the separate queries did.
+func GetDeckCardCounts(db *gorm.DB, deckId string) DeckCardCounts {
+    var counts DeckCardCounts
+    db.Raw(`
+        SELECT
+            IFNULL(SUM(CASE WHEN DC.sideboard = 0 AND R.rarity = 'mythic' THEN DC.qty ELSE 0 END), 0) AS mythic,
+            IFNULL(SUM(CASE WHEN DC.sideboard = 0 AND R.rarity = 'rare' THEN DC.qty ELSE 0 END), 0) AS rare,
+            IFNULL(SUM(CASE WHEN DC.sideboard = 0 AND R.rarity = 'uncommon' THEN DC.qty ELSE 0 END), 0) AS uncommon,
+            IFNULL(SUM(CASE WHEN DC.sideboard = 0 AND R.rarity = 'common' THEN DC.qty ELSE 0 END), 0) AS common,
+            IFNULL(SUM(CASE WHEN DC.sideboard = 0 AND C.type IN ('Land', 'Basic Land', 'Artifact Land', 'Legendary Land') THEN DC.qty ELSE 0 END), 0) AS land,
+            IFNULL(SUM(CASE WHEN DC.sideboard = 1 THEN DC.qty ELSE 0 END), 0) AS sideboard
+        FROM Deck_Cards DC
+        LEFT JOIN Cards C ON DC.card_id = C.id
+        LEFT JOIN Rarities R ON R.id = C.rarity
+        WHERE DC.deck_id = UNHEX(?)
+    `, deckId).Scan(&counts)
+    return counts
+}
+
 func GetMythicsCount(db *gorm.DB, deckId string) int {
     var count int
     db.Raw("SELECT IFNULL(SUM(DC.qty), 0) FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id JOIN Rarities R ON R.id = C.rarity WHERE DC.sideboard = 0 AND DC.deck_id = UNHEX(?) AND R.rarity = 'mythic'", deckId).Scan(&count)

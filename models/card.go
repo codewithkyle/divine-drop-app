@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -262,6 +264,10 @@ func FilterCards(db *gorm.DB, name string, searchText bool, sort string, mana []
         if searchText {
             query += "JOIN (SELECT DISTINCT card_id FROM Card_Texts CT WHERE MATCH(`text`) AGAINST (@fts IN NATURAL LANGUAGE MODE)) AS ftx_card ON ftx_card.card_id = C.id ";
             params["fts"] = name
+            // Without this, the filter clauses below append to the join's ON
+            // instead of a WHERE. Equivalent for an inner join, but only by
+            // accident.
+            query += "WHERE 1=1 "
         } else {
             query += "WHERE C.name LIKE @name "
             params["name"] = "%" + strings.Trim(name, " ") + "%"
@@ -365,42 +371,44 @@ func FilterCards(db *gorm.DB, name string, searchText bool, sort string, mana []
 }
 
 func GetCardTypes(db *gorm.DB) []string {
-    var types []string
-    db.Raw("SELECT DISTINCT type FROM Cards ORDER BY type").Scan(&types)
-    return types
+    return typesList.get(db, "SELECT DISTINCT type FROM Cards ORDER BY type")
 }
 
+// SearchCardTypes filters the cached type list in memory. The query it replaced
+// ran LIKE '%name%' over all of Cards on every keystroke, which cannot use an
+// index. There are only a few hundred distinct types, so the whole list is
+// cached and filtered here instead.
 func SearchCardTypes(db *gorm.DB, name string) []string {
-    name = "%" + strings.Trim(name, " ") + "%"
-    var types []string
-    db.Raw("SELECT DISTINCT type FROM Cards WHERE type LIKE ? ORDER BY type", name).Scan(&types)
-    return types
+    return filterContains(GetCardTypes(db), name)
 }
 
 func GetCardSubtypes(db *gorm.DB) []string {
-    var subtypes []string
-    db.Raw("SELECT DISTINCT subtype FROM Card_Subtypes ORDER BY subtype").Scan(&subtypes)
-    return subtypes
+    return subtypesList.get(db, "SELECT DISTINCT subtype FROM Card_Subtypes ORDER BY subtype")
 }
 
 func SearchCardSubtypes(db *gorm.DB, name string) []string {
-    name = "%" + strings.Trim(name, " ") + "%"
-    var subtypes []string
-    db.Raw("SELECT DISTINCT subtype FROM Card_Subtypes WHERE subtype LIKE ? ORDER BY subtype", name).Scan(&subtypes)
-    return subtypes
+    return filterContains(GetCardSubtypes(db), name)
 }
 
 func GetCardKeywords(db *gorm.DB) []string {
-    var keywords []string
-    db.Raw("SELECT DISTINCT keyword FROM Card_Keywords ORDER BY keyword").Scan(&keywords)
-    return keywords
+    return keywordsList.get(db, "SELECT DISTINCT keyword FROM Card_Keywords ORDER BY keyword")
 }
 
 func SearchCardKeywords(db *gorm.DB, name string) []string {
-    name = "%" + strings.Trim(name, " ") + "%"
-    var keywords []string
-    db.Raw("SELECT DISTINCT keyword FROM Card_Keywords WHERE keyword LIKE ? ORDER BY keyword", name).Scan(&keywords)
-    return keywords
+    return filterContains(GetCardKeywords(db), name)
+}
+
+// filterContains mirrors MySQL's LIKE '%name%', which is case insensitive under
+// the default collation.
+func filterContains(values []string, name string) []string {
+    needle := strings.ToLower(strings.Trim(name, " "))
+    matches := []string{}
+    for _, value := range values {
+        if strings.Contains(strings.ToLower(value), needle) {
+            matches = append(matches, value)
+        }
+    }
+    return matches
 }
 
 func GetDeckCard(db *gorm.DB, activeDeckId string, cardId string) DeckCard {
@@ -426,8 +434,49 @@ func GetPrints(db *gorm.DB, cardId string) []CardPrint {
     return prints
 }
 
+// referenceTTL is how long a reference list is reused. These only change when
+// the card database is reimported.
+const referenceTTL = time.Hour
+
+var (
+    setsList     cachedList
+    typesList    cachedList
+    subtypesList cachedList
+    keywordsList cachedList
+)
+
+// cachedList holds a DISTINCT lookup that is identical for every user. Each of
+// these was a full scan plus a sort, run per request.
+type cachedList struct {
+    mu      sync.RWMutex
+    values  []string
+    fetched time.Time
+}
+
+func (c *cachedList) get(db *gorm.DB, query string) []string {
+    c.mu.RLock()
+    if c.values != nil && time.Since(c.fetched) < referenceTTL {
+        cached := c.values
+        c.mu.RUnlock()
+        return cached
+    }
+    c.mu.RUnlock()
+
+    values := []string{}
+    db.Raw(query).Scan(&values)
+    if len(values) == 0 {
+        // A failed query scans into an empty slice; don't cache that.
+        return values
+    }
+
+    c.mu.Lock()
+    c.values = values
+    c.fetched = time.Now()
+    c.mu.Unlock()
+
+    return values
+}
+
 func GetSets(db *gorm.DB) []string {
-    sets := []string{}
-    db.Raw("SELECT DISTINCT set_name FROM Cards ORDER BY set_name").Scan(&sets)
-    return sets
+    return setsList.get(db, "SELECT DISTINCT set_name FROM Cards ORDER BY set_name")
 }

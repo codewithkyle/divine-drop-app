@@ -3,7 +3,6 @@ package models
 import (
     "bytes"
     "encoding/gob"
-    "log"
 )
 
 type User struct {
@@ -19,7 +18,6 @@ func UserToBlob(data User) ([]byte, error) {
     encoder := gob.NewEncoder(&buffer)
     err := encoder.Encode(data)
     if err != nil {
-        log.Fatal("encode error:", err)
         return nil, err
     }
     return buffer.Bytes(), nil
@@ -31,7 +29,6 @@ func BlobToUser(blobData []byte) (User, error) {
     decoder := gob.NewDecoder(buffer)
     err := decoder.Decode(&data)
     if err != nil {
-        log.Fatal("decode error:", err)
         return User{}, err
     }
     return data, nil

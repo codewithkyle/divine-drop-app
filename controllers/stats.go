@@ -30,13 +30,14 @@ func DeckStatsControllers(app *fiber.App){
         deckCards := models.SearchDeckCards(db, deckId, "", "", "", "", "")
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
-        mythicsCount := models.GetMythicsCount(db, deckId)
-        uncommonsCount := models.GetUncommonsCount(db, deckId)
-        commonsCount := models.GetCommonsCount(db, deckId)
+        deckCounts := models.GetDeckCardCounts(db, deckId)
+        mythicsCount := deckCounts.Mythic
+        uncommonsCount := deckCounts.Uncommon
+        commonsCount := deckCounts.Common
         raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
 
-        landCount := models.GetLandCount(db, deckId)
-        sideboardCount := models.GetSideboardCount(db, deckId)
+        landCount := deckCounts.Land
+        sideboardCount := deckCounts.Sideboard
 
         containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 

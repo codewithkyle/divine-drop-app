@@ -30,7 +30,7 @@ func DeckEditorControllers(app *fiber.App){
         uuid = strings.ReplaceAll(uuid, "-", "")
 
         db := helpers.ConnectDB()
-        db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, 'Untitled')", uuid, user.Id)
+        helpers.Exec(db, "INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, 'Untitled')", uuid, user.Id)
 
         return c.Redirect("/decks/" + strings.ToUpper(uuid) + "/edit")
     })
@@ -55,7 +55,7 @@ func DeckEditorControllers(app *fiber.App){
         deckUUID := uuid.New().String()
         deckUUID = strings.ReplaceAll(deckUUID, "-", "")
 
-        db.Exec("INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, ?)", deckUUID, user.Id, "Copy of " + deck.Label)
+        helpers.Exec(db, "INSERT INTO Decks (id, user_id, label) VALUES (UNHEX(?), ?, ?)", deckUUID, user.Id, "Copy of " + deck.Label)
 
         values := []string{}
         for _, card := range models.GetDeckCards(db, deckId) {
@@ -72,7 +72,7 @@ func DeckEditorControllers(app *fiber.App){
             values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "', " + inSideboard + ", " + cardPrint + ")")
         }
 
-        db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated, sideboard, print) VALUES " + strings.Join(values, ", "))
+        helpers.Exec(db, "INSERT INTO Deck_Cards (id, deck_id, card_id, qty, dateCreated, sideboard, print) VALUES " + strings.Join(values, ", "))
 
         c.Response().Header.Set("HX-Redirect", "/decks/" + deckUUID)
         c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Cloned " + helpers.EscapeString(deck.Label) + "\"}")
@@ -96,8 +96,8 @@ func DeckEditorControllers(app *fiber.App){
             return c.Send(nil)
         }
 
-        db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?)", deckId)
-        db.Exec("DELETE FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id)
+        helpers.Exec(db, "DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?)", deckId)
+        helpers.Exec(db, "DELETE FROM Decks WHERE id = UNHEX(?) AND user_id = ?", deckId, user.Id)
 
         c.Response().Header.Add("HX-Redirect", "/")
         c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Deleted " + helpers.EscapeString(deck.Label) + "\"}")
@@ -165,13 +165,14 @@ func DeckEditorControllers(app *fiber.App){
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
-        mythicsCount := models.GetMythicsCount(db, deckId)
-        uncommonsCount := models.GetUncommonsCount(db, deckId)
-        commonsCount := models.GetCommonsCount(db, deckId)
+        deckCounts := models.GetDeckCardCounts(db, deckId)
+        mythicsCount := deckCounts.Mythic
+        uncommonsCount := deckCounts.Uncommon
+        commonsCount := deckCounts.Common
         raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
 
-        landCount := models.GetLandCount(db, deckId)
-        sideboardCount := models.GetSideboardCount(db, deckId)
+        landCount := deckCounts.Land
+        sideboardCount := deckCounts.Sideboard
 
         containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
@@ -339,7 +340,7 @@ func DeckEditorControllers(app *fiber.App){
             return c.Send(nil)
         }
 
-        db.Exec("UPDATE Decks SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, deckId, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, deckId, user.Id)
         deck.Label = label
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + deck.Id + "\"}")
@@ -353,10 +354,11 @@ func DeckEditorControllers(app *fiber.App){
         db := helpers.ConnectDB()
 
         deckId := c.Query("active-deck-id")
-        mythicsCount := models.GetMythicsCount(db, deckId)
-        uncommonsCount := models.GetUncommonsCount(db, deckId)
-        commonsCount := models.GetCommonsCount(db, deckId)
-        raresCount := models.GetRaresCount(db, deckId)
+        deckCounts := models.GetDeckCardCounts(db, deckId)
+        mythicsCount := deckCounts.Mythic
+        uncommonsCount := deckCounts.Uncommon
+        commonsCount := deckCounts.Common
+        raresCount := deckCounts.Rare
 
         return c.Render("partials/deck-builder/rarity-counts", fiber.Map{
             "MythicsCount": mythicsCount,
@@ -474,13 +476,13 @@ func DeckEditorControllers(app *fiber.App){
 
         if deckCard.Id != "" {
             if (deckCard.Qty < 255) {
-                db.Exec("UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty + 1, deckCard.Id)
+                helpers.Exec(db, "UPDATE Deck_Cards SET qty = ? WHERE id = UNHEX(?)", deckCard.Qty + 1, deckCard.Id)
                 c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Updated " + helpers.EscapeString(deckCard.Name) + "\"}")
             }
         } else {
             uuid := uuid.New().String()
             uuid = strings.ReplaceAll(uuid, "-", "")
-            db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
+            helpers.Exec(db, "INSERT INTO Deck_Cards (id, deck_id, card_id) VALUES (UNHEX(?), UNHEX(?), UNHEX(?))", uuid, activeDeckId, cardId)
             deckCard = models.GetDeckCard(db, activeDeckId, cardId)
             c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Added " + helpers.EscapeString(deckCard.Name) + "\"}")
         }
@@ -528,10 +530,10 @@ func DeckEditorControllers(app *fiber.App){
         deckCard.Qty = deckCard.Qty - 1
 
         if deckCard.Qty > 0 {
-            db.Exec("UPDATE Deck_Cards SET qty = ? WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", deckCard.Qty, activeDeckId, deckCardId)
+            helpers.Exec(db, "UPDATE Deck_Cards SET qty = ? WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", deckCard.Qty, activeDeckId, deckCardId)
             c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Removed copy of " + helpers.EscapeString(deckCard.Name) + "\"}")
         } else {
-            db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", activeDeckId, deckCardId)
+            helpers.Exec(db, "DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", activeDeckId, deckCardId)
             c.Response().Header.Set("HX-Trigger", "{\"flash:toast\": \"Removed " + helpers.EscapeString(deckCard.Name) + "\"}")
         }
 

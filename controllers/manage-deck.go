@@ -56,13 +56,14 @@ func DeckManagerControllers(app *fiber.App){
         deckCards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
-        mythicsCount := models.GetMythicsCount(db, deckId)
-        uncommonsCount := models.GetUncommonsCount(db, deckId)
-        commonsCount := models.GetCommonsCount(db, deckId)
+        deckCounts := models.GetDeckCardCounts(db, deckId)
+        mythicsCount := deckCounts.Mythic
+        uncommonsCount := deckCounts.Uncommon
+        commonsCount := deckCounts.Common
         raresCount := deckMetadata.CardCount - mythicsCount - uncommonsCount - commonsCount
 
-        landCount := models.GetLandCount(db, deckId)
-        sideboardCount := models.GetSideboardCount(db, deckId)
+        landCount := deckCounts.Land
+        sideboardCount := deckCounts.Sideboard
 
         containsW, containsU, containsB, containsR, containsG := models.GetDeckColors(db, deckId)
 
@@ -325,7 +326,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         if deck.CommanderCardId == cardId {
-            db.Exec("UPDATE Decks SET commander_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            helpers.Exec(db, "UPDATE Decks SET commander_card_id = NULL WHERE id = UNHEX(?)", deckId)
             c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Commander removed\", \"deckUpdated\": \"" + deckId + "\"}")
             return c.SendStatus(200)
         }
@@ -336,7 +337,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+        helpers.Exec(db, "UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
 
@@ -361,7 +362,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         if deck.PartnerCardId == cardId {
-            db.Exec("UPDATE Decks SET partner_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            helpers.Exec(db, "UPDATE Decks SET partner_card_id = NULL WHERE id = UNHEX(?)", deckId)
             c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Partner removed\", \"deckUpdated\": \"" + deckId + "\"}")
             return c.SendStatus(200)
         }
@@ -372,7 +373,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET partner_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+        helpers.Exec(db, "UPDATE Decks SET partner_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander's partner\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
 
@@ -397,7 +398,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         if deck.OathbreakerCardId == cardId {
-            db.Exec("UPDATE Decks SET oathbreaker_card_id = NULL WHERE id = UNHEX(?)", deckId)
+            helpers.Exec(db, "UPDATE Decks SET oathbreaker_card_id = NULL WHERE id = UNHEX(?)", deckId)
             c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Oathbreaker removed\", \"deckUpdated\": \"" + deckId + "\"}")
             return c.SendStatus(200)
         }
@@ -408,7 +409,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET oathbreaker_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
+        helpers.Exec(db, "UPDATE Decks SET oathbreaker_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
         
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Oathbreaker\", \"deckUpdated\": \"" + deckId + "\"}")
 
@@ -447,7 +448,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET qty = ? WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", newQty, deckId, cardId)
+        helpers.Exec(db, "UPDATE Deck_Cards SET qty = ? WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", newQty, deckId, cardId)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " quantity updated\", \"deckUpdated\": \"" + deckId + "\"}")
 
@@ -477,7 +478,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", deckId, cardId)
+        helpers.Exec(db, "DELETE FROM Deck_Cards WHERE deck_id = UNHEX(?) AND card_id = UNHEX(?)", deckId, cardId)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " removed from deck\", \"deckUpdated\": \"" + deckId + "\"}")
 
@@ -533,9 +534,9 @@ func DeckManagerControllers(app *fiber.App){
         if deckCard.Id == "" {
             newCardId := uuid.New().String()
             newCardId = strings.ReplaceAll(newCardId, "-", "")
-            db.Exec("INSERT INTO Deck_Cards (id, deck_id, card_id, qty) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), 1)", newCardId, deckId, cardId)
+            helpers.Exec(db, "INSERT INTO Deck_Cards (id, deck_id, card_id, qty) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), 1)", newCardId, deckId, cardId)
         } else {
-            db.Exec("UPDATE Deck_Cards SET qty = qty + 1 WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", deckId, deckCard.Id)
+            helpers.Exec(db, "UPDATE Deck_Cards SET qty = qty + 1 WHERE deck_id = UNHEX(?) AND id = UNHEX(?)", deckId, deckCard.Id)
         }
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + card.Name + " added to deck\", \"deckUpdated\": \"" + deckId + "\", \"addedCard\": \"\"}")
@@ -766,13 +767,13 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET sideboard = 1 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
+        helpers.Exec(db, "UPDATE Deck_Cards SET sideboard = 1 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
 
         if deck.CommanderCardId == cardId {
-            db.Exec("UPDATE Decks SET commander_card_id = null WHERE id = UNHEX(?)", deckId)
+            helpers.Exec(db, "UPDATE Decks SET commander_card_id = null WHERE id = UNHEX(?)", deckId)
         }
         if deck.OathbreakerCardId == cardId {
-            db.Exec("UPDATE Decks SET oathbreaker_card_id = null WHERE id = UNHEX(?)", deckId)
+            helpers.Exec(db, "UPDATE Decks SET oathbreaker_card_id = null WHERE id = UNHEX(?)", deckId)
         }
 
         sideboardCount := models.GetSideboardCount(db, deckId)
@@ -805,7 +806,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET sideboard = 0 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
+        helpers.Exec(db, "UPDATE Deck_Cards SET sideboard = 0 WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
 
         sideboardCount := models.GetSideboardCount(db, deckId)
 
@@ -929,7 +930,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET print = null WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
+        helpers.Exec(db, "UPDATE Deck_Cards SET print = null WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", card.Id, deck.Id)
 
         return c.Render("partials/deck-manager/card-image", fiber.Map{
             "Front": card.Front,
@@ -961,7 +962,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Cards SET print = ? WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", printId, card.Id, deck.Id)
+        helpers.Exec(db, "UPDATE Deck_Cards SET print = ? WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", printId, card.Id, deck.Id)
 
         front := "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(card.Id) + "-" + printId +  "-front.png"
         back := ""
@@ -1075,7 +1076,7 @@ func DeckManagerControllers(app *fiber.App){
 
         db := helpers.ConnectDB()
 
-        db.Exec("INSERT INTO Sleeves (id, user_id, image_url, is_video) VALUES (UNHEX(?), ?, ?, ?)", id, user.Id, fileUrl, isVideo)
+        helpers.Exec(db, "INSERT INTO Sleeves (id, user_id, image_url, is_video) VALUES (UNHEX(?), ?, ?, ?)", id, user.Id, fileUrl, isVideo)
 
         deck := models.GetDeck(db, deckId, user.Id)
         if deck.Id == "" {
@@ -1128,9 +1129,9 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(500)
         }
 
-        db.Exec("UPDATE Decks SET sleeve_id = null WHERE sleeve_id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET sleeve_id = null WHERE sleeve_id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
 
-        db.Exec("DELETE FROM Sleeves WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
+        helpers.Exec(db, "DELETE FROM Sleeves WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
 
         sleeves := models.GetSleeves(db, user.Id)
 
@@ -1166,7 +1167,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET sleeve_id = UNHEX(?) WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, deck.Id, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET sleeve_id = UNHEX(?) WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, deck.Id, user.Id)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Added sleeves to " + deck.Label + "\"}")
         return c.SendStatus(200)
@@ -1188,7 +1189,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET sleeve_id = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET sleeve_id = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Removed sleeves from " + deck.Label + "\"}")
         return c.SendStatus(200)
@@ -1216,9 +1217,9 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         if budget > 0 {
-            db.Exec("UPDATE Decks SET budget = ? WHERE id = UNHEX(?) AND user_id = ?", budgetInt, deck.Id, user.Id)
+            helpers.Exec(db, "UPDATE Decks SET budget = ? WHERE id = UNHEX(?) AND user_id = ?", budgetInt, deck.Id, user.Id)
         } else {
-            db.Exec("UPDATE Decks SET budget = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+            helpers.Exec(db, "UPDATE Decks SET budget = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
         }
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\":\"Deck budget updated to $" + fmt.Sprintf("%.2f", budget) + "\", \"deckUpdated\": \"" + deckId + "\"}")
@@ -1245,9 +1246,9 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         if gamemode == "" {
-            db.Exec("UPDATE Decks SET gamemode = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+            helpers.Exec(db, "UPDATE Decks SET gamemode = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
         } else {
-            db.Exec("UPDATE Decks SET gamemode = ? WHERE id = UNHEX(?) AND user_id = ?", gamemode, deck.Id, user.Id)
+            helpers.Exec(db, "UPDATE Decks SET gamemode = ? WHERE id = UNHEX(?) AND user_id = ?", gamemode, deck.Id, user.Id)
         }
 
         search := c.FormValue("search")

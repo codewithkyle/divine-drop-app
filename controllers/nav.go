@@ -35,7 +35,7 @@ func NavControllers(app *fiber.App){
 
         groupId := strings.ReplaceAll(uuid.New().String(), "-", "")
 
-        db.Exec("INSERT INTO Deck_Groups (id, user_id, label) VALUES (UNHEX(?), ?, ?)", groupId, user.Id, label)
+        helpers.Exec(db, "INSERT INTO Deck_Groups (id, user_id, label) VALUES (UNHEX(?), ?, ?)", groupId, user.Id, label)
 
         return c.Render("partials/nav/deck-group", fiber.Map{
             "Id": groupId,
@@ -62,8 +62,8 @@ func NavControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET deck_group_id = null WHERE deck_group_id = UNHEX(?) AND user_id = ?", group.Id, user.Id)
-        db.Exec("DELETE FROM Deck_Groups WHERE id = UNHEX(?) AND user_id = ?", group.Id, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET deck_group_id = null WHERE deck_group_id = UNHEX(?) AND user_id = ?", group.Id, user.Id)
+        helpers.Exec(db, "DELETE FROM Deck_Groups WHERE id = UNHEX(?) AND user_id = ?", group.Id, user.Id)
 
         decks := models.GetDecks(db, activeDeckId, user.Id)
 
@@ -104,7 +104,7 @@ func NavControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET deck_group_id = UNHEX(?) WHERE id = UNHEX(?) AND user_id = ?", group.Id, deck.Id, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET deck_group_id = UNHEX(?) WHERE id = UNHEX(?) AND user_id = ?", group.Id, deck.Id, user.Id)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Moved " + deck.Label + " to " + group.Label + "\"}")
         return c.SendStatus(200)
@@ -127,7 +127,7 @@ func NavControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Decks SET deck_group_id = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
+        helpers.Exec(db, "UPDATE Decks SET deck_group_id = null WHERE id = UNHEX(?) AND user_id = ?", deck.Id, user.Id)
 
         c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"Removed " + deck.Label + " from folder\"}")
         return c.SendStatus(200)
@@ -155,7 +155,7 @@ func NavControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        db.Exec("UPDATE Deck_Groups SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, group.Id, user.Id)
+        helpers.Exec(db, "UPDATE Deck_Groups SET label = ? WHERE id = UNHEX(?) AND user_id = ?", label, group.Id, user.Id)
 
         deckGroups := models.GetDeckGroups(db, user.Id)
         decks := models.GetDecks(db, activeDeckId, user.Id)
