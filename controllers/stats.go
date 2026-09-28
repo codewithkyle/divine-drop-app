@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -43,7 +42,7 @@ func DeckStatsControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deck.CommanderCardId) +  "-art.png"
+            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
         } else if len(deckCards) > 0 {
             bannerArt = deckCards[len(deckCards) - 1].Art
         }
@@ -53,9 +52,9 @@ func DeckStatsControllers(app *fiber.App){
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
             if deckCards[i].Print != 0 {
                 printDate := strconv.Itoa(deckCards[i].Print)
-                deckCards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deckCards[i].CardId) + "-" + printDate +  "-front.png"
+                deckCards[i].Front = helpers.CardFrontURL(deckCards[i].CardId, printDate)
                 if deckCards[i].Back != "" {
-                    deckCards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deckCards[i].CardId) + "-" + printDate +  "-back.png"
+                    deckCards[i].Back = helpers.CardBackURL(deckCards[i].CardId, printDate)
                 }
             }
         }

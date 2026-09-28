@@ -1,3 +1,10 @@
+// Where images and symbols are served from. The layout writes it into a meta
+// tag so this stays in step with the server's CDN_URL, and falls back to the
+// origin the app has always used when the tag is missing.
+const CDN_URL: string =
+    document.querySelector<HTMLMetaElement>('meta[name="cdn-url"]')?.content?.replace(/\/+$/, "") ||
+    "https://divinedrop.nyc3.cdn.digitaloceanspaces.com";
+
 class CardText extends HTMLElement {
     constructor(){
         super();
@@ -13,7 +20,7 @@ class CardText extends HTMLElement {
         if (segments == null) return;
         for (let i = 0; i < segments.length; i++){
             const symbol = segments[i].replace(/\{|\}/g, "");
-            const url = `https://divinedrop.nyc3.cdn.digitaloceanspaces.com/symbols/${symbol}.svg`;
+            const url = `${CDN_URL}/symbols/${symbol}.svg`;
             str = str.replace(segments[i], `<img src=\"${url}\">`);
         }
         this.innerHTML = str;

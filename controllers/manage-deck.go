@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -12,8 +11,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
 	"app/helpers"
@@ -69,7 +66,7 @@ func DeckManagerControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deck.CommanderCardId) +  "-art.png"
+            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
         } else if len(deckCards) > 0 {
             bannerArt = deckCards[len(deckCards) - 1].Art
         }
@@ -81,9 +78,9 @@ func DeckManagerControllers(app *fiber.App){
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
             if deckCards[i].Print != 0 {
                 printDate := strconv.Itoa(deckCards[i].Print)
-                deckCards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deckCards[i].CardId) + "-" + printDate +  "-front.png"
+                deckCards[i].Front = helpers.CardFrontURL(deckCards[i].CardId, printDate)
                 if deckCards[i].Back != "" {
-                    deckCards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deckCards[i].CardId) + "-" + printDate +  "-back.png"
+                    deckCards[i].Back = helpers.CardBackURL(deckCards[i].CardId, printDate)
                 }
             }
 
@@ -245,9 +242,9 @@ func DeckManagerControllers(app *fiber.App){
 
             if cards[i].Print != 0 {
                 printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
+                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
                 if cards[i].Back != "" {
-                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
                 }
             }
             cards[i].IsGuest = isGuest
@@ -559,9 +556,9 @@ func DeckManagerControllers(app *fiber.App){
             if !cards[i].InSideboard {
                 if cards[i].Print != 0 {
                     printDate := strconv.Itoa(cards[i].Print)
-                    cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
+                    cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
                     if cards[i].Back != "" {
-                        cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                        cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
                     }
                 }
                 for j := uint8(0); j < cards[i].Qty; j++ {
@@ -603,9 +600,9 @@ func DeckManagerControllers(app *fiber.App){
         for i := range cards {
             if cards[i].Print != 0 {
                 printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
+                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
                 if cards[i].Back != "" {
-                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
                     
                 }
             }
@@ -613,7 +610,7 @@ func DeckManagerControllers(app *fiber.App){
                 if deck.SleeveImage != "" {
                     cards[i].Back = deck.SleeveImage
                 } else {
-                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/back.png"
+                    cards[i].Back = helpers.CardSleeveURL()
                 }
             }
             if cards[i].CardId == deck.CommanderCardId {
@@ -851,9 +848,9 @@ func DeckManagerControllers(app *fiber.App){
             }
             if cards[i].Print != 0 {
                 printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
+                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
                 if cards[i].Back != "" {
-                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
                 }
             }
             cards[i].IsGuest = isGuest
@@ -894,9 +891,9 @@ func DeckManagerControllers(app *fiber.App){
 
         for i := range prints {
             prints[i].DeckId = deck.Id
-            prints[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(prints[i].CardId) + "-" + strconv.Itoa(prints[i].Print) +  "-front.png"
+            prints[i].Front = helpers.CardFrontURL(prints[i].CardId, strconv.Itoa(prints[i].Print))
             if prints[i].Back != "" {
-                prints[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(prints[i].CardId) + "-" + strconv.Itoa(prints[i].Print) +  "-back.png"
+                prints[i].Back = helpers.CardBackURL(prints[i].CardId, strconv.Itoa(prints[i].Print))
             }
         }
 
@@ -964,10 +961,10 @@ func DeckManagerControllers(app *fiber.App){
 
         helpers.Exec(db, "UPDATE Deck_Cards SET print = ? WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", printId, card.Id, deck.Id)
 
-        front := "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(card.Id) + "-" + printId +  "-front.png"
+        front := helpers.CardFrontURL(card.Id, printId)
         back := ""
         if card.Back != "" {
-            back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(card.Id) + "-" + printId +  "-back.png"
+            back = helpers.CardBackURL(card.Id, printId)
         }
 
         return c.Render("partials/deck-manager/card-image", fiber.Map{
@@ -1057,10 +1054,10 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(400)
         }
 
-        s3Client := CreateSpacesClient()
+        s3Client := helpers.S3Client()
 
         object := s3.PutObjectInput{
-            Bucket:      aws.String("divinedrop"),
+            Bucket:      aws.String(helpers.S3Bucket()),
             Key:         aws.String("users/" + user.Id + "/" + id),
             Body:        src,
             ACL:         aws.String("public-read"),
@@ -1072,7 +1069,7 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(500)
         }
 
-        fileUrl := "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/users/" + user.Id + "/" + id
+        fileUrl := helpers.UserUploadURL(user.Id, id)
 
         db := helpers.ConnectDB()
 
@@ -1117,10 +1114,10 @@ func DeckManagerControllers(app *fiber.App){
             })
         }
 
-        s3Client := CreateSpacesClient()
+        s3Client := helpers.S3Client()
 
         object := s3.DeleteObjectInput{
-            Bucket:      aws.String("divinedrop"),
+            Bucket:      aws.String(helpers.S3Bucket()),
             Key:         aws.String("users/" + user.Id + "/" + strings.ToLower(sleeve.Id)),
         }
         _, err = s3Client.DeleteObject(&object)
@@ -1273,9 +1270,9 @@ func DeckManagerControllers(app *fiber.App){
 
             if cards[i].Print != 0 {
                 printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-front.png"
+                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
                 if cards[i].Back != "" {
-                    cards[i].Back = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(cards[i].CardId) + "-" + printDate +  "-back.png"
+                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
                 }
             }
 
@@ -1437,18 +1434,3 @@ func DeckManagerControllers(app *fiber.App){
     })
 }
 
-func CreateSpacesClient() *s3.S3 {
-    key := os.Getenv("SPACES_KEY")
-    secret := os.Getenv("SPACES_SECRET")
-
-    s3Config := &aws.Config{
-        Credentials: credentials.NewStaticCredentials(key, secret, ""),
-        Endpoint:    aws.String("https://nyc3.digitaloceanspaces.com"),
-        Region:      aws.String("us-east-1"),
-        S3ForcePathStyle: aws.Bool(false),
-    }
-
-    newSession := session.New(s3Config)
-    s3Client := s3.New(newSession)
-    return s3Client
-}

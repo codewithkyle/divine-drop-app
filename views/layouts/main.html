@@ -11,6 +11,10 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <!-- Where images, symbols and uploads are served from. Read by scripts
+             that build asset URLs, so moving hosts stays a single change. -->
+        <meta name="cdn-url" content="{{ cdnURL }}">
+
         {{ if .Deck }}
             <meta property="og:title" content="{{ .Deck.Label }}">
             <meta property="og:description" content="Browse, build, share, and playtest Magic: The Gathering decks.">

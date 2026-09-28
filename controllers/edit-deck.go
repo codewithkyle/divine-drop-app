@@ -201,7 +201,7 @@ func DeckEditorControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deck.CommanderCardId) +  "-art.png"
+            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
         } else if len(deckCards) > 0 {
             bannerArt = deckCards[len(deckCards) - 1].Art
         }
@@ -491,7 +491,7 @@ func DeckEditorControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deck.CommanderCardId) +  "-art.png"
+            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
         } else {
             if len(deckCards) > 0 {
                 bannerArt = deckCards[len(deckCards) - 1].Art
@@ -541,7 +541,7 @@ func DeckEditorControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com/cards/" + strings.ToUpper(deck.CommanderCardId) +  "-art.png"
+            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
         } else {
             if len(deckCards) > 0 {
                 bannerArt = deckCards[len(deckCards) - 1].Art

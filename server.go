@@ -38,6 +38,11 @@ func main() {
 	}
 
 	engine := html.New("./views", ".html")
+	// Exposed to templates so the layout can hand the asset origin to the
+	// frontend, which builds a few URLs of its own and cannot read the
+	// environment. Registered as a function rather than passed through every
+	// render, which would mean touching each fiber.Map.
+	engine.AddFunc("cdnURL", helpers.CDNBaseURL)
 	app := fiber.New(fiber.Config{
 		Views:             engine,
 		BodyLimit:         1024 * 1024 * 100,
