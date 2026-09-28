@@ -428,9 +428,15 @@ func GetCard(db *gorm.DB, cardId string) Card {
     return card
 }
 
+// GetPrints lists the printings a card can be displayed as. A printing is
+// addressed by its release date, which is what the CDN filename and
+// Deck_Cards.print are both built from, so two Card_Prints rows sharing a
+// release date are the same image and the same selection. DISTINCT collapses
+// them: without it a card like Forest renders four identical Zendikar tiles
+// that all PATCH the same value.
 func GetPrints(db *gorm.DB, cardId string) []CardPrint {
     prints := []CardPrint{}
-    db.Raw("SELECT C.front, C.back, CP.released, HEX(CP.card_id) as CardId from Card_Prints CP JOIN Cards C ON C.id = CP.card_id WHERE card_id = UNHEX(?) ORDER BY released", cardId).Scan(&prints)
+    db.Raw("SELECT DISTINCT C.front, C.back, CP.released, HEX(CP.card_id) as CardId from Card_Prints CP JOIN Cards C ON C.id = CP.card_id WHERE card_id = UNHEX(?) ORDER BY released", cardId).Scan(&prints)
     return prints
 }
 
