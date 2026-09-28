@@ -23,6 +23,12 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
+	// Before anything serves: the schema a request is answered against should
+	// be the one this build was written for.
+	if err := helpers.RunMigrations(); err != nil {
+		log.Fatalf("failed to migrate database: %v", err)
+	}
+
 	// A missing or malformed key leaves client nil. Only the sign in flow uses
 	// it, so the rest of the app still runs without one, but say so here
 	// rather than letting it surface as a nil dereference on /authorize.
