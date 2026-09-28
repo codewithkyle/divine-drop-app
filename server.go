@@ -23,7 +23,13 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	client, _ := clerk.NewClient(os.Getenv("CLERK_API_KEY"))
+	// A missing or malformed key leaves client nil. Only the sign in flow uses
+	// it, so the rest of the app still runs without one, but say so here
+	// rather than letting it surface as a nil dereference on /authorize.
+	client, err := clerk.NewClient(os.Getenv("CLERK_API_KEY"))
+	if err != nil {
+		log.Error("Clerk client unavailable, sign in is disabled", "error", err)
+	}
 
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{
@@ -53,6 +59,9 @@ func main() {
 
 	controllers.HomepageControllers(app)
 	controllers.DeckEditorControllers(app)
+	// Registered before the deck manager so /decks/import is not swallowed by
+	// its /decks/:id route, the same reason /decks/new is registered first.
+	controllers.ImportDeckControllers(app)
 	controllers.DeckManagerControllers(app)
 	controllers.NavControllers(app)
 	controllers.PlayControllers(app)
@@ -76,6 +85,10 @@ func main() {
 	app.Get("/authorize", func(c *fiber.Ctx) error {
 		token := c.Cookies("__session", "")
 		if token == "" {
+			return c.Redirect("/sign-in")
+		}
+		if client == nil {
+			log.Error("Cannot verify session, CLERK_API_KEY is not set")
 			return c.Redirect("/sign-in")
 		}
 		log.Info("Verifying user session")

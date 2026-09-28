@@ -24,7 +24,10 @@
         <div id="sign-in"></div>
         <script>
             const script = document.createElement('script');
-            if (location.hostname === "divinedrop.local"){
+            // Any local host gets the Clerk development instance. The app
+            // was previously served as divinedrop.local through a reverse
+            // proxy, so that name is kept alongside localhost.
+            if (["localhost", "127.0.0.1", "[::1]", "divinedrop.local"].includes(location.hostname)){
                 script.src = "https://splendid-duck-49.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
                 script.setAttribute('data-clerk-publishable-key', 'pk_test_c3BsZW5kaWQtZHVjay00OS5jbGVyay5hY2NvdW50cy5kZXYk');
             } else {

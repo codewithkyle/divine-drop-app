@@ -9,3 +9,4 @@ app
 .env
 tmp
 divinedrop.sql
+database.sql

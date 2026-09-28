@@ -1,0 +1,455 @@
+deck-import{
+    // Every section on both screens is capped at this, so the card lists line
+    // up with the fields and summary tiles above them.
+    --import-width: 72rem;
+
+    display: block;
+    width: 100%;
+    padding: 2rem 3rem 4rem 3rem;
+
+    .import-panel{
+        display: block;
+        width: 100%;
+        max-width: var(--import-width);
+        margin: 0 auto;
+    }
+
+    header{
+        display: block;
+        width: 100%;
+        margin-bottom: 2rem;
+
+        h1{
+            color: var(--grey-100);
+            font-size: var(--font-2xl);
+            font-weight: var(--font-medium);
+            line-height: 1.2;
+        }
+
+        p{
+            color: var(--grey-400);
+            font-size: var(--font-sm);
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+    }
+
+    // Page wide so the links keep their styling wherever the copy moves to.
+    a{
+        color: var(--yellow-300);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover,
+        &:focus-visible{
+            color: var(--yellow-400);
+        }
+    }
+
+    .field{
+        display: block;
+        width: 100%;
+        margin-bottom: 1.5rem;
+
+        label{
+            display: block;
+            color: var(--grey-300);
+            font-size: var(--font-sm);
+            font-weight: var(--font-medium);
+            margin-bottom: 0.5rem;
+        }
+
+        .hint{
+            display: block;
+            color: var(--grey-500);
+            font-size: var(--font-xs);
+            margin-top: 0.5rem;
+        }
+    }
+
+    .select{
+        position: relative;
+        display: block;
+        width: 100%;
+
+        select{
+            appearance: none;
+            width: 100%;
+            height: 40px;
+            padding: 0 2.5rem 0 0.75rem;
+            border-radius: 0.5rem;
+            background-color: var(--grey-800);
+            border: 1px solid var(--grey-700);
+            color: var(--grey-100);
+            font-size: var(--font-sm);
+
+            &:focus-visible{
+                border-color: var(--grey-500);
+            }
+        }
+
+        svg{
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            top: 50%;
+            right: 0.75rem;
+            transform: translateY(-50%);
+            color: var(--grey-500);
+            pointer-events: none;
+        }
+    }
+
+    input[type="text"],
+    textarea{
+        width: 100%;
+        border-radius: 0.5rem;
+        background-color: var(--grey-800);
+        border: 1px solid var(--grey-700);
+        color: var(--grey-100);
+        font-size: var(--font-sm);
+        padding: 0.625rem 0.75rem;
+
+        &::placeholder{
+            color: var(--grey-500);
+        }
+
+        &:focus-visible{
+            border-color: var(--grey-500);
+        }
+    }
+
+    textarea{
+        font-family: monospace;
+        line-height: 1.5;
+        resize: vertical;
+    }
+
+    input[type="file"]{
+        color: var(--grey-400);
+        font-size: var(--font-sm);
+
+        &::file-selector-button{
+            margin-right: 0.75rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--grey-700);
+            background-color: var(--grey-800);
+            color: var(--grey-200);
+            font-size: var(--font-sm);
+            cursor: pointer;
+
+            &:hover{
+                background-color: var(--grey-700);
+            }
+        }
+    }
+
+    .instructions{
+        display: grid;
+        grid-template-columns: 1.5rem 1fr;
+        gap: 0.75rem 0.75rem;
+        align-items: start;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.75rem;
+        background-color: hsl(var(--grey-900-hsl) / 0.6);
+        border: 1px solid var(--grey-800);
+
+        .step{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: var(--grey-800);
+            color: var(--grey-300);
+            font-size: var(--font-xs);
+            font-weight: var(--font-medium);
+        }
+
+        p{
+            color: var(--grey-400);
+            font-size: var(--font-sm);
+            line-height: 1.5;
+
+            strong{
+                color: var(--grey-200);
+                font-weight: var(--font-medium);
+            }
+        }
+    }
+
+    .summary{
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        & > div{
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background-color: var(--grey-900);
+            text-align: center;
+        }
+
+        .count{
+            display: block;
+            color: var(--grey-100);
+            font-size: var(--font-2xl);
+            font-weight: var(--font-medium);
+            line-height: 1.2;
+
+            &.-warn{
+                color: var(--yellow-400);
+            }
+        }
+
+        .label{
+            display: block;
+            color: var(--grey-400);
+            font-size: var(--font-sm);
+            margin-top: 0.25rem;
+        }
+    }
+
+    // Warning alert. Everything it reports is a line from the file that did not
+    // make it into the deck, so it reads as amber rather than as body copy.
+    .notes{
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.5rem;
+        background-color: hsl(var(--yellow-400-hsl) / 0.08);
+        border: 1px solid hsl(var(--yellow-400-hsl) / 0.35);
+
+        & > svg{
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: var(--yellow-400);
+        }
+
+        .messages{
+            min-width: 0;
+        }
+
+        p{
+            color: var(--yellow-200);
+            font-size: var(--font-sm);
+            line-height: 1.5;
+
+            & + p{
+                margin-top: 0.5rem;
+            }
+        }
+    }
+
+    .command-zone{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        gap: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.75rem;
+        background-color: hsl(var(--grey-900-hsl) / 0.6);
+        border: 1px solid var(--grey-800);
+
+        .field{
+            margin-bottom: 0;
+        }
+
+        .select{
+            max-width: none;
+        }
+
+        & > .hint{
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--grey-300);
+            font-size: var(--font-xs);
+        }
+    }
+
+    .lists{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+
+        section{
+            border-radius: 0.75rem;
+            background-color: var(--grey-900);
+            padding: 1.25rem;
+            min-width: 0;
+        }
+
+        h2{
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--grey-200);
+            font-size: var(--font-base);
+            font-weight: var(--font-medium);
+            margin-bottom: 0.75rem;
+
+            span{
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 1.5rem;
+                height: 1.5rem;
+                padding: 0 0.5rem;
+                border-radius: 0.75rem;
+                background-color: var(--grey-800);
+                color: var(--grey-400);
+                font-size: var(--font-xs);
+            }
+        }
+
+        ul{
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 30rem;
+            overflow-y: auto;
+        }
+
+        li{
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.375rem 0;
+            border-bottom: 1px solid hsl(var(--grey-800-hsl) / 0.6);
+            font-size: var(--font-sm);
+            color: var(--grey-300);
+
+            &:last-child{
+                border-bottom: none;
+            }
+        }
+
+        // Card proportions, same 19/27 the browser and deck panels use.
+        card-preview,
+        .placeholder{
+            display: block;
+            width: 30px;
+            aspect-ratio: 19/27;
+            border-radius: 4%;
+            background-color: var(--grey-800);
+            flex-shrink: 0;
+        }
+
+        card-preview{
+            cursor: zoom-in;
+
+            img{
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 4%;
+            }
+        }
+
+        .qty{
+            color: var(--grey-500);
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+
+            &::after{
+                content: "x";
+            }
+        }
+
+        .name{
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tag{
+            flex-shrink: 0;
+            padding: 0 0.5rem;
+            height: 20px;
+            line-height: 20px;
+            border-radius: 10px;
+            background-color: var(--grey-800);
+            color: var(--grey-400);
+            font-size: var(--font-xs);
+
+            &.-commander{
+                background-color: hsl(var(--yellow-400-hsl) / 0.1);
+                color: var(--yellow-400);
+            }
+        }
+
+        .missing-copy{
+            margin-top: 0.75rem;
+            max-width: none;
+            font-size: var(--font-xs);
+        }
+
+        .empty{
+            color: var(--grey-500);
+            font-size: var(--font-sm);
+        }
+
+        .hint{
+            display: block;
+            color: var(--grey-500);
+            font-size: var(--font-xs);
+            margin-top: 0.5rem;
+        }
+    }
+
+    .actions{
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    // The shared .bttn is a transparent outline that only picks up colour on
+    // hover. These screens want solid buttons, so override within this page
+    // rather than restyling every button in the app. The extra type selector
+    // gives these the specificity to win over buttons.css, which loads later.
+    .bttn{
+        height: 36px;
+        padding: 0 1.25rem;
+        transition: filter 150ms var(--ease-in-out);
+
+        &:hover,
+        &:focus-visible{
+            filter: brightness(0.92);
+        }
+
+        &.-yellow,
+        &.-yellow:hover,
+        &.-yellow:focus-visible{
+            background-color: var(--yellow-400);
+            border-color: var(--yellow-400);
+            color: var(--grey-900);
+        }
+
+        &.-green,
+        &.-green:hover,
+        &.-green:focus-visible{
+            background-color: var(--green-400);
+            border-color: var(--green-400);
+            color: var(--grey-900);
+        }
+
+        &.-grey,
+        &.-grey:hover,
+        &.-grey:focus-visible{
+            background-color: var(--grey-700);
+            border-color: var(--grey-700);
+            color: var(--grey-100);
+        }
+    }
+}

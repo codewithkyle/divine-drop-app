@@ -21,14 +21,29 @@ class CardPreviewButton extends HTMLElement{
         this.card.src = this.dataset.cardUrl || "";
         if (!this.card.src) return;
         const bounds = this.getBoundingClientRect();
+        const width = 350;
+        const gap = 8;
         this.card.style.position = "fixed";
         let bottom = bounds.top;
         if (bottom + 488 > window.innerHeight){
             bottom = window.innerHeight - 488;
         }
+        if (bottom < gap){
+            bottom = gap;
+        }
+        // Prefer the left, which is where the deck tray sits. Flip to the right
+        // when there is no room, so a trigger in a left hand column does not
+        // preview off screen.
+        let left = bounds.left - width;
+        if (left < gap){
+            left = bounds.right + gap;
+        }
+        if (left + width > window.innerWidth - gap){
+            left = Math.max(gap, window.innerWidth - width - gap);
+        }
         this.card.style.top = `${bottom}px`;
-        this.card.style.left = `${bounds.left - 350}px`;
-        this.card.style.width = "350px";
+        this.card.style.left = `${left}px`;
+        this.card.style.width = `${width}px`;
         this.card.style.boxShadow = "var(--shadow-black-lg)";
         this.card.style.borderRadius = "4%";
         this.card.style.zIndex = "1000";

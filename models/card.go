@@ -480,3 +480,77 @@ func (c *cachedList) get(db *gorm.DB, query string) []string {
 func GetSets(db *gorm.DB) []string {
     return setsList.get(db, "SELECT DISTINCT set_name FROM Cards ORDER BY set_name")
 }
+
+// CardMatch is a card resolved from a name in an imported deck list.
+type CardMatch struct {
+    Id        string `gorm:"column:id"`
+    Name      string `gorm:"column:name"`
+    Front     string `gorm:"column:front"`
+    MatchName string `gorm:"column:match_name"`
+}
+
+// FindCardsByNames resolves a batch of imported names in one round trip. An
+// import looks up a hundred or so names at once, which is a hundred queries if
+// each is resolved on its own.
+//
+// Names are matched against Card_Names as well as Cards.name so that the faces
+// of split, modal and room cards resolve. The result is keyed by the lower
+// cased name that matched, which is what the caller has in hand.
+func FindCardsByNames(db *gorm.DB, names []string) map[string]CardMatch {
+    matches := map[string]CardMatch{}
+    if len(names) == 0 {
+        return matches
+    }
+
+    placeholders := strings.TrimSuffix(strings.Repeat("?,", len(names)), ",")
+    args := []interface{}{}
+    for i := 0; i < 2; i++ {
+        for _, name := range names {
+            args = append(args, name)
+        }
+    }
+
+    rows := []CardMatch{}
+    db.Raw(
+        "SELECT HEX(C.id) AS id, C.name, C.front, LOWER(C.name) AS match_name FROM Cards C WHERE C.name IN ("+placeholders+") "+
+            "UNION "+
+            "SELECT HEX(C.id) AS id, IFNULL(C.name, N.name) AS name, C.front, LOWER(N.name) AS match_name FROM Card_Names N JOIN Cards C ON C.id = N.card_id WHERE N.name IN ("+placeholders+")",
+        args...,
+    ).Scan(&rows)
+
+    // A name can resolve to more than one row when a card has several printings
+    // in Cards. Keep the first so an import is repeatable; the print can be
+    // changed per card from the deck overview afterwards.
+    for _, row := range rows {
+        if _, seen := matches[row.MatchName]; !seen {
+            matches[row.MatchName] = row
+        }
+    }
+
+    return matches
+}
+
+// FilterExistingCardIds returns the subset of ids that exist. The import review
+// form carries card ids in hidden inputs, so they are the client's word until
+// they are checked against the database.
+func FilterExistingCardIds(db *gorm.DB, ids []string) map[string]bool {
+    existing := map[string]bool{}
+    if len(ids) == 0 {
+        return existing
+    }
+
+    placeholders := strings.TrimSuffix(strings.Repeat("UNHEX(?),", len(ids)), ",")
+    args := []interface{}{}
+    for _, id := range ids {
+        args = append(args, id)
+    }
+
+    found := []string{}
+    db.Raw("SELECT HEX(id) FROM Cards WHERE id IN ("+placeholders+")", args...).Scan(&found)
+
+    for _, id := range found {
+        existing[strings.ToUpper(id)] = true
+    }
+
+    return existing
+}

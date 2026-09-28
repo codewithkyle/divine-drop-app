@@ -1,0 +1,159 @@
+<form
+    class="import-panel import-review"
+    hx-post="/decks/import"
+    hx-swap="none"
+>
+    <input type="hidden" name="gamemode" value="{{ .Gamemode }}">
+
+    <header>
+        <h1>Review the import</h1>
+        <p>{{ len .Found }} of {{ .TotalEntries }} cards found.</p>
+    </header>
+
+    <div class="field">
+        <label for="import-label">Deck name</label>
+        <input id="import-label" type="text" name="label" placeholder="Untitled" autocomplete="off" maxlength="120">
+    </div>
+
+    {{ if or (gt (len .Skipped) 0) (gt (len .BadLines) 0) (.Truncated) }}
+        <div class="notes" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
+            <div class="messages">
+                {{ if gt (len .Skipped) 0 }}
+                    <p>{{ len .Skipped }} card(s) were left out because the export marked them as not part of the deck: {{ range $i, $name := .Skipped }}{{ if $i }}, {{ end }}{{ $name }}{{ end }}.</p>
+                {{ end }}
+                {{ if gt (len .BadLines) 0 }}
+                    <p>{{ len .BadLines }} line(s) were not read as cards: {{ range $i, $line := .BadLines }}{{ if $i }}, {{ end }}{{ $line }}{{ end }}.</p>
+                {{ end }}
+                {{ if .Truncated }}
+                    <p>Only the first 1000 cards of this list were read.</p>
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
+
+    <div class="summary">
+        <div>
+            <span class="count">{{ .MainCount }}</span>
+            <span class="label">Main deck</span>
+        </div>
+        <div>
+            <span class="count">{{ .SideboardCount }}</span>
+            <span class="label">Sideboard</span>
+        </div>
+        <div>
+            <span class="count {{ if gt (len .Missing) 0 }}-warn{{ end }}">{{ len .Missing }}</span>
+            <span class="label">Not found</span>
+        </div>
+        <div>
+            <span class="count">{{ len .Skipped }}</span>
+            <span class="label">Skipped</span>
+        </div>
+    </div>
+
+    {{ if .ShowCommander }}
+        <div class="command-zone">
+            <div class="field">
+                <label for="import-commander">Commander</label>
+                <div class="select">
+                    <select id="import-commander" name="commander">
+                        <option value="">None</option>
+                        {{ range .Found }}
+                            {{ if not .InSideboard }}
+                                <option {{ if eq $.CommanderId .CardId }}selected{{ end }} value="{{ .CardId }}">{{ .Name }}</option>
+                            {{ end }}
+                        {{ end }}
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>
+                </div>
+            </div>
+            <div class="field">
+                <label for="import-partner">Partner</label>
+                <div class="select">
+                    <select id="import-partner" name="partner">
+                        <option value="">None</option>
+                        {{ range .Found }}
+                            {{ if not .InSideboard }}
+                                <option {{ if eq $.PartnerId .CardId }}selected{{ end }} value="{{ .CardId }}">{{ .Name }}</option>
+                            {{ end }}
+                        {{ end }}
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>
+                </div>
+            </div>
+            {{ if .ShowOathbreaker }}
+                <div class="field">
+                    <label for="import-oathbreaker">Oathbreaker</label>
+                    <div class="select">
+                        <select id="import-oathbreaker" name="oathbreaker">
+                            <option value="">None</option>
+                            {{ range .Found }}
+                                {{ if not .InSideboard }}
+                                    <option value="{{ .CardId }}">{{ .Name }}</option>
+                                {{ end }}
+                            {{ end }}
+                        </select>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>
+                    </div>
+                </div>
+            {{ end }}
+            <span class="hint">You can change any of this from the deck overview later.</span>
+        </div>
+    {{ end }}
+
+    <div class="lists">
+        <section class="found">
+            <h2>Found <span>{{ len .Found }}</span></h2>
+            <ul>
+                {{ range .Found }}
+                    <li>
+                        {{ if ne .Front "" }}
+                            <card-preview aria-hidden="true" data-card-url="{{ .Front }}">
+                                <img src="{{ .Front }}" loading="lazy" alt="">
+                            </card-preview>
+                        {{ else }}
+                            <span class="placeholder"></span>
+                        {{ end }}
+                        <span class="qty">{{ .Qty }}</span>
+                        <span class="name">{{ .Name }}</span>
+                        {{ if .InSideboard }}<span class="tag">Sideboard</span>{{ end }}
+                        {{ if .IsCommander }}<span class="tag -commander">Commander</span>{{ end }}
+                        <input type="hidden" name="cards" value="{{ .CardId }}:{{ .Qty }}:{{ if .InSideboard }}1{{ else }}0{{ end }}">
+                    </li>
+                {{ end }}
+            </ul>
+        </section>
+        <section class="missing">
+            <h2>Not found <span>{{ len .Missing }}</span></h2>
+            {{ if gt (len .Missing) 0 }}
+                <ul>
+                    {{ range .Missing }}
+                        <li>
+                            <span class="qty">{{ .Qty }}</span>
+                            <span class="name">{{ .Name }}</span>
+                        </li>
+                    {{ end }}
+                </ul>
+                <textarea class="missing-copy" readonly rows="4" spellcheck="false" onclick="this.select()">{{ range .Missing }}{{ .Qty }} {{ .Name }}&#10;{{ end }}</textarea>
+                <span class="hint">These are skipped. Copy the list above if you want to add them by hand.</span>
+            {{ else }}
+                <p class="empty">Every card was found.</p>
+            {{ end }}
+        </section>
+    </div>
+
+    <div class="actions">
+        <button
+            type="button"
+            class="bttn -grey"
+            hx-get="/partials/deck-import/form?gamemode={{ .Gamemode }}"
+            hx-target="deck-import"
+            hx-swap="innerHTML"
+        >
+            <span>Cancel</span>
+        </button>
+        <button type="submit" class="bttn -green">
+            <span>Save imported deck</span>
+        </button>
+    </div>
+</form>
