@@ -13,15 +13,15 @@
                 <polyline points="7 9 12 4 17 9"></polyline>
                 <line x1="12" y1="4" x2="12" y2="16"></line>
             </svg>
-            <span class="text-center">Upload an image or GIF.<br>Recommended size 400x568</span>
+            <span class="text-center">Upload an image, webm, mp4, or mov file.<br>Recommended size 400x568</span>
         </label>
         <input 
             type="file" 
-            accept="image/png, image/jpg, image/jpeg, image/gif, video/webm, video/mp4, video/mov" 
+            accept="image/png, image/jpg, image/jpeg, video/webm, video/mp4, video/mov" 
             id="upload" 
             name="file"
             hx-post="/sleeves/image"
-            hx-trigger="change once"
+            hx-trigger="change"
             hx-target="#sleeves-container"
             hx-encoding="multipart/form-data"
             hx-include="[name='deckId']"
