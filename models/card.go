@@ -363,26 +363,36 @@ func FilterCards(db *gorm.DB, name string, searchText bool, sort string, mana []
         params["price"] = price
     }
 
-    sortColumn := "C.name"
+    // The direction is kept apart from the column because the column is named
+    // twice below, and only one of the two places may carry it.
+    sortColumn, sortDirection := "C.name", ""
     switch sort {
         case "name":
             sortColumn = "C.name"
         case "tmc":
-            sortColumn = "C.totalManaCost DESC"
+            sortColumn, sortDirection = "C.totalManaCost", " DESC"
         case "lmc":
-            sortColumn = "C.totalManaCost ASC"
+            sortColumn, sortDirection = "C.totalManaCost", " ASC"
         case "power":
-            sortColumn = "C.power DESC"
+            sortColumn, sortDirection = "C.power", " DESC"
         case "toughness":
-            sortColumn = "C.toughness DESC"
+            sortColumn, sortDirection = "C.toughness", " DESC"
         case "priceHL":
-            sortColumn = "C.price DESC"
+            sortColumn, sortDirection = "C.price", " DESC"
         case "priceLH":
-            sortColumn = "C.price ASC"
+            sortColumn, sortDirection = "C.price", " ASC"
         case "edhRank":
             sortColumn = "C.edh_rank"
     }
-    query += "GROUP BY C.name, C.front, C.back, C.id ORDER BY " + sortColumn + " LIMIT @limit OFFSET @offset"
+
+    // The group key exists only to collapse the Card_Texts join into one row per
+    // card, and C.id decides that on its own because it is the primary key.
+    // Everything else in the key is therefore free to choose, so it names the
+    // sort column: MySQL can then walk that column's index, group as it goes and
+    // stop at the limit, instead of grouping all 36,000 cards and sorting them
+    // to return twenty. Listing C.front and C.back here instead, as this used
+    // to, matched no index and cost a full scan and a filesort on every load.
+    query += "GROUP BY " + sortColumn + ", C.id ORDER BY " + sortColumn + sortDirection + " LIMIT @limit OFFSET @offset"
     db.Raw(query, params).Scan(&cards)
     return cards
 }
