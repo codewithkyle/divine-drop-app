@@ -585,7 +585,7 @@ func DeckManagerControllers(app *fiber.App){
         for i := range cards {
             if cards[i].Back == "" {
                 if deck.SleeveImage != "" {
-                    cards[i].Back = deck.SleeveImage
+                    cards[i].Back = helpers.AssetURL(deck.SleeveImage)
                 } else {
                     cards[i].Back = helpers.CardSleeveURL()
                 }
@@ -968,6 +968,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         sleeves := models.GetSleeves(db, user.Id)
+        resolveSleeves(sleeves)
 
         for i := range sleeves {
             sleeves[i].DeckId = deckId
@@ -1034,9 +1035,11 @@ func DeckManagerControllers(app *fiber.App){
 
         s3Client := helpers.S3Client()
 
+        key := helpers.UserUploadKey(user.Id, id)
+
         object := s3.PutObjectInput{
             Bucket:      aws.String(helpers.S3Bucket()),
-            Key:         aws.String("users/" + user.Id + "/" + id),
+            Key:         aws.String(key),
             Body:        src,
             ContentType: aws.String(mimeType),
         }
@@ -1052,11 +1055,9 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(500)
         }
 
-        fileUrl := helpers.UserUploadURL(user.Id, id)
-
         db := helpers.ConnectDB()
 
-        helpers.Exec(db, "INSERT INTO Sleeves (id, user_id, image_url, is_video) VALUES (UNHEX(?), ?, ?, ?)", id, user.Id, fileUrl, isVideo)
+        helpers.Exec(db, "INSERT INTO Sleeves (id, user_id, image_url, is_video) VALUES (UNHEX(?), ?, ?, ?)", id, user.Id, key, isVideo)
 
         deck := models.GetDeck(db, deckId, user.Id)
         if deck.Id == "" {
@@ -1065,6 +1066,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         sleeves := models.GetSleeves(db, user.Id)
+        resolveSleeves(sleeves)
 
         for i := range sleeves {
             sleeves[i].DeckId = deckId
@@ -1092,6 +1094,7 @@ func DeckManagerControllers(app *fiber.App){
         sleeve := models.GetSleeve(db, user.Id, sleeveId)
         if sleeve.Id == "" {
             sleeves := models.GetSleeves(db, user.Id)
+            resolveSleeves(sleeves)
             return c.Render("partials/deck-manager/sleeves", fiber.Map{
                 "Sleeves": sleeves,
             })
@@ -1099,9 +1102,12 @@ func DeckManagerControllers(app *fiber.App){
 
         s3Client := helpers.S3Client()
 
+        // The stored key, not a rebuilt one: uploads write a lowercase uuid while
+        // the id reads back as uppercase hex, so reconstructing it here only
+        // worked because of a ToLower that was easy to lose.
         object := s3.DeleteObjectInput{
             Bucket:      aws.String(helpers.S3Bucket()),
-            Key:         aws.String("users/" + user.Id + "/" + strings.ToLower(sleeve.Id)),
+            Key:         aws.String(sleeve.Image),
         }
         _, err = s3Client.DeleteObject(&object)
         if err != nil {
@@ -1114,6 +1120,7 @@ func DeckManagerControllers(app *fiber.App){
         helpers.Exec(db, "DELETE FROM Sleeves WHERE id = UNHEX(?) AND user_id = ?", sleeve.Id, user.Id)
 
         sleeves := models.GetSleeves(db, user.Id)
+        resolveSleeves(sleeves)
 
         for i := range sleeves {
             sleeves[i].DeckId = deckId

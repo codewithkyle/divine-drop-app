@@ -66,7 +66,24 @@ func CardSleeveURL() string {
 	return CDNBaseURL() + "/back.png"
 }
 
-// UserUploadURL is where a sleeve a user uploaded is served from.
-func UserUploadURL(userId string, fileId string) string {
-	return CDNBaseURL() + "/users/" + userId + "/" + fileId
+// UserUploadKey names a sleeve a user uploaded, in the object store and in
+// Sleeves.image_url alike. Storing the key rather than a URL is what keeps
+// CDN_URL the single authority on where assets are served from, and it means
+// the delete path addresses exactly the object the upload wrote instead of
+// rebuilding the name and hoping the two agree.
+func UserUploadKey(userId string, fileId string) string {
+	return "users/" + userId + "/" + fileId
+}
+
+// AssetURL serves any stored key. Keys are relative by construction, so a value
+// that still looks absolute is one the migration has not reached, and is passed
+// through rather than mangled into an origin followed by another origin.
+func AssetURL(key string) string {
+	if key == "" {
+		return ""
+	}
+	if strings.HasPrefix(key, "http://") || strings.HasPrefix(key, "https://") {
+		return key
+	}
+	return CDNBaseURL() + "/" + strings.TrimLeft(key, "/")
 }

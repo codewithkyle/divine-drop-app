@@ -50,3 +50,12 @@ func resolveDeckCardsMetadata(cards []models.DeckCardMetadata) {
 		cards[i].Back = helpers.CardBackURL(cards[i].Back)
 	}
 }
+
+// resolveSleeves turns stored sleeve keys into URLs. Sleeves.image_url holds a
+// key for the same reason Cards.front holds a hash: the origin belongs to
+// CDN_URL, not to a row written years ago.
+func resolveSleeves(sleeves []models.Sleeve) {
+	for i := range sleeves {
+		sleeves[i].Image = helpers.AssetURL(sleeves[i].Image)
+	}
+}
