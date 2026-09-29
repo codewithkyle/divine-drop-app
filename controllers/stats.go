@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -42,21 +41,15 @@ func DeckStatsControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
+            bannerArt = helpers.CardArtURL(deck.CommanderArt)
         } else if len(deckCards) > 0 {
-            bannerArt = deckCards[len(deckCards) - 1].Art
+            bannerArt = helpers.CardArtURL(deckCards[len(deckCards) - 1].Art)
         }
 
+        resolveDeckCards(deckCards)
         for i := range deckCards {
             deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
-            if deckCards[i].Print != 0 {
-                printDate := strconv.Itoa(deckCards[i].Print)
-                deckCards[i].Front = helpers.CardFrontURL(deckCards[i].CardId, printDate)
-                if deckCards[i].Back != "" {
-                    deckCards[i].Back = helpers.CardBackURL(deckCards[i].CardId, printDate)
-                }
-            }
         }
 
         deckGroups := []models.DeckGroup{}

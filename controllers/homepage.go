@@ -21,6 +21,7 @@ func HomepageControllers(app *fiber.App) {
 
         db := helpers.ConnectDB()
         cards := models.SearchCardsByName(db, search, 0, 20)
+        resolveCards(cards)
 
         deckGroups := models.GetDeckGroups(db, user.Id)
         decks := models.GetDecks(db, "", user.Id)
@@ -59,6 +60,7 @@ func HomepageControllers(app *fiber.App) {
 
         db := helpers.ConnectDB()
         cards := models.SearchCardsByName(db, search, 0, 20)
+        resolveCards(cards)
 
         c.Response().Header.Set("HX-Replace-Url", "/?search=" + url.QueryEscape(search))
 
@@ -77,6 +79,7 @@ func HomepageControllers(app *fiber.App) {
 
         db := helpers.ConnectDB()
         cards := models.SearchCardsByName(db, search, offset, 20)
+        resolveCards(cards)
 
         if len(cards) > 0 {
             c.Response().Header.Set("HX-Trigger", "cardBrowserChanged")

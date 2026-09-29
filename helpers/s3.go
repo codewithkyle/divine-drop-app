@@ -19,6 +19,7 @@ const (
 	defaultS3Endpoint = "https://nyc3.digitaloceanspaces.com"
 	defaultS3Region   = "us-east-1"
 	defaultS3Bucket   = "divinedrop"
+	defaultS3ACL      = "public-read"
 )
 
 // S3Bucket is the bucket uploads are written to and deleted from.
@@ -72,4 +73,14 @@ func envBool(name string, fallback bool) bool {
 		return fallback
 	}
 	return parsed
+}
+
+// S3ACL is the canned ACL to send with an upload, or empty for none.
+//
+// DigitalOcean Spaces requires public-read for an object to be readable, which
+// is why it has always been sent. R2 implements no per-object ACLs and fails the
+// request when the header is present, so the value has to be absent there rather
+// than merely different.
+func S3ACL() string {
+	return envOr("S3_ACL", defaultS3ACL)
 }

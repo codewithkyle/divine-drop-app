@@ -387,7 +387,7 @@ func resolveImportedCards(db *gorm.DB, cards []helpers.ImportedCard) ([]ImportCa
         found = append(found, ImportCard{
             CardId:      strings.ToUpper(match.Id),
             Name:        match.Name,
-            Front:       match.Front,
+            Front:       helpers.CardFrontURL(match.Front),
             Qty:         qty,
             InSideboard: card.InSideboard,
             IsCommander: card.IsCommander,

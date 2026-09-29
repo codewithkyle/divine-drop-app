@@ -18,6 +18,10 @@ type Deck struct {
     SleeveImage string
     Gamemode string
     IsLegal bool
+    // CommanderArt is the art hash of the commander, read from Cards rather than
+    // derived from CommanderCardId: a card id addresses nothing in the bucket,
+    // and a card can have a front with no crop of its own.
+    CommanderArt string
 }
 
 type DeckMetadata struct {
@@ -109,14 +113,14 @@ func GetDecks(db *gorm.DB, deckId string, userId string) []Deck {
 
 func GetDeck(db *gorm.DB, deckId string, userId string) Deck {
     var deck Deck
-    db.Raw("SELECT HEX(D.partner_card_id) as partner_card_id, D.gamemode, HEX(D.sleeve_id) as sleeve_id, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, userId).Scan(&deck)
+    db.Raw("SELECT COALESCE(CC.art, '') AS CommanderArt, HEX(D.partner_card_id) as partner_card_id, D.gamemode, HEX(D.sleeve_id) as sleeve_id, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D LEFT JOIN Cards CC ON CC.id = D.commander_card_id WHERE D.id = UNHEX(?) AND D.user_id = ?", deckId, userId).Scan(&deck)
     deck.Active = "active"
     return deck
 }
 
 func GetDeckByID(db *gorm.DB, deckId string) Deck {
     var deck Deck
-    db.Raw("SELECT HEX(D.partner_card_id) as partner_card_id, D.gamemode, D.user_id, S.image_url AS SleeveImage, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D LEFT JOIN Sleeves S ON S.id = D.sleeve_id WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
+    db.Raw("SELECT COALESCE(CC.art, '') AS CommanderArt, HEX(D.partner_card_id) as partner_card_id, D.gamemode, D.user_id, S.image_url AS SleeveImage, HEX(D.commander_card_id) AS commander_card_id, HEX(D.oathbreaker_card_id) AS oathbreaker_card_id, HEX(D.id) AS id, D.label, (SELECT SUM(DC.qty) FROM Deck_Cards DC WHERE DC.deck_id = D.id) AS CardCount FROM Decks D LEFT JOIN Sleeves S ON S.id = D.sleeve_id LEFT JOIN Cards CC ON CC.id = D.commander_card_id WHERE D.id = UNHEX(?)", deckId).Scan(&deck)
     deck.Active = "active"
     return deck
 }

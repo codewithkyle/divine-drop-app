@@ -66,23 +66,17 @@ func DeckManagerControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
+            bannerArt = helpers.CardArtURL(deck.CommanderArt)
         } else if len(deckCards) > 0 {
-            bannerArt = deckCards[len(deckCards) - 1].Art
+            bannerArt = helpers.CardArtURL(deckCards[len(deckCards) - 1].Art)
         }
 
+        resolveDeckCards(deckCards)
         for i := range deckCards {
             deckCards[i].Gamemode = deck.Gamemode
             deckCards[i].IsCommander = deckCards[i].CardId == deck.CommanderCardId
             deckCards[i].IsPartner = deckCards[i].CardId == deck.PartnerCardId
             deckCards[i].IsOathbreaker = deckCards[i].CardId == deck.OathbreakerCardId
-            if deckCards[i].Print != 0 {
-                printDate := strconv.Itoa(deckCards[i].Print)
-                deckCards[i].Front = helpers.CardFrontURL(deckCards[i].CardId, printDate)
-                if deckCards[i].Back != "" {
-                    deckCards[i].Back = helpers.CardBackURL(deckCards[i].CardId, printDate)
-                }
-            }
 
             if deck.Gamemode != "" {
                 switch deck.Gamemode {
@@ -228,6 +222,7 @@ func DeckManagerControllers(app *fiber.App){
 
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
+        resolveDeckCards(cards)
         for i := range(cards) {
             cards[i].Gamemode = deck.Gamemode
             if cards[i].CardId == deck.CommanderCardId {
@@ -240,13 +235,6 @@ func DeckManagerControllers(app *fiber.App){
                 cards[i].IsOathbreaker = true
             }
 
-            if cards[i].Print != 0 {
-                printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
-                if cards[i].Back != "" {
-                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
-                }
-            }
             cards[i].IsGuest = isGuest
 
             if deck.Gamemode != "" {
@@ -336,7 +324,7 @@ func DeckManagerControllers(app *fiber.App){
 
         helpers.Exec(db, "UPDATE Decks SET commander_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
 
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander\", \"bannerArtUpdate\": \"" + helpers.CardArtURL(card.Art) + "\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
@@ -372,7 +360,7 @@ func DeckManagerControllers(app *fiber.App){
 
         helpers.Exec(db, "UPDATE Decks SET partner_card_id = UNHEX(?) WHERE id = UNHEX(?)", cardId, deckId)
 
-        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander's partner\", \"bannerArtUpdate\": \"" + card.Art + "\", \"deckUpdated\": \"" + deckId + "\"}")
+        c.Response().Header.Set("Hx-Trigger", "{\"flash:toast\": \"" + helpers.EscapeString(card.Name) + " is now the Commander's partner\", \"bannerArtUpdate\": \"" + helpers.CardArtURL(card.Art) + "\", \"deckUpdated\": \"" + deckId + "\"}")
 
         return c.SendStatus(200)
     })
@@ -493,6 +481,7 @@ func DeckManagerControllers(app *fiber.App){
         db := helpers.ConnectDB()
 
         cards := models.SearchCardsByName(db, name, page, 50)
+        resolveCards(cards)
 
         for i := range cards {
             cards[i].ActiveDeckId = deckId
@@ -528,6 +517,7 @@ func DeckManagerControllers(app *fiber.App){
         }
 
         deckCard := models.GetDeckCard(db, deckId, cardId)
+        resolveDeckCard(&deckCard)
         if deckCard.Id == "" {
             newCardId := uuid.New().String()
             newCardId = strings.ReplaceAll(newCardId, "-", "")
@@ -552,15 +542,9 @@ func DeckManagerControllers(app *fiber.App){
         cards := models.GetDeckCards(db, deckId)
 
         deckCards := []models.DeckCard{}
+        resolveDeckCards(cards)
         for i := range cards {
             if !cards[i].InSideboard {
-                if cards[i].Print != 0 {
-                    printDate := strconv.Itoa(cards[i].Print)
-                    cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
-                    if cards[i].Back != "" {
-                        cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
-                    }
-                }
                 for j := uint8(0); j < cards[i].Qty; j++ {
                     deckCards = append(deckCards, cards[i])
                 }
@@ -597,15 +581,8 @@ func DeckManagerControllers(app *fiber.App){
         deck := models.GetDeckByID(db, deckId)
 
         deckCards := []models.DeckCardMetadata{}
+        resolveDeckCardsMetadata(cards)
         for i := range cards {
-            if cards[i].Print != 0 {
-                printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
-                if cards[i].Back != "" {
-                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
-                    
-                }
-            }
             if cards[i].Back == "" {
                 if deck.SleeveImage != "" {
                     cards[i].Back = deck.SleeveImage
@@ -836,6 +813,7 @@ func DeckManagerControllers(app *fiber.App){
 
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
+        resolveDeckCards(cards)
         for i := range(cards) {
             if cards[i].CardId == deck.CommanderCardId {
                 cards[i].IsCommander = true
@@ -845,13 +823,6 @@ func DeckManagerControllers(app *fiber.App){
             }
             if cards[i].CardId == deck.OathbreakerCardId {
                 cards[i].IsOathbreaker = true
-            }
-            if cards[i].Print != 0 {
-                printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
-                if cards[i].Back != "" {
-                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
-                }
             }
             cards[i].IsGuest = isGuest
         }
@@ -891,9 +862,10 @@ func DeckManagerControllers(app *fiber.App){
 
         for i := range prints {
             prints[i].DeckId = deck.Id
-            prints[i].Front = helpers.CardFrontURL(prints[i].CardId, strconv.Itoa(prints[i].Print))
+            prints[i].CardId = card.Id
+            prints[i].Front = helpers.CardFrontURL(prints[i].Print)
             if prints[i].Back != "" {
-                prints[i].Back = helpers.CardBackURL(prints[i].CardId, strconv.Itoa(prints[i].Print))
+                prints[i].Back = helpers.CardBackURL(prints[i].Back)
             }
         }
 
@@ -959,13 +931,19 @@ func DeckManagerControllers(app *fiber.App){
             return c.SendStatus(404)
         }
 
-        helpers.Exec(db, "UPDATE Deck_Cards SET print = ? WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", printId, card.Id, deck.Id)
-
-        front := helpers.CardFrontURL(card.Id, printId)
-        back := ""
-        if card.Back != "" {
-            back = helpers.CardBackURL(card.Id, printId)
+        // printId is a look hash off the URL. Resolving it confirms the look
+        // exists for this card before it is stored, and yields the reverse face,
+        // which the chosen look decides rather than the card's default.
+        backHash, ok := models.GetPrintLook(db, card.Id, printId)
+        if !ok {
+            c.Response().Header.Set("HX-Trigger", `{"flash:toast": "That print is no longer available."}`)
+            return c.SendStatus(400)
         }
+
+        helpers.Exec(db, "UPDATE Deck_Cards SET print = UNHEX(?) WHERE card_id = UNHEX(?) AND deck_id = UNHEX(?)", printId, card.Id, deck.Id)
+
+        front := helpers.CardFrontURL(printId)
+        back := helpers.CardBackURL(backHash)
 
         return c.Render("partials/deck-manager/card-image", fiber.Map{
             "Front": front,
@@ -1060,8 +1038,13 @@ func DeckManagerControllers(app *fiber.App){
             Bucket:      aws.String(helpers.S3Bucket()),
             Key:         aws.String("users/" + user.Id + "/" + id),
             Body:        src,
-            ACL:         aws.String("public-read"),
             ContentType: aws.String(mimeType),
+        }
+        // Spaces needs an explicit public-read ACL to serve an object. R2 has no
+        // per-object ACLs and rejects the header, so it is only sent when
+        // S3_ACL names one.
+        if acl := helpers.S3ACL(); acl != "" {
+            object.ACL = aws.String(acl)
         }
         _, err = s3Client.PutObject(&object)
         if err != nil {
@@ -1256,6 +1239,7 @@ func DeckManagerControllers(app *fiber.App){
 
         cards := models.SearchDeckCards(db, deckId, search, sort, filter, rarity, color)
 
+        resolveDeckCards(cards)
         for i := range(cards) {
             cards[i].Gamemode = gamemode
             if cards[i].CardId == deck.CommanderCardId {
@@ -1268,13 +1252,6 @@ func DeckManagerControllers(app *fiber.App){
                 cards[i].IsOathbreaker = true
             }
 
-            if cards[i].Print != 0 {
-                printDate := strconv.Itoa(cards[i].Print)
-                cards[i].Front = helpers.CardFrontURL(cards[i].CardId, printDate)
-                if cards[i].Back != "" {
-                    cards[i].Back = helpers.CardBackURL(cards[i].CardId, printDate)
-                }
-            }
 
             if gamemode != "" {
                 switch gamemode {

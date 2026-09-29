@@ -64,7 +64,7 @@ type DeckCard struct {
     IsPartner bool
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
-    Print int `gorm:"column:print"`
+    Print string `gorm:"column:print"`
     Price int `gorm:"column:price"`
     FmtPrice string
     IsGuest bool
@@ -102,16 +102,33 @@ type DeckCardMetadata struct {
     IsPartner bool
     IsOathbreaker bool
     InSideboard bool `gorm:"column:sideboard;type:tinyint"`
-    Print int `gorm:"column:print"`
+    Print string `gorm:"column:print"`
 }
 
+// CardPrint is one distinct look a card can be shown as, not one printing.
+// Several printings that render identically collapse into a single CardPrint.
 type CardPrint struct {
-    CardId string `gorm:"column:card_id"`
-    Print int `gorm:"column:released"`
+    CardId string
+    // Print is the front_hash, which is what a player's choice is recorded as.
+    Print string `gorm:"column:print"`
     DeckId string
     Front string
     Back string
 }
+
+// A player's choice lives in Deck_Cards.print as a front_hash; with no choice
+// the card's own default look is used. Resolving that in SQL keeps every caller
+// from repeating the fallback, and COALESCE also keeps a NULL out of a Go
+// string, which the driver will not scan.
+const (
+    chosenFrontHash = "COALESCE(LOWER(HEX(DC.print)), C.front, '')"
+    rawChosenPrint  = "COALESCE(LOWER(HEX(DC.print)), '')"
+    // A look determines its own reverse face, so every Card_Prints row sharing
+    // a front_hash carries the same back_hash and LIMIT 1 is deterministic
+    // rather than an arbitrary pick between differing values.
+    chosenBackHash = "COALESCE((SELECT LOWER(HEX(cp.back_hash)) FROM Card_Prints cp " +
+        "WHERE cp.card_id = DC.card_id AND cp.front_hash = DC.print AND cp.back_hash IS NOT NULL LIMIT 1), C.back, '')"
+)
 
 func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
     name = "%" + strings.Trim(name, " ") + "%"
@@ -122,18 +139,18 @@ func SearchCardsByName(db *gorm.DB, name string, offset int, limit int) []Card {
 
 func GetDeckCards (db *gorm.DB, deckId string) []DeckCard {
     var cards []DeckCard
-    db.Raw("SELECT C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh, C.price, DC.print, DC.sideboard, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh, C.price, " + rawChosenPrint + " AS print, DC.sideboard, DC.dateCreated, C.art, " + chosenFrontHash + " AS front, " + chosenBackHash + " AS back, HEX(DC.id) AS id, HEX(DC.card_id) AS card_id, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
 func GetDeckCardsMetadata (db *gorm.DB, deckId string) []DeckCardMetadata {
     var cards []DeckCardMetadata
-    db.Raw("SELECT DC.print, DC.sideboard, HEX(DC.card_id) AS card_id, C.front, C.back, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
+    db.Raw("SELECT " + rawChosenPrint + " AS print, DC.sideboard, HEX(DC.card_id) AS card_id, " + chosenFrontHash + " AS front, " + chosenBackHash + " AS back, (SELECT c.name FROM Card_Names c WHERE C.id = c.card_id LIMIT 1) AS name, DC.qty FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) ORDER BY dateCreated DESC", deckId).Scan(&cards)
     return cards
 }
 
 func SearchDeckCards(db *gorm.DB, deckId string, name string, sort string, filter string, rarity string, color string) []DeckCard {
-    query := "SELECT C.price, DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, C.front, C.back, HEX(DC.id) AS id, DC.qty, C.name, "
+    query := "SELECT C.price, " + rawChosenPrint + " AS print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(C.id) as card_id, DC.dateCreated, C.art, " + chosenFrontHash + " AS front, " + chosenBackHash + " AS back, HEX(DC.id) AS id, DC.qty, C.name, "
     query += "C.standard, C.future, C.historic, C.gladiator, C.pioneer, C.explorer, C.modern, C.legacy, C.pauper, C.vintage, C.penny, C.commander, C.oathbreaker, C.brawl, C.historicbrawl, C.alchemy, C.paupercommander, C.duel, C.oldschool, C.premodern, C.predh "
     query += "FROM Deck_Cards DC JOIN Cards C ON C.id = DC.card_id "
     params := map[string]interface{}{
@@ -413,12 +430,12 @@ func filterContains(values []string, name string) []string {
 
 func GetDeckCard(db *gorm.DB, activeDeckId string, cardId string) DeckCard {
     deckCard := DeckCard{}
-    db.Raw("SELECT DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, C.front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.card_id = UNHEX(?) LIMIT 1", activeDeckId, cardId).Scan(&deckCard)
+    db.Raw("SELECT " + rawChosenPrint + " AS print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, " + chosenFrontHash + " AS front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.card_id = UNHEX(?) LIMIT 1", activeDeckId, cardId).Scan(&deckCard)
     return deckCard
 }
 func GetDeckCardById(db *gorm.DB, activeDeckId string, deckCardId string) DeckCard {
     deckCard := DeckCard{}
-    db.Raw("SELECT DC.print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, C.front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.id = UNHEX(?) LIMIT 1", activeDeckId, deckCardId).Scan(&deckCard)
+    db.Raw("SELECT " + rawChosenPrint + " AS print, DC.sideboard, HEX(DC.deck_id) AS deck_id, HEX(DC.card_id) AS card_id, HEX(DC.id) AS id, DC.qty, C.name, " + chosenFrontHash + " AS front, C.art FROM Deck_Cards DC JOIN Cards C ON DC.card_id = C.id WHERE DC.deck_id = UNHEX(?) AND DC.id = UNHEX(?) LIMIT 1", activeDeckId, deckCardId).Scan(&deckCard)
     return deckCard
 }
 
@@ -428,16 +445,39 @@ func GetCard(db *gorm.DB, cardId string) Card {
     return card
 }
 
-// GetPrints lists the printings a card can be displayed as. A printing is
-// addressed by its release date, which is what the CDN filename and
-// Deck_Cards.print are both built from, so two Card_Prints rows sharing a
-// release date are the same image and the same selection. DISTINCT collapses
-// them: without it a card like Forest renders four identical Zendikar tiles
-// that all PATCH the same value.
+// GetPrints lists the distinct looks a card can be shown as, oldest first.
+//
+// Grouping is on the hash rather than on the release date, which is what makes
+// this correct: several printings share one look when they reuse an artwork and
+// treatment, and one date covers several looks when a set ships alternate art.
+// front_hash IS NOT NULL skips printings the processor has not reached yet, so
+// rows still carrying the old scheme are simply absent rather than broken.
 func GetPrints(db *gorm.DB, cardId string) []CardPrint {
     prints := []CardPrint{}
-    db.Raw("SELECT DISTINCT C.front, C.back, CP.released, HEX(CP.card_id) as CardId from Card_Prints CP JOIN Cards C ON C.id = CP.card_id WHERE card_id = UNHEX(?) ORDER BY released", cardId).Scan(&prints)
+    db.Raw(`SELECT LOWER(HEX(CP.front_hash)) AS print,
+                   COALESCE(LOWER(HEX(CP.back_hash)), '') AS back
+            FROM Card_Prints CP
+            WHERE CP.card_id = UNHEX(?) AND CP.front_hash IS NOT NULL
+            GROUP BY CP.front_hash, CP.back_hash
+            ORDER BY MIN(CP.released)`, cardId).Scan(&prints)
     return prints
+}
+
+// GetPrintLook reports the reverse face of a look and whether that look exists
+// for the card at all.
+//
+// UNHEX of a value that is not hex is NULL, which matches no row, so this also
+// rejects a malformed hash rather than letting it reach Deck_Cards.print.
+func GetPrintLook(db *gorm.DB, cardId string, frontHash string) (string, bool) {
+    var found []string
+    db.Raw(`SELECT COALESCE(LOWER(HEX(CP.back_hash)), '') AS back
+            FROM Card_Prints CP
+            WHERE CP.card_id = UNHEX(?) AND CP.front_hash = UNHEX(?)
+            LIMIT 1`, cardId, frontHash).Scan(&found)
+    if len(found) == 0 {
+        return "", false
+    }
+    return found[0], true
 }
 
 // referenceTTL is how long a reference list is reused. These only change when

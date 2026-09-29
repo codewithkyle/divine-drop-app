@@ -66,8 +66,8 @@ func DeckEditorControllers(app *fiber.App){
                 inSideboard = "1"
             }
             cardPrint := "null"
-            if card.Print != 0 {
-                cardPrint = "'" + fmt.Sprint(card.Print) + "'"
+            if card.Print != "" {
+                cardPrint = "UNHEX('" + card.Print + "')"
             }
             values = append(values, "(UNHEX('" + deckCardUUID + "'), UNHEX('" + deckUUID + "'), UNHEX('" + card.CardId + "'), " + strconv.Itoa(int(card.Qty)) + ", '" + card.DateCreated + "', " + inSideboard + ", " + cardPrint + ")")
         }
@@ -162,6 +162,7 @@ func DeckEditorControllers(app *fiber.App){
 
         decks := models.GetDecks(db, deckId, user.Id)
         cards := models.FilterCards(db, search, searchText == "on", sort, mana, types, subtypes, keywords, rarity, legality, set, priceInt, 0, 20)
+        resolveCards(cards)
         deckCards := models.GetDeckCards(db, deckId)
         deckMetadata := models.GetDeckMetadata(db, deckId)
 
@@ -201,10 +202,12 @@ func DeckEditorControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
+            bannerArt = helpers.CardArtURL(deck.CommanderArt)
         } else if len(deckCards) > 0 {
-            bannerArt = deckCards[len(deckCards) - 1].Art
+            bannerArt = helpers.CardArtURL(deckCards[len(deckCards) - 1].Art)
         }
+        // After the banner, which needs the raw hash rather than a URL.
+        resolveDeckCards(deckCards)
 
         activeFiltersCount := 0
         if len(mana) > 0 {
@@ -411,6 +414,7 @@ func DeckEditorControllers(app *fiber.App){
 
             db := helpers.ConnectDB()
             cards := models.FilterCards(db, search, searchText != nil, sort, mana, types, subtypes, keywords, rarity, legality, set, priceInt, offset, 20)
+            resolveCards(cards)
 
             c.Response().Header.Set("HX-Replace-Url", "/decks/" + deckId + "/edit?search=" + url.QueryEscape(search) + "&sort=" + url.QueryEscape(sort) + "&mana=" + url.QueryEscape(strings.Join(mana, ",")) + "&types=" + url.QueryEscape(strings.Join(types, ",")) + "&subtypes=" + url.QueryEscape(strings.Join(subtypes, ",")) + "&keywords=" + url.QueryEscape(strings.Join(keywords, ",")) + "&rarity=" + url.QueryEscape(rarity) + "&legality=" + url.QueryEscape(legality) + "&layout=" + url.QueryEscape(layout) + "&set=" + url.QueryEscape(set) + "&price=" + url.QueryEscape(price) + "&searchText=" + searchTextValue)
 
@@ -473,6 +477,7 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         deckCard := models.GetDeckCard(db, activeDeckId, cardId)
+        resolveDeckCard(&deckCard)
 
         if deckCard.Id != "" {
             if (deckCard.Qty < 255) {
@@ -491,12 +496,14 @@ func DeckEditorControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
+            bannerArt = helpers.CardArtURL(deck.CommanderArt)
         } else {
             if len(deckCards) > 0 {
-                bannerArt = deckCards[len(deckCards) - 1].Art
+                bannerArt = helpers.CardArtURL(deckCards[len(deckCards) - 1].Art)
             }
         }
+        // After the banner, which needs the raw hash rather than a URL.
+        resolveDeckCards(deckCards)
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
 
@@ -527,6 +534,7 @@ func DeckEditorControllers(app *fiber.App){
         }
 
         deckCard := models.GetDeckCardById(db, activeDeckId, deckCardId)
+        resolveDeckCard(&deckCard)
         deckCard.Qty = deckCard.Qty - 1
 
         if deckCard.Qty > 0 {
@@ -541,12 +549,14 @@ func DeckEditorControllers(app *fiber.App){
 
         bannerArt := ""
         if deck.CommanderCardId != "" {
-            bannerArt = helpers.CardArtURL(deck.CommanderCardId)
+            bannerArt = helpers.CardArtURL(deck.CommanderArt)
         } else {
             if len(deckCards) > 0 {
-                bannerArt = deckCards[len(deckCards) - 1].Art
+                bannerArt = helpers.CardArtURL(deckCards[len(deckCards) - 1].Art)
             }
         }
+        // After the banner, which needs the raw hash rather than a URL.
+        resolveDeckCards(deckCards)
 
         c.Response().Header.Set("HX-Trigger-After-Swap", "{\"deckUpdated\": \"" + activeDeckId + "\", \"bannerArtUpdate\": \"" + bannerArt + "\"}")
 
