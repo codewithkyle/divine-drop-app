@@ -1019,9 +1019,9 @@ func DeckManagerControllers(app *fiber.App){
             break
         case "image/jpg":
             break
-        case "video/webm":
-            isVideo = true
-            break
+        // webm is deliberately absent. Tabletop Simulator fails to decode some
+        // encoders' output, and a sleeve that breaks mid game is worse than one
+        // that was never accepted.
         case "video/mp4":
             isVideo = true
             break
