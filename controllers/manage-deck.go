@@ -1019,13 +1019,13 @@ func DeckManagerControllers(app *fiber.App){
             break
         case "image/jpg":
             break
-        // webm is deliberately absent. Tabletop Simulator fails to decode some
-        // encoders' output, and a sleeve that breaks mid game is worse than one
-        // that was never accepted.
+        // mp4 is the only video accepted, and the omissions are deliberate.
+        // Tabletop Simulator fails to decode some encoders' webm, and a sleeve
+        // that breaks mid game is worse than one that was never accepted. mov
+        // was listed here as "video/mov", which is not a media type any browser
+        // sends: a .mov arrives as video/quicktime and was always rejected, so
+        // this only stops advertising something that never worked.
         case "video/mp4":
-            isVideo = true
-            break
-        case "video/mov":
             isVideo = true
             break
         default:
