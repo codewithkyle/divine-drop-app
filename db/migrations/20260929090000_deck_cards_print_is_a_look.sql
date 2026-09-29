@@ -5,29 +5,52 @@
 -- identify one, and unlike a print id it survives a Scryfall refresh that
 -- renumbers printings.
 --
--- This translates existing choices through Card_Prints.front_hash, so it depends
--- on the card processor having populated that column. Run first, it would turn
--- every recorded choice into NULL without complaining, so it refuses instead:
--- boot fails loudly rather than quietly discarding what players picked.
+-- Translating a date into a hash has three outcomes and they are not the same
+-- kind of thing, so they are not treated alike:
+--
+--   one art at that date     resolve it; the choice is unambiguous
+--   several arts at that date leave NULL; the date never recorded which one, and
+--                            picking by print id shows a player art they did not
+--                            choose. Falling back to the default printing is a
+--                            smaller wrong than quietly swapping the artwork.
+--   no printing at that date leave NULL; upstream dropped it -- a prerelease
+--                            promo folded into its main set, say -- and no
+--                            amount of waiting brings it back.
+--
+-- The dates move to print_released_legacy instead of being dropped, so the rows
+-- left NULL stay recoverable. A later sweep can revisit them as the data
+-- improves rather than this migration deciding them permanently.
 
 -- migrate:up transaction:false
+
+-- The one outcome worth refusing to boot over: a choice whose printing still
+-- exists but has no hash yet. That is a half finished processor run, and
+-- resolving the rows it reached while emptying the rest is silent loss of what
+-- players picked -- recoverable by waiting, so waiting is what should happen.
+-- Dates with no printing at all are unrecoverable by anyone and fall through to
+-- the backfill; conflating the two is what made this abort on every boot.
+--
+-- Left behind if it raises, since transaction:false commits it; the DROP ... IF
+-- EXISTS makes the next attempt's CREATE succeed regardless.
 DROP PROCEDURE IF EXISTS dd_assert_choices_resolvable;
 CREATE PROCEDURE dd_assert_choices_resolvable()
 BEGIN
-    DECLARE unresolved INT;
-    -- Exactly the condition the backfill below relies on. Checking that some
-    -- hashes exist is not enough: the processor leaves untouched rows NULL until
-    -- --prune, so a half finished run would resolve the choices it reached and
-    -- silently empty the rest.
-    SELECT COUNT(*) INTO unresolved
+    DECLARE pending INT;
+    SELECT COUNT(*) INTO pending
     FROM Deck_Cards dc
     WHERE dc.print IS NOT NULL
       AND NOT EXISTS (
           SELECT 1 FROM Card_Prints cp
           WHERE cp.card_id = dc.card_id AND cp.released = dc.print
-            AND cp.front_hash IS NOT NULL);
-    IF unresolved > 0 THEN
-        SET @dd_msg = CONCAT(unresolved, ' recorded print choices have no hashed printing yet; let the card processor finish');
+            AND cp.front_hash IS NOT NULL)
+      AND EXISTS (
+          SELECT 1 FROM Card_Prints cp
+          WHERE cp.card_id = dc.card_id AND cp.released = dc.print);
+    IF pending > 0 THEN
+        -- MESSAGE_TEXT truncates at 128 bytes and raises 1648 rather than
+        -- shortening, which would replace this explanation with a MySQL error
+        -- about its own error. Keep the text well inside that.
+        SET @dd_msg = CONCAT(pending, ' recorded print choices have no hash yet; let the card processor finish, or prune the printings it replaced');
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @dd_msg;
     END IF;
 END;
@@ -36,22 +59,24 @@ DROP PROCEDURE dd_assert_choices_resolvable;
 
 ALTER TABLE Deck_Cards ADD COLUMN print_hash binary(16) DEFAULT NULL;
 
--- Where a date covers several looks the choice is genuinely ambiguous, so order
--- by the print id to land on the same row every time rather than whichever the
--- optimiser happens to reach first.
+-- MIN over a set already proven to hold one distinct value is that value. The
+-- HAVING discards the group where the date covers several arts, and an empty
+-- input produces a COUNT of zero that it discards too, so both land on NULL
+-- through the same branch. There is no tiebreak because there is no honest way
+-- to break the tie.
 UPDATE Deck_Cards dc SET print_hash = (
-    SELECT cp.front_hash FROM Card_Prints cp
+    SELECT MIN(cp.front_hash) FROM Card_Prints cp
     WHERE cp.card_id = dc.card_id AND cp.released = dc.print
       AND cp.front_hash IS NOT NULL
-    ORDER BY cp.id LIMIT 1
+    HAVING COUNT(DISTINCT cp.front_hash) = 1
 ) WHERE dc.print IS NOT NULL;
 
-ALTER TABLE Deck_Cards DROP COLUMN print;
+ALTER TABLE Deck_Cards CHANGE COLUMN print print_released_legacy int DEFAULT NULL;
 ALTER TABLE Deck_Cards CHANGE COLUMN print_hash print binary(16) DEFAULT NULL;
 
 -- migrate:down
--- Restores the shape, not the contents: the release dates are gone once the
--- column is dropped, so a rollback leaves every choice empty.
-ALTER TABLE Deck_Cards CHANGE COLUMN print print_hash binary(16) DEFAULT NULL;
-ALTER TABLE Deck_Cards ADD COLUMN print int DEFAULT NULL;
-ALTER TABLE Deck_Cards DROP COLUMN print_hash;
+-- A real rollback, unlike the shape-only one this replaced: the dates are still
+-- in print_released_legacy, so putting the column back brings the choices with
+-- it. Anything resolved to a hash is rebuilt from its date on the way up again.
+ALTER TABLE Deck_Cards DROP COLUMN print;
+ALTER TABLE Deck_Cards CHANGE COLUMN print_released_legacy print int DEFAULT NULL;
