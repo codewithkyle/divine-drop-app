@@ -37,6 +37,14 @@ func main() {
 		log.Error("Clerk client unavailable, sign in is disabled", "error", err)
 	}
 
+	// Not fatal: a page renders without an object store. Said out loud though,
+	// because an unset endpoint resolves to AWS rather than to an error, so the
+	// misconfiguration would otherwise first appear as a user's upload landing
+	// nowhere.
+	if missing := helpers.RequireS3Config(); len(missing) > 0 {
+		log.Error("object store not configured, uploads will fail", "missing", strings.Join(missing, ", "))
+	}
+
 	engine := html.New("./views", ".html")
 	// Exposed to templates so the layout can hand the asset origin to the
 	// frontend, which builds a few URLs of its own and cannot read the

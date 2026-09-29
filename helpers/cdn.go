@@ -5,11 +5,12 @@ import (
 	"sync"
 )
 
-// defaultCDNURL is where assets have always been served from. It stays as the
-// fallback so a build that ships before CDN_URL is set anywhere still serves
-// images: moving hosts is then a change to the environment, not a release, and
-// reverting it is the same.
-const defaultCDNURL = "https://divinedrop.nyc3.cdn.digitaloceanspaces.com"
+// defaultCDNURL is where assets are served from when CDN_URL is unset. It names
+// the Cloudflare origin in use now rather than the DigitalOcean host it used to
+// fall back to: that bucket is being decommissioned, so a default aimed there
+// would start returning nothing. Moving hosts stays a change to the
+// environment, not a release.
+const defaultCDNURL = "https://cdn.divinedrop.app"
 
 var (
 	cdnURL     string

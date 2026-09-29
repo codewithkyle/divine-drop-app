@@ -1,9 +1,10 @@
 // Where images and symbols are served from. The layout writes it into a meta
-// tag so this stays in step with the server's CDN_URL, and falls back to the
-// origin the app has always used when the tag is missing.
+// tag so this stays in step with the server's CDN_URL; the fallback only covers
+// that tag going missing, and names the Cloudflare origin rather than the
+// DigitalOcean host being decommissioned.
 const CDN_URL: string =
     document.querySelector<HTMLMetaElement>('meta[name="cdn-url"]')?.content?.replace(/\/+$/, "") ||
-    "https://divinedrop.nyc3.cdn.digitaloceanspaces.com";
+    "https://cdn.divinedrop.app";
 
 class CardText extends HTMLElement {
     constructor(){
